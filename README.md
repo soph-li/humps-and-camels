@@ -1,2 +1,1 @@
-Yanwei Liu (ycl6)
-Sophia Li (syl57)
+Yanwei Liu (ycl6), Sophia Li (syl57), Cheryl Lam (cwl92)
