@@ -66,7 +66,7 @@ let find_nearest_dot x y size window_size =
   | _ -> None
 
 (** [draw_line size window_size color] draws a [color] line connecting the two
-    dots in the grid that are closest to the positions where the user clicked.
+    dots that are closest to the positions where the user clicked in the grid.
 *)
 let draw_line size window_size color =
   let rec wait_for_valid_click () =
@@ -90,8 +90,14 @@ let draw_line size window_size color =
           lineto dot2_x dot2_y)
 
 let () =
-  open_graph " 400x400";
-  draw_grid 4 400;
-  draw_line 4 400 blue;
+  print_endline "Enter board size: ";
+
+  let size = read_int () in
+  let window_size = size * 100 in
+  open_graph (" " ^ string_of_int window_size ^ "x" ^ string_of_int window_size);
+
+  draw_grid size window_size;
+  draw_line size window_size blue;
+
   ignore (read_key ());
   close_graph ()
