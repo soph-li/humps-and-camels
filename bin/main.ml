@@ -21,6 +21,8 @@ open Graphics
 (** Prompted ChatGPT 4.0, "Why are my mouse clicks not working in Ocaml using
     XQuartz, accessed 3/23/25." *)
 
+
+
 (** [draw_grid size window_size] draws a [size] x [size] grid of dots in a
     [window_size] x [window_size] window. Requires: [size] and [window_size] are
     positive. *)
