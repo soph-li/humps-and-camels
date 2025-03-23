@@ -4,7 +4,9 @@ open Graphics
 
 (** Prompted ChatGPT-4o, "What should I do if I encountered Fatal error:
     exception Graphics.Graphic_failure("Cannot open display ")", accessed
-    3/25/25. *)
+    3/25/25.
+
+    Opt 1. Open XQuartz terminal, Opt 2. Use DISPLAY *)
 
 (** Prompted ChatGPT-4o, "How to install Xvfb", accessed 3/25/25. *)
 
@@ -12,6 +14,12 @@ open Graphics
 
 (** Adapted from "https://ocaml.org/manual/4.03/libref/Graphics.html", accessed
     3/25/25. *)
+
+(** Referenced "https://ocaml.org/p/graphics/5.1.1/doc/Graphics/index.html",
+    accessed 3/23/25. *)
+
+(** Prompted ChatGPT 4.0, "Why are my mouse clicks not working in Ocaml using
+    XQuartz, accessed 3/23/25." *)
 
 (** [draw_grid size window_size] draws a [size] x [size] grid of dots in a
     [window_size] x [window_size] window. Requires: [size] and [window_size] are
@@ -33,6 +41,14 @@ let draw_grid size window_size =
     [(x1, y1)] and [(x2, y2)]. *)
 let distance_sq (x1, y1) (x2, y2) =
   ((x2 - x1) * (x2 - x1)) + ((y2 - y1) * (y2 - y1))
+
+(** [is_valid_move (x1, y1) (x2, y2) spacing] returns whether [(x2, y2)] is a
+    valid connection from [(x1, y1)]. A connection is considereed valid if the
+    squared distance between [x1, y1)] and [(x2, y2)] is less than the squared
+    [spacing] between adjacent points on the grid. *)
+let is_valid_move (x1, y1) (x2, y2) spacing =
+  let dist_sq = distance_sq (x1, y1) (x2, y2) in
+  dist_sq <= spacing * spacing
 
 (** [get_all_dots] returns all dots in a [size] x [size] grid. *)
 let get_all_dots size window_size =
@@ -80,14 +96,26 @@ let draw_line size window_size color =
   let first_dot = wait_for_valid_click () in
   match first_dot with
   | None -> ()
-  | Some (dot1_x, dot1_y) -> (
-      let second_dot = wait_for_valid_click () in
-      match second_dot with
-      | None -> ()
-      | Some (dot2_x, dot2_y) ->
-          set_color color;
-          moveto dot1_x dot1_y;
-          lineto dot2_x dot2_y)
+  | Some (dot1_x, dot1_y) ->
+      set_color black;
+      fill_circle dot1_x dot1_y 5;
+
+      let rec wait_for_valid_snd_click () =
+        let second_dot = wait_for_valid_click () in
+        match second_dot with
+        | None -> ()
+        | Some (dot2_x, dot2_y) ->
+            if
+              is_valid_move (dot1_x, dot1_y) (dot2_x, dot2_y)
+                (window_size / size)
+            then (
+              fill_circle dot2_x dot2_y 5;
+              set_color color;
+              moveto dot1_x dot1_y;
+              lineto dot2_x dot2_y)
+            else wait_for_valid_snd_click ()
+      in
+      wait_for_valid_snd_click ()
 
 let () =
   print_endline "Enter board size: ";
@@ -98,6 +126,7 @@ let () =
 
   draw_grid size window_size;
   draw_line size window_size blue;
+  set_line_width 10;
 
   ignore (read_key ());
   close_graph ()
