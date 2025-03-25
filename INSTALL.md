@@ -14,7 +14,7 @@ After installing XQuartz, configure the virtual display by running:
 export DISPLAY=:0
 ```
 
-To build and exectue the program, run:
+To build and execute the program, run:
 
 ```
 dune build
