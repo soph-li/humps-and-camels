@@ -9,7 +9,7 @@ Install XQuartz using Homebrew by running this command:
 brew install xquartz
 ```
 
-After installing XQuartz, configure the virtual display by running:
+After installing and opening XQuartz, configure the virtual display by running:
 ```
 export DISPLAY=:0
 ```
