@@ -1,27 +1,23 @@
 open Graphics
 
-(** Prompted ChatGPT-4o, "How to install OCaml Graphics", accessed 3/25/25. *)
+(** Prompted ChatGPT-4o, "How to install OCaml Graphics", accessed 3/22/25. *)
 
 (** Prompted ChatGPT-4o, "What should I do if I encountered Fatal error:
     exception Graphics.Graphic_failure("Cannot open display ")", accessed
-    3/25/25.
+    3/22/25. *)
 
-    Opt 1. Open XQuartz terminal, Opt 2. Use DISPLAY *)
+(** Prompted ChatGPT-4o, "How to install Xvfb", accessed 3/22/25. *)
 
-(** Prompted ChatGPT-4o, "How to install Xvfb", accessed 3/25/25. *)
+(** Prompted ChatGPT-4o, "How to use OCaml Graphics", accessed 3/22/25. *)
 
-(** Prompted ChatGPT-4o, "How to use OCaml Graphics", accessed 3/25/25. *)
+(** Basic board setup interface adapted from
+    "https://ocaml.org/manual/4.03/libref/Graphics.html", accessed 3/22/25. *)
 
-(** Adapted from "https://ocaml.org/manual/4.03/libref/Graphics.html", accessed
-    3/25/25. *)
+(** Referenced "https://ocaml.org/p/graphics/5.1.1/doc/Graphics/index.html" for
+    how to use Ocaml Graphics, accessed 3/23/25. *)
 
-(** Referenced "https://ocaml.org/p/graphics/5.1.1/doc/Graphics/index.html",
-    accessed 3/23/25. *)
-
-(** Prompted ChatGPT 4.0, "Why are my mouse clicks not working in Ocaml using
+(** Prompted ChatGPT-4o, "Why are my mouse clicks not working in Ocaml using
     XQuartz, accessed 3/23/25." *)
-
-
 
 (** [draw_grid size window_size] draws a [size] x [size] grid of dots in a
     [window_size] x [window_size] window. Requires: [size] and [window_size] are
@@ -119,6 +115,7 @@ let draw_line size window_size color =
       in
       wait_for_valid_snd_click ()
 
+(** Prompts user for game information, board size, number players, colors. *)
 let () =
   print_endline "Enter board size: ";
 
