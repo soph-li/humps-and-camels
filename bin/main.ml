@@ -157,14 +157,12 @@ let () =
   print_endline "Enter number of players (2-4): ";
   try
     let player_num = read_int () in
-    if player_num < 2 || player_num > 4 then
-      print_endline "Invalid player count. Please enter a number from 2-4!";
     let size =
       match player_num with
       | 2 -> 4
       | 3 -> 6
       | 4 -> 10
-      | _ -> failwith "Invalid player count"
+      | _ -> failwith "Invalid player count. Please enter a number from 2-4!"
     in
     print_endline
       "Colors available: black, white, red, green, blue, yellow, cyan, magenta";
