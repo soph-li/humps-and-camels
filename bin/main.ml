@@ -19,6 +19,9 @@ open Graphics
 (** Prompted ChatGPT-4o, "Why are my mouse clicks not working in Ocaml using
     XQuartz, accessed 3/23/25." *)
 
+(** Prompted ChatGPT-4o, "How to handle window closure in OCaml Graphics",
+    accessed 3/25/25. *)
+
 (** [draw_grid size window_size] draws a [size] x [size] grid of dots in a
     [window_size] x [window_size] window. Requires: [size] and [window_size] are
     positive. *)
@@ -115,26 +118,47 @@ let draw_line size window_size color =
       in
       wait_for_valid_snd_click ()
 
+(** [color_of_string] is the predefined Graphics color corresponding to the
+    given string. *)
+let color_of_string = function
+  | "black" -> black
+  | "white" -> white
+  | "red" -> red
+  | "green" -> green
+  | "blue" -> blue
+  | "yellow" -> yellow
+  | "cyan" -> cyan
+  | "magenta" -> magenta
+  | _ -> failwith "Invalid color"
+
+(** [select_player_color ind player_num selected_colors] is the list of colors
+    selected by player input starting from [ind] to the total [player_num]. *)
 let rec select_player_color ind player_num selected_colors =
   if ind = player_num then List.rev selected_colors
   else (
     print_endline
       ("Player " ^ string_of_int (ind + 1) ^ ", enter your color choice: ");
     let input = read_line () in
-    if List.mem input selected_colors then (
-      print_endline "Color already taken! Please choose another.";
-      select_player_color ind player_num selected_colors)
-    else select_player_color (ind + 1) player_num (input :: selected_colors))
+    let colorized_input = color_of_string input in
+    try
+      if List.mem colorized_input selected_colors then (
+        print_endline "Color already taken! Please choose another.";
+        select_player_color ind player_num selected_colors)
+      else
+        select_player_color (ind + 1) player_num
+          (colorized_input :: selected_colors)
+    with Failure _ ->
+      failwith
+        "Invalid color. Please select a color from the following list: black, \
+         white, red, green, blue, yellow, cyan, magenta")
 
 let () =
   print_endline "Dots & Boxes";
   print_endline "Enter number of players (2-4): ";
   try
     let player_num = read_int () in
-    print_endline
-      "Colors available: black, white, red, green, blue, yellow, cyan, magenta";
-    let color_list = select_player_color 0 player_num [] in
-    print_endline (String.concat " " color_list);
+    if player_num < 2 || player_num > 4 then
+      print_endline "Invalid player count. Please enter a number from 2-4!";
     let size =
       match player_num with
       | 2 -> 4
@@ -142,6 +166,10 @@ let () =
       | 4 -> 10
       | _ -> failwith "Invalid player count"
     in
+    print_endline
+      "Colors available: black, white, red, green, blue, yellow, cyan, magenta";
+    let color_list = select_player_color 0 player_num [] in
+    print_int (List.length color_list); (* temp: for compilation purposes *)
     let window_size = size * 100 in
     open_graph
       (" " ^ string_of_int window_size ^ "x" ^ string_of_int window_size);
@@ -151,7 +179,6 @@ let () =
     ignore (read_key ());
     close_graph ()
   with
+  | Failure e -> print_endline e
   | Graphics.Graphic_failure _ -> print_endline "Thank you for playing!"
-  | Failure _ ->
-      print_endline
-        "Invalid number of players. Please enter a number 2-4 (inclusive)."
+  | _ -> print_endline "Invalid input!"
