@@ -170,7 +170,7 @@ let () =
     print_endline
       ("Starting a game for "
       ^ string_of_int (List.length color_list)
-      ^ "players...");
+      ^ " players...");
     let window_size = size * 100 in
     open_graph
       (" " ^ string_of_int window_size ^ "x" ^ string_of_int window_size);
