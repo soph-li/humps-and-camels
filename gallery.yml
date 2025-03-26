@@ -1,0 +1,25 @@
+---
+# Members of your group.
+group:  
+  - name: Yanwei Liu
+    netid: ycl6
+  - name: Cheryl Lam
+    netid: cwl92
+  - name: Sophia Li
+    netid: syl57
+
+# Your PM.
+pm:
+  name: Maksym Ioffe
+  netid: mi266
+# Set to false if you don't want your gallery entry to be public.
+publish: true
+# Pithy title
+title: "Humps and Camels: An OCaml-ified Version of Dots and Boxes"
+# OK if this is a Cornell Github link, but public gallery viewers won't be able to see it.
+git-repo: "https://github.coecis.cornell.edu/ycl6/cs3110-final-project"
+# Replace the URL with your own demo video.
+demo-video-url: "demo"
+# Write a short, attention-grabbing description of your project.
+desc: >
+  
