@@ -1,6 +1,6 @@
 open Hashtbl
-(* Prompted ChatGPT, "how to make Hashtbl custom type in Ocaml", accessed
-   3/23/35. *)
+(** Prompted ChatGPT-4o, "how to make Hashtbl custom type in Ocaml", accessed
+    3/23/35. *)
 
 type point = int * int
 
@@ -12,7 +12,7 @@ module PointHash = struct
   let equal (x1, y1) (x2, y2) = x1 = x2 && y1 = y2
 
   (** Used large primes for hashing from
-      https://planetmath.org/goodhashtableprimes) *)
+      https://planetmath.org/goodhashtableprimes *)
   let hash (x, y) = ((x * 53) + (y * 97)) land max_int
 end
 
@@ -30,8 +30,8 @@ module OrderedPairPoint = struct
     if x_res = 0 then compare y1 y2 else x_res
 end
 
-(* The values of the Hashtabl are sets of points. *)
 module PointSet = Set.Make (OrderedPairPoint)
+(** The values of the Hashtabl are sets of points. *)
 
 type t = {
   grid : (point, PointSet.t) Hashtbl.t;
@@ -40,8 +40,13 @@ type t = {
 (** A Grid is composed of [grid] and [completed boxes]. [grid] has keys that are
     points and values of sets of points*)
 
-(* Function stubs *)
+(** Function stubs *)
 let make_grid size = { grid = Hashtbl.create size; completed_boxes = 0 }
-let is_complete grid = false
+
+let is_complete { grid; completed_boxes } =
+  completed_boxes = Hashtbl.length grid * Hashtbl.length grid
+
 let completed_boxes { grid; completed_boxes } = completed_boxes
-let make_connection (x1, y1) (x2, y2) grid = grid
+
+let make_connection (x1, y1) (x2, y2) { grid; completed_boxes } =
+  { grid; completed_boxes }

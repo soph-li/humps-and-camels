@@ -1,0 +1,27 @@
+---
+# Members of your group.
+group:  
+  - name: Yanwei Liu
+    netid: ycl6
+  - name: Cheryl Lam
+    netid: cwl92
+  - name: Sophia Li
+    netid: syl57
+
+# Your PM.
+pm:
+  name: Maksym Ioffe
+  netid: mi266
+# Set to false if you don't want your gallery entry to be public.
+publish: true
+# Pithy title
+title: "Humps and Camels: An OCaml-ified Version of Dots and Boxes"
+# OK if this is a Cornell Github link, but public gallery viewers won't be able to see it.
+git-repo: "https://github.coecis.cornell.edu/ycl6/cs3110-final-project"
+# Replace the URL with your own demo video.
+demo-video-url: "demo"
+# Write a short, attention-grabbing description of your project.
+desc: >
+Our project is a multiplayer version of Dots and Boxes. We extended Dots and Boxes (which supports 2 players) to allow up to 4 players. At the beginning of the program, player 1 can choose the number of participants (2 - 4) and the size of the board. Players take turns drawing lines between dots, with each player having a different color (of their choosing) for their lines. When a player completes a box, an “X” is drawn connecting the two opposite corners of the box; then, the player gets a point and is allowed to take another turn. Points will be displayed at the top of the board. The game ends when all boxes are completed, and the player with the most boxes wins.
+
+  

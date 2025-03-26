@@ -1,27 +1,22 @@
 open Graphics
 
-(** Prompted ChatGPT-4o, "How to install OCaml Graphics", accessed 3/25/25. *)
+(** Prompted ChatGPT-4o, "How to install OCaml Graphics", accessed 3/22/25. *)
 
 (** Prompted ChatGPT-4o, "What should I do if I encountered Fatal error:
     exception Graphics.Graphic_failure("Cannot open display ")", accessed
-    3/25/25.
+    3/22/25. *)
 
-    Opt 1. Open XQuartz terminal, Opt 2. Use DISPLAY *)
+(** Prompted ChatGPT-4o, "How to install Xvfb", accessed 3/22/25. *)
 
-(** Prompted ChatGPT-4o, "How to install Xvfb", accessed 3/25/25. *)
+(** Prompted ChatGPT-4o, "How to use OCaml Graphics", accessed 3/22/25. *)
 
-(** Prompted ChatGPT-4o, "How to use OCaml Graphics", accessed 3/25/25. *)
-
-(** Prompted ChatGPT-4o, "How to handle window closure in OCaml Graphics",
-    accessed 3/25/25. *)
+(** Basic board setup interface adapted from
+    "https://ocaml.org/manual/4.03/libref/Graphics.html", accessed 3/22/25. *)
 
 (** Adapted from "https://ocaml.org/manual/4.03/libref/Graphics.html", accessed
     3/25/25. *)
 
-(** Referenced "https://ocaml.org/p/graphics/5.1.1/doc/Graphics/index.html",
-    accessed 3/23/25. *)
-
-(** Prompted ChatGPT 4.0, "Why are my mouse clicks not working in Ocaml using
+(** Prompted ChatGPT-4o, "Why are my mouse clicks not working in Ocaml using
     XQuartz, accessed 3/23/25." *)
 
 (** [draw_grid size window_size] draws a [size] x [size] grid of dots in a
@@ -119,31 +114,6 @@ let draw_line size window_size color =
             else wait_for_valid_snd_click ()
       in
       wait_for_valid_snd_click ()
-
-(** [color_of_string str] returns the corresponding predefined color of the
-    given string. *)
-let color_of_string str =
-  match String.lowercase_ascii str with
-  | "black" -> black
-  | "white" -> white
-  | "red" -> red
-  | "green" -> green
-  | "blue" -> blue
-  | "yellow" -> yellow
-  | "cyan" -> cyan
-  | "magenta" -> magenta
-  | _ -> failwith "Invalid color."
-
-let rec select_player_color ind player_num selected_colors =
-  if ind = player_num then selected_colors
-  else (
-    print_endline
-      ("Player " ^ string_of_int (ind + 1) ^ ", enter your color choice: ");
-    let input = read_line () in
-    if List.mem input selected_colors then (
-      print_endline "Color already taken! Please choose another.";
-      select_player_color ind player_num selected_colors)
-    else select_player_color (ind + 1) player_num (input :: selected_colors))
 
 let () =
   print_endline "Dots & Boxes";
