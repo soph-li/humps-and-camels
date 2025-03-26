@@ -47,4 +47,6 @@ let is_complete { grid; completed_boxes } =
   completed_boxes = Hashtbl.length grid * Hashtbl.length grid
 
 let completed_boxes { grid; completed_boxes } = completed_boxes
-let make_connection (x1, y1) (x2, y2) { grid; completed_boxes } = grid
+
+let make_connection (x1, y1) (x2, y2) { grid; completed_boxes } =
+  { grid; completed_boxes }
