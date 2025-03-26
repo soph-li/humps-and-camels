@@ -12,6 +12,9 @@ open Graphics
 
 (** Prompted ChatGPT-4o, "How to use OCaml Graphics", accessed 3/25/25. *)
 
+(** Prompted ChatGPT-4o, "How to handle window closure in OCaml Graphics",
+    accessed 3/25/25. *)
+
 (** Adapted from "https://ocaml.org/manual/4.03/libref/Graphics.html", accessed
     3/25/25. *)
 
@@ -20,8 +23,6 @@ open Graphics
 
 (** Prompted ChatGPT 4.0, "Why are my mouse clicks not working in Ocaml using
     XQuartz, accessed 3/23/25." *)
-
-
 
 (** [draw_grid size window_size] draws a [size] x [size] grid of dots in a
     [window_size] x [window_size] window. Requires: [size] and [window_size] are
@@ -119,16 +120,57 @@ let draw_line size window_size color =
       in
       wait_for_valid_snd_click ()
 
+(** [color_of_string str] returns the corresponding predefined color of the
+    given string. *)
+let color_of_string str =
+  match String.lowercase_ascii str with
+  | "black" -> black
+  | "white" -> white
+  | "red" -> red
+  | "green" -> green
+  | "blue" -> blue
+  | "yellow" -> yellow
+  | "cyan" -> cyan
+  | "magenta" -> magenta
+  | _ -> failwith "Invalid color."
+
+let rec select_player_color ind player_num selected_colors =
+  if ind = player_num then selected_colors
+  else (
+    print_endline
+      ("Player " ^ string_of_int (ind + 1) ^ ", enter your color choice: ");
+    let input = read_line () in
+    if List.mem input selected_colors then (
+      print_endline "Color already taken! Please choose another.";
+      select_player_color ind player_num selected_colors)
+    else select_player_color (ind + 1) player_num (input :: selected_colors))
+
 let () =
-  print_endline "Enter board size: ";
-
-  let size = read_int () in
-  let window_size = size * 100 in
-  open_graph (" " ^ string_of_int window_size ^ "x" ^ string_of_int window_size);
-
-  draw_grid size window_size;
-  draw_line size window_size blue;
-  set_line_width 10;
-
-  ignore (read_key ());
-  close_graph ()
+  print_endline "Dots & Boxes";
+  print_endline "Enter number of players (2-4): ";
+  try
+    let player_num = read_int () in
+    print_endline
+      "Colors available: black, white, red, green, blue, yellow, cyan, magenta";
+    let color_list = select_player_color 0 player_num [] in
+    print_endline (String.concat " " color_list);
+    let size =
+      match player_num with
+      | 2 -> 4
+      | 3 -> 6
+      | 4 -> 10
+      | _ -> failwith "Invalid player count"
+    in
+    let window_size = size * 100 in
+    open_graph
+      (" " ^ string_of_int window_size ^ "x" ^ string_of_int window_size);
+    draw_grid size window_size;
+    draw_line size window_size blue;
+    set_line_width 10;
+    ignore (read_key ());
+    close_graph ()
+  with
+  | Graphics.Graphic_failure _ -> print_endline "Thank you for playing!"
+  | Failure _ ->
+      print_endline
+        "Invalid number of players. Please enter a number 2-4 (inclusive)."
