@@ -115,6 +115,17 @@ let draw_line size window_size color =
       in
       wait_for_valid_snd_click ()
 
+let rec select_player_color ind player_num selected_colors =
+  if ind = player_num then List.rev selected_colors
+  else (
+    print_endline
+      ("Player " ^ string_of_int (ind + 1) ^ ", enter your color choice: ");
+    let input = read_line () in
+    if List.mem input selected_colors then (
+      print_endline "Color already taken! Please choose another.";
+      select_player_color ind player_num selected_colors)
+    else select_player_color (ind + 1) player_num (input :: selected_colors))
+
 let () =
   print_endline "Dots & Boxes";
   print_endline "Enter number of players (2-4): ";
