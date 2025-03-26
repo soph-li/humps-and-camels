@@ -19,8 +19,8 @@ Referenced "https://ocaml.org/p/graphics/5.1.1/doc/Graphics/index.html" for how 
 Prompted ChatGPT-4o, "Why are my mouse clicks not working in Ocaml using
     XQuartz, accessed 3/23/25."
 
-(** Prompted ChatGPT-4o, "How to handle window closure in OCaml Graphics",
-    accessed 3/25/25. *)
+Prompted ChatGPT-4o, "How to handle window closure in OCaml Graphics",
+    accessed 3/25/25.
 
 --------
 grid.ml

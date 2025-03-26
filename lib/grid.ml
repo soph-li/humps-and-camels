@@ -57,6 +57,8 @@ let add_to_set key neighbor grid =
   in
   Hashtbl.replace grid key (PointSet.add neighbor neighbors)
 
+let check_completed_box board spacing = failwith "not implemented"
+
 let make_connection (x1, y1) (x2, y2) board =
   let grid = board.grid in
   add_to_set (x1, y1) (x2, y2) grid;
