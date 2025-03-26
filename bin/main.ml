@@ -1,5 +1,6 @@
 open Graphics
 
+open Cs3110_final_project.Grid
 (** Prompted ChatGPT-4o, "How to install OCaml Graphics", accessed 3/22/25. *)
 
 (** Prompted ChatGPT-4o, "What should I do if I encountered Fatal error:
@@ -21,6 +22,9 @@ open Graphics
 
 (** Prompted ChatGPT-4o, "How to handle window closure in OCaml Graphics",
     accessed 3/25/25. *)
+
+exception Quit
+(** Raised if user quits the program. *)
 
 (** [draw_grid size window_size] draws a [size] x [size] grid of dots in a
     [window_size] x [window_size] window. Requires: [size] and [window_size] are
@@ -118,9 +122,34 @@ let draw_line size window_size color =
       in
       wait_for_valid_snd_click ()
 
-(** [color_of_string] is the predefined Graphics color corresponding to the
-    given string. *)
-let color_of_string = function
+(** [get_valid_players ()] prompts the user until a valid number of players is
+    entered or the user decides to quit. Raises [Quit] if the user enters
+    'quit'. *)
+let rec get_valid_players () =
+  print_endline "Enter number of players (2-4): ";
+  try
+    let input = read_line () in
+    if input = "quit" then raise Quit
+    else
+      let player_num = int_of_string input in
+      if player_num < 2 || player_num > 4 then (
+        print_endline
+          "\n\
+           Please try again with a valid number from 2-4, or type 'quit' to \
+           quit. \n";
+        get_valid_players ())
+      else player_num
+  with Failure _ ->
+    print_endline
+      "\n\
+       Please try again with a valid number from 2-4, or type 'quit' to quit. \n";
+    get_valid_players ()
+
+(** [color_of_string color] returns the Graphics color corresponding to the
+    given string. Raises: [Failure "Invalid Color"] if [color] is not a valid
+    Graphics color. *)
+let color_of_string color =
+  match color with
   | "black" -> black
   | "white" -> white
   | "red" -> red
@@ -129,52 +158,57 @@ let color_of_string = function
   | "yellow" -> yellow
   | "cyan" -> cyan
   | "magenta" -> magenta
-  | _ -> failwith "Invalid color"
+  | _ -> failwith "Invalid color."
 
-(** [select_player_color ind player_num selected_colors] is the list of colors
-    selected by player input starting from [ind] to the total [player_num]. *)
+(** [select_player_color ind player_num selected_colors] returns the list of
+    colors selected by player input starting from [ind] to [player_num]. *)
 let rec select_player_color ind player_num selected_colors =
   if ind = player_num then List.rev selected_colors
   else (
     print_endline
-      ("Player " ^ string_of_int (ind + 1) ^ ", enter your color choice: ");
+      ("\nPlayer " ^ string_of_int (ind + 1) ^ ", enter your color choice: ");
+
     let input = read_line () in
-    let colorized_input = color_of_string input in
     try
+      let colorized_input = color_of_string input in
       if List.mem colorized_input selected_colors then (
-        print_endline "Color already taken! Please choose another.";
+        print_endline "\nColor already taken! Please choose another color.";
         select_player_color ind player_num selected_colors)
       else
         select_player_color (ind + 1) player_num
           (colorized_input :: selected_colors)
     with Failure _ ->
-      failwith
-        "Invalid color. Please select a color from the following list: black, \
-         white, red, green, blue, yellow, cyan, magenta")
+      print_endline "\nInvalid color! Please try again with a valid choice.";
+      select_player_color ind player_num selected_colors)
 
 let () =
-  print_endline "Dots & Boxes";
-  print_endline "Enter number of players (2-4): ";
   try
-    let player_num = read_int () in
+    let player_num = get_valid_players () in
     let size =
       match player_num with
       | 2 -> 4
       | 3 -> 6
       | 4 -> 10
-<<<<<<< HEAD
-      | _ -> failwith "Error: Invalid player count."
-=======
       | _ -> failwith "Invalid player count. Please enter a number from 2-4!"
->>>>>>> 62d754f653f84162413a552c104784d71e669f0e
     in
-    print_endline
-      "Colors available: black, white, red, green, blue, yellow, cyan, magenta";
+
+    print_endline "\nColors available:";
+    print_endline " - black";
+    print_endline " - white";
+    print_endline " - red";
+    print_endline " - green";
+    print_endline " - blue";
+    print_endline " - yellow";
+    print_endline " - cyan";
+    print_endline " - magenta";
+
     let color_list = select_player_color 0 player_num [] in
     print_endline
-      ("Starting a game for "
+      ("\nStarting a game for "
       ^ string_of_int (List.length color_list)
       ^ " players...");
+
+    let _board = make_grid size in
     let window_size = size * 100 in
     open_graph
       (" " ^ string_of_int window_size ^ "x" ^ string_of_int window_size);
@@ -184,10 +218,13 @@ let () =
     ignore (read_key ());
     close_graph ()
   with
-  | Failure e -> print_endline e
-  | Graphics.Graphic_failure _ -> print_endline "Thank you for playing!"
-<<<<<<< HEAD
-  | _ -> print_endline "Error: an unexpected error occured."
-=======
-  | _ -> print_endline "Invalid input!"
->>>>>>> 62d754f653f84162413a552c104784d71e669f0e
+  | Failure e ->
+      print_endline e;
+      close_graph ()
+  | Quit -> print_endline "\nExited game."
+  | Graphics.Graphic_failure _ ->
+      print_endline "Thank you for playing!";
+      close_graph ()
+  | _ ->
+      print_endline "Error: An unexpected error occured.";
+      close_graph ()
