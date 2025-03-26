@@ -34,7 +34,7 @@ module PointSet = Set.Make (OrderedPairPoint)
 (** The values of the Hashtabl are sets of points. *)
 
 type t = {
-  grid : (point, PointSet.t) Hashtbl.t;
+  mutable grid : (point, PointSet.t) Hashtbl.t;
   completed_boxes : int;
 }
 (** A Grid is composed of [grid] and [completed boxes]. [grid] has keys that are
@@ -48,5 +48,18 @@ let is_complete { grid; completed_boxes } =
 
 let completed_boxes { grid; completed_boxes } = completed_boxes
 
-let make_connection (x1, y1) (x2, y2) { grid; completed_boxes } =
-  { grid; completed_boxes }
+(** [add_to_set key neighbor g spacing] adds [neighbor] to the set of connected
+    points for [key] in [grid]. If [g] is not in [grid], it initializes an empty
+    set before adding [neighbor]. *)
+let add_to_set key neighbor grid =
+  let neighbors =
+    try Hashtbl.find grid key with Not_found -> PointSet.empty
+  in
+  Hashtbl.replace grid key (PointSet.add neighbor neighbors)
+
+let make_connection (x1, y1) (x2, y2) board =
+  let grid = board.grid in
+  add_to_set (x1, y1) (x2, y2) grid;
+  add_to_set (x2, y2) (x1, y1) grid;
+
+  board

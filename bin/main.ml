@@ -140,7 +140,7 @@ let () =
       | 2 -> 4
       | 3 -> 6
       | 4 -> 10
-      | _ -> failwith "Invalid player count"
+      | _ -> failwith "Error: Invalid player count."
     in
     let window_size = size * 100 in
     open_graph
@@ -151,7 +151,6 @@ let () =
     ignore (read_key ());
     close_graph ()
   with
+  | Failure e -> print_endline e
   | Graphics.Graphic_failure _ -> print_endline "Thank you for playing!"
-  | Failure _ ->
-      print_endline
-        "Invalid number of players. Please enter a number 2-4 (inclusive)."
+  | _ -> print_endline "Error: an unexpected error occured."
