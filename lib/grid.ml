@@ -49,18 +49,15 @@ let is_complete { grid; completed_boxes } =
 let completed_boxes { grid; completed_boxes } = completed_boxes
 
 (** [add_to_set key neighbor g spacing] adds [neighbor] to the set of connected
-    points for [key] in [grid]. If [g] is not in [grid], it initializes an empty
-    set before adding [neighbor]. *)
+    points for [key] in [grid]. If [key] is not in [grid], it initializes an
+    empty set before adding [neighbor]. *)
 let add_to_set key neighbor grid =
   let neighbors =
     try Hashtbl.find grid key with Not_found -> PointSet.empty
   in
   Hashtbl.replace grid key (PointSet.add neighbor neighbors)
 
-(** [check_completed_box (x1, y1) (x2, y2) board] checks if a box is completed
-    around the points [(x1, y1)] and [(x1, y1)]. If so, it returns a [board]
-    with the incremented completed box count. *)
-let check_completed_box (x1, y1) (x2, y2) board = failwith "not implemented"
+let check_completed_box (x1, y1) (x2, y2) spacing board = false
 
 let make_connection (x1, y1) (x2, y2) board =
   let grid = board.grid in
@@ -70,3 +67,8 @@ let make_connection (x1, y1) (x2, y2) board =
   let _board = check_completed_box (x1, y1) (x2, y2) board in
 
   board
+
+let get_grid board =
+  Hashtbl.fold
+    (fun key neighbors acc -> (key, PointSet.elements neighbors) :: acc)
+    board.grid []

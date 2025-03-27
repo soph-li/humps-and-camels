@@ -189,7 +189,7 @@ let () =
       | 2 -> 4
       | 3 -> 6
       | 4 -> 10
-      | _ -> failwith "Invalid player count. Please enter a number from 2-4!"
+      | _ -> failwith "\nInvalid player count."
     in
 
     print_endline "\nColors available:";
@@ -223,8 +223,8 @@ let () =
       close_graph ()
   | Quit -> print_endline "\nExited game."
   | Graphics.Graphic_failure _ ->
-      print_endline "Thank you for playing!";
+      print_endline "\nThank you for playing!";
       close_graph ()
   | _ ->
-      print_endline "Error: An unexpected error occured.";
+      print_endline "\nError: An unexpected error occured.";
       close_graph ()
