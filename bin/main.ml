@@ -151,7 +151,6 @@ let rec get_valid_players () =
 let color_of_string color =
   match color with
   | "black" -> black
-  | "white" -> white
   | "red" -> red
   | "green" -> green
   | "blue" -> blue
@@ -194,7 +193,6 @@ let () =
 
     print_endline "\nColors available:";
     print_endline " - black";
-    print_endline " - white";
     print_endline " - red";
     print_endline " - green";
     print_endline " - blue";
