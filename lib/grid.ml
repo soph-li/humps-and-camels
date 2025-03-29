@@ -43,8 +43,8 @@ type t = {
 let make_grid size =
   { grid = Hashtbl.create (size * size); completed_boxes = 0 }
 
-let is_complete { grid; completed_boxes } =
-  completed_boxes = Hashtbl.length grid * Hashtbl.length grid
+let is_game_over { grid; completed_boxes } size =
+  completed_boxes = (size - 1) * (size - 1)
 
 let completed_boxes { grid; completed_boxes } = completed_boxes
 

@@ -22,6 +22,9 @@ Prompted ChatGPT-4o, "Why are my mouse clicks not working in Ocaml using
 Prompted ChatGPT-4o, "How to handle window closure in OCaml Graphics",
     accessed 3/25/25.
 
+Prompted ChatGPT-4o with my "if not" branch, lines 248-253 and "What's wrong" to     
+    figure out I needed to use "begin and end."
+
 --------
 grid.ml
 

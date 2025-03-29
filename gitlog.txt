@@ -1,3 +1,9 @@
+commit 85caec5935ff7768950e789937b51e7708a2c0c0
+Author: Yanwei Liu <ycl6@cornell.edu>
+Date:   Fri Mar 28 19:57:19 2025 -0400
+
+    Changed line color in main so the first line drawn is the first color player 1 selected
+
 commit d78a65c8c908eaf5a6b61da3393579c7ef8620b0
 Author: Yanwei Liu <ycl6@cornell.edu>
 Date:   Thu Mar 27 13:50:06 2025 -0400

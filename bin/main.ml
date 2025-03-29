@@ -86,10 +86,21 @@ let find_nearest_dot x y size window_size =
       if dist_sq <= radius * radius then Some (dot_x, dot_y) else None
   | _ -> None
 
+(** [draw_x x y color spacing] draws a 'X' with the color [color] by connecting
+    the bottom left corner [(x, y)] to the top right corner and the top left
+    corner to the bottom right corner where adjacent points are [spacing] apart.
+*)
+let draw_x x y color spacing =
+  set_color color;
+  moveto x y;
+  lineto (x + spacing) (y + spacing);
+  moveto x (y + spacing);
+  lineto (x + spacing) y
+
 (** [draw_line size window_size color] draws a [color] line connecting the two
     dots that are closest to the positions where the user clicked in the grid.
 *)
-let draw_line size window_size color =
+let draw_line size window_size color board =
   let rec wait_for_valid_click () =
     let event = wait_next_event [ Button_down ] in
     let x, y = (event.mouse_x, event.mouse_y) in
@@ -116,8 +127,25 @@ let draw_line size window_size color =
             then (
               fill_circle dot2_x dot2_y 5;
               set_color color;
+              set_line_width 5;
               moveto dot1_x dot1_y;
-              lineto dot2_x dot2_y)
+              lineto dot2_x dot2_y;
+
+              (* Update board *)
+              let new_board =
+                make_connection (dot1_x, dot1_y) (dot2_x, dot2_y) board
+              in
+              let spacing = window_size / size in
+              let smaller_pt, larger_pt =
+                if dot1_x < dot2_x || dot1_y < dot2_y then
+                  ((dot1_x, dot1_y), (dot2_x, dot2_y))
+                else ((dot2_x, dot2_y), (dot1_x, dot1_y))
+              in
+              let completed_boxes =
+                check_completed_box smaller_pt larger_pt spacing new_board
+              in
+              (* Draw X's to mark completed boxes. *)
+              List.iter (fun (x, y) -> draw_x x y color spacing) completed_boxes)
             else wait_for_valid_snd_click ()
       in
       wait_for_valid_snd_click ()
@@ -180,8 +208,10 @@ let rec select_player_color ind player_num selected_colors =
       print_endline "\nInvalid color! Please try again with a valid choice.";
       select_player_color ind player_num selected_colors)
 
+(* Main *)
 let () =
   try
+    (* Get valid number of players. *)
     let player_num = get_valid_players () in
     let size =
       match player_num with
@@ -190,7 +220,7 @@ let () =
       | 4 -> 10
       | _ -> failwith "\nInvalid player count."
     in
-
+    (* Specify availible colors. *)
     print_endline "\nColors available:";
     print_endline " - black";
     print_endline " - red";
@@ -206,14 +236,26 @@ let () =
       ^ string_of_int (List.length color_list)
       ^ " players...");
 
-    let _board = make_grid size in
+    let board = make_grid size in
     let window_size = size * 100 in
     open_graph
       (" " ^ string_of_int window_size ^ "x" ^ string_of_int window_size);
+    (* display initial board *)
     draw_grid size window_size;
-    draw_line size window_size (List.hd color_list);
-    set_line_width 10;
-    ignore (read_key ());
+
+    (* Main game loop *)
+    let rec play_game () =
+      if not (is_game_over board size) then begin
+        (* Prompted ChatGPT-4o with my "if not" branch and "What's wrong" to
+           figure out I needed to use "begin and end." *)
+        draw_line size window_size (List.hd color_list) board;
+        play_game ()
+      end
+      else print_endline "\n Game Over! The winner is Player _ !"
+    in
+    play_game ();
+
+    (* Handle closing of game. *)
     close_graph ()
   with
   | Failure e ->

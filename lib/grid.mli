@@ -4,8 +4,10 @@ type t
 val make_grid : int -> t
 (** [make_grid size] is a [size] x [size] grid. *)
 
-val is_complete : t -> bool
-(** [is_complete grid] is whether the game is complete. *)
+val is_game_over : t -> int-> bool
+(** [is_game_over grid size] is whether the game is over. A game is considered
+    over if the number of completed boxes equals the maximum number of compleetd
+    boxes for the grid size. *)
 
 val completed_boxes : t -> int
 (** [completed_boxes grid] is the number of completed boxes in [grid]. *)
