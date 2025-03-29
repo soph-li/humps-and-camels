@@ -1,5 +1,5 @@
 open Hashtbl
-(** Prompted ChatGPT-4o, "how to make Hashtbl custom type in Ocaml", accessed
+(** Prompted ChatGPT-4o, "how to make Hashtbl custom type in OCaml", accessed
     3/23/35. *)
 
 type point = int * int
@@ -34,14 +34,14 @@ module PointSet = Set.Make (OrderedPairPoint)
 (** The values of the Hashtabl are sets of points. *)
 
 type t = {
-  mutable grid : (point, PointSet.t) Hashtbl.t;
-  completed_boxes : int;
+  grid : (point, PointSet.t) Hashtbl.t;
+  mutable completed_boxes : int;
 }
 (** A Grid is composed of [grid] and [completed boxes]. [grid] has keys that are
     points and values of sets of points*)
 
-(** Function stubs *)
-let make_grid size = { grid = Hashtbl.create size; completed_boxes = 0 }
+let make_grid size =
+  { grid = Hashtbl.create (size * size); completed_boxes = 0 }
 
 let is_complete { grid; completed_boxes } =
   completed_boxes = Hashtbl.length grid * Hashtbl.length grid
@@ -57,16 +57,85 @@ let add_to_set key neighbor grid =
   in
   Hashtbl.replace grid key (PointSet.add neighbor neighbors)
 
-let check_completed_box (x1, y1) (x2, y2) spacing board = false
-
 let make_connection (x1, y1) (x2, y2) board =
   let grid = board.grid in
   add_to_set (x1, y1) (x2, y2) grid;
   add_to_set (x2, y2) (x1, y1) grid;
 
-  let _board = check_completed_box (x1, y1) (x2, y2) board in
-
   board
+
+(** [is_box_closed bottom_left bottom_right top_left top_right grid] checks
+    whether [bottom_left], [bottom_right], [top_left], [top_right] are in [grid]
+    and form a box. *)
+let is_box_closed bottom_left bottom_right top_left top_right grid =
+  if
+    Hashtbl.mem grid bottom_left
+    && Hashtbl.mem grid bottom_right
+    && Hashtbl.mem grid top_left && Hashtbl.mem grid top_right
+  then
+    PointSet.mem bottom_right (Hashtbl.find grid bottom_left)
+    && PointSet.mem bottom_right (Hashtbl.find grid top_right)
+    && PointSet.mem bottom_left (Hashtbl.find grid bottom_right)
+    && PointSet.mem bottom_left (Hashtbl.find grid top_left)
+    && PointSet.mem top_right (Hashtbl.find grid bottom_right)
+    && PointSet.mem top_right (Hashtbl.find grid top_left)
+    && PointSet.mem top_left (Hashtbl.find grid bottom_left)
+    && PointSet.mem top_left (Hashtbl.find grid top_right)
+  else false
+
+let check_completed_box (x1, y1) (x2, y2) spacing board =
+  let grid = board.grid in
+  let completed_boxes = ref [] in
+
+  (* Check for a completed box above the current horizontal line. *)
+  if y1 = y2 then
+    let bottom_left = (x1, y1) in
+    let bottom_right = (x2, y2) in
+    let top_left = (x1, y1 + spacing) in
+    let top_right = (x2, y2 + spacing) in
+    if is_box_closed bottom_left bottom_right top_left top_right grid then (
+      completed_boxes := bottom_left :: !completed_boxes;
+      board.completed_boxes <- board.completed_boxes + 1)
+    else ()
+  else ();
+
+  (* Check for a completed box below the current horizontal line. *)
+  if y1 = y2 then
+    let bottom_left = (x1, y1 - spacing) in
+    let bottom_right = (x2, y2 - spacing) in
+    let top_left = (x1, y1) in
+    let top_right = (x2, y2) in
+    if is_box_closed bottom_left bottom_right top_left top_right grid then (
+      completed_boxes := bottom_left :: !completed_boxes;
+      board.completed_boxes <- board.completed_boxes + 1)
+    else ()
+  else ();
+
+  (* Check for a completed box to the right of the current vertical line. *)
+  if x1 = x2 then
+    let bottom_left = (x1, y1) in
+    let bottom_right = (x1 + spacing, y1) in
+    let top_left = (x2, y2) in
+    let top_right = (x2 + spacing, y2) in
+    if is_box_closed bottom_left bottom_right top_left top_right grid then (
+      completed_boxes := bottom_left :: !completed_boxes;
+      board.completed_boxes <- board.completed_boxes + 1)
+    else ()
+  else ();
+
+  (* Check for a completed box to the left of the current vertical line. *)
+  if x1 = x2 then
+    let bottom_left = (x1 - spacing, y1) in
+    let bottom_right = (x1, y1) in
+    let top_left = (x2 - spacing, y2) in
+    let top_right = (x2, y2) in
+    if is_box_closed bottom_left bottom_right top_left top_right grid then (
+      completed_boxes := bottom_left :: !completed_boxes;
+      board.completed_boxes <- board.completed_boxes + 1)
+    else ()
+  else ();
+
+  !completed_boxes
 
 let get_grid board =
   Hashtbl.fold

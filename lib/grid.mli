@@ -14,11 +14,13 @@ val make_connection : int * int -> int * int -> t -> t
 (** [make_connection grid (x1, y1) (x2, y2)] is [grid] with a new connection 
 between points [(x1, y1)] and [(x2, y2)]]*)
 
-val check_completed_box : int * int -> int * int -> int -> t -> bool
-(** [check_completed_box (x1, y1) (x2, y2) spacing board] checks if a box is
-    completed upon adding the line connecting [(x1, y1)] and [(x1, y1)]. If a
-    so, it updates [board] with the incremented completed box count and returns
-    true. *)
+val check_completed_box : int * int -> int * int -> int -> t -> (int * int) list
+(** [check_completed_box (x1, y1) (x2, y2) spacing grid] checks if a box is
+    completed after adding the line connecting [(x1, y1)] and [(x1, y1)] in
+    [grid] with [spacing] between dots. If so, it updates [board] with the
+    incremented completed box count. It returns a list of the bottom-left
+    coordinates of all completed boxes, or [] if no boxes were completed.
+    Requires: x1 <= x2 or y1 <= y2. *)
 
 val get_grid : t -> ((int * int) * (int * int) list) list
 (** [get_grid board] returns a list of all connections in [board]'s grid. Each
