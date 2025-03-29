@@ -89,6 +89,26 @@ let check_completed_box_tests =
            [ (0, 0); (1, 0) ];
        ]
 
+(** [make_completed_boxes_test test_name board expected_output] creates a test
+    case to check whether [completed_boxes grid] matches the actual number of
+    completed boxes in the game. *)
+let make_completed_boxes_test test_name board expected_output =
+  test_name >:: fun _ ->
+  print_endline (string_of_int (completed_boxes board));
+  assert_equal expected_output (board |> completed_boxes)
+
+let completed_boxes_tests =
+  "test suite for make_completed_boxes"
+  >::: [
+         make_completed_boxes_test "no completed boxes" (make_grid 2) 0;
+         (* incomplete *)
+       ]
+
 let _ =
   run_test_tt_main
-    ("all tests" >::: [ make_connection_tests; check_completed_box_tests ])
+    ("all tests"
+    >::: [
+           make_connection_tests;
+           check_completed_box_tests;
+           completed_boxes_tests;
+         ])
