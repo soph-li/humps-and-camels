@@ -57,13 +57,6 @@ let add_to_set key neighbor grid =
   in
   Hashtbl.replace grid key (PointSet.add neighbor neighbors)
 
-let make_connection (x1, y1) (x2, y2) board =
-  let grid = board.grid in
-  add_to_set (x1, y1) (x2, y2) grid;
-  add_to_set (x2, y2) (x1, y1) grid;
-
-  board
-
 (** [is_box_closed bottom_left bottom_right top_left top_right grid] checks
     whether [bottom_left], [bottom_right], [top_left], [top_right] are in [grid]
     and form a box. *)
@@ -83,7 +76,14 @@ let is_box_closed bottom_left bottom_right top_left top_right grid =
     && PointSet.mem top_left (Hashtbl.find grid top_right)
   else false
 
-let check_completed_box (x1, y1) (x2, y2) spacing board =
+(** [order_coordinates (x1, y1) (x2, y2)] orders the two pairs of coordinates
+    lexicographically. It returns [(x_low, y_low, x_high, y_high)] where
+    [x_low < x_high] or [x_high < y_high]. *)
+let order_coordinates (x1, y1) (x2, y2) =
+  if x1 > x2 || (x1 = x2 && y1 > y2) then (x2, y2, x1, y1) else (x1, y1, x2, y2)
+
+let completed_box_coordinates (x1, y1) (x2, y2) spacing board =
+  let x1, y1, x2, y2 = order_coordinates (x1, y1) (x2, y2) in
   let grid = board.grid in
   let completed_boxes = ref [] in
 
@@ -136,6 +136,12 @@ let check_completed_box (x1, y1) (x2, y2) spacing board =
   else ();
 
   !completed_boxes
+
+let make_connection (x1, y1) (x2, y2) board =
+  let grid = board.grid in
+  add_to_set (x1, y1) (x2, y2) grid;
+  add_to_set (x2, y2) (x1, y1) grid;
+  board
 
 let get_grid board =
   Hashtbl.fold

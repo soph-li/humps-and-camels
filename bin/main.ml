@@ -1,4 +1,5 @@
 open Graphics
+open Unix
 
 open Cs3110_final_project.Grid
 (** Prompted ChatGPT-4o, "How to install OCaml Graphics", accessed 3/22/25. *)
@@ -64,7 +65,7 @@ let get_all_dots size window_size =
              ((i * spacing) + (spacing / 2), (j * spacing) + (spacing / 2)))))
 
 (** [find_nearest_dot x y size window_size] returns the nearest dot to [(x, y)]
-    in the grid. *)
+    in the grid within a radius of 10. *)
 let find_nearest_dot x y size window_size =
   let radius = 10 in
 
@@ -136,13 +137,9 @@ let draw_line size window_size color board =
                 make_connection (dot1_x, dot1_y) (dot2_x, dot2_y) board
               in
               let spacing = window_size / size in
-              let smaller_pt, larger_pt =
-                if dot1_x < dot2_x || dot1_y < dot2_y then
-                  ((dot1_x, dot1_y), (dot2_x, dot2_y))
-                else ((dot2_x, dot2_y), (dot1_x, dot1_y))
-              in
               let completed_boxes =
-                check_completed_box smaller_pt larger_pt spacing new_board
+                completed_box_coordinates (dot1_x, dot1_y) (dot2_x, dot2_y)
+                  spacing new_board
               in
               (* Draw X's to mark completed boxes. *)
               List.iter (fun (x, y) -> draw_x x y color spacing) completed_boxes)
@@ -244,16 +241,27 @@ let () =
     draw_grid size window_size;
 
     (* Main game loop *)
-    let rec play_game () =
-      if not (is_game_over board size) then begin
-        (* Prompted ChatGPT-4o with my "if not" branch and "What's wrong" to
-           figure out I needed to use "begin and end." *)
-        draw_line size window_size (List.hd color_list) board;
-        play_game ()
-      end
-      else print_endline "\n Game Over! The winner is Player _ !"
+    let rec play_game color_list =
+      let current_color =
+        match color_list with
+        | [] -> failwith "Error: No colors available"
+        | h :: _ -> h
+      in
+
+      draw_line size window_size current_color board;
+
+      if not (is_game_over board size) then (
+        print_endline "Game continues...";
+        let new_color_list = List.tl color_list @ [ List.hd color_list ] in
+        play_game new_color_list)
+      else (
+        (* Prompted ChatGPT -4o, "How to introduce delay in OCaml to allow the
+           final image in graphics show up before the program exits", accessed
+           3/29/25. *)
+        Unix.sleepf 0.5;
+        print_endline "\nGame Over! The winner is Player _ !")
     in
-    play_game ();
+    play_game color_list;
 
     (* Handle closing of game. *)
     close_graph ()
