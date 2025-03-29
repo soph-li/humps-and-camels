@@ -80,7 +80,7 @@ let draw_line size window_size color board =
         | Some (dot2_x, dot2_y) ->
             if
               is_valid_move (dot1_x, dot1_y) (dot2_x, dot2_y)
-                (window_size / size)
+                (window_size / size) board
             then (
               fill_circle dot2_x dot2_y 5;
               set_color color;
@@ -214,7 +214,7 @@ let () =
         (* Prompted ChatGPT -4o, "How to introduce delay in OCaml to allow the
            final image in graphics show up before the program exits", accessed
            3/29/25. *)
-        Unix.sleepf 0.5;
+        Unix.sleepf 1.;
         print_endline "\nGame Over! The winner is Player _ !")
     in
     play_game color_list;

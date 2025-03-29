@@ -1,5 +1,5 @@
 type t
-(** The type of a grid *)
+(** The type of a grid. *)
 
 val make_grid : int -> t
 (** [make_grid size] is a [size] x [size] grid. *)
@@ -14,7 +14,7 @@ val completed_boxes : t -> int
 
 val make_connection : int * int -> int * int -> t -> t
 (** [make_connection grid (x1, y1) (x2, y2)] is [grid] with a new connection 
-between points [(x1, y1)] and [(x2, y2)]]*)
+between points [(x1, y1)] and [(x2, y2)]]. *)
 
 val completed_box_coordinates :
   int * int -> int * int -> int -> t -> (int * int) list
@@ -29,11 +29,11 @@ val get_grid : t -> ((int * int) * (int * int) list) list
     entry in the list is of the form [(point, neighbors)], where [neighbors] is
     a list of points connected to [point]. *)
 
-val is_valid_move : int * int -> int * int -> int -> bool
-(** [is_valid_move (x1, y1) (x2, y2) spacing] returns whether [(x2, y2)] is a
-    valid connection from [(x1, y1)]. A connection is considereed valid if the
-    squared distance between [x1, y1)] and [(x2, y2)] is less than the squared
-    [spacing] between adjacent points on the grid. *)
+val is_valid_move : int * int -> int * int -> int -> t -> bool
+(** [is_valid_move (x1, y1) (x2, y2) spacing board] returns whether [(x2, y2)]
+    is a valid connection from [(x1, y1)]. A connection is considered valid if
+    the squared distance between [x1, y1)] and [(x2, y2)] is less than the
+    squared [spacing] between adjacent points on the grid. *)
 
 val find_nearest_dot : int * int -> int -> int -> (int * int) option
 (** [find_nearest_dot (x, y) size spacing] returns the nearest dot to [(x, y)]
