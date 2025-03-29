@@ -147,3 +147,42 @@ let get_grid board =
   Hashtbl.fold
     (fun key neighbors acc -> (key, PointSet.elements neighbors) :: acc)
     board.grid []
+
+(** [distance_sq (x1, y1) (x2, y2)] returns the squared distance between
+    [(x1, y1)] and [(x2, y2)]. *)
+let distance_sq (x1, y1) (x2, y2) =
+  ((x2 - x1) * (x2 - x1)) + ((y2 - y1) * (y2 - y1))
+
+let is_valid_move (x1, y1) (x2, y2) spacing =
+  let dist_sq = distance_sq (x1, y1) (x2, y2) in
+  dist_sq <= spacing * spacing
+
+(** [get_all_dots] returns all dots in a [size] x [size] grid in [window_size] x
+    [window_size]. *)
+let get_all_dots size window_size =
+  let spacing = window_size / size in
+  List.flatten
+    (List.init size (fun i ->
+         List.init size (fun j ->
+             ((i * spacing) + (spacing / 2), (j * spacing) + (spacing / 2)))))
+
+let find_nearest_dot (x, y) size window_size =
+  let radius = 10 in
+
+  let dots = get_all_dots size window_size in
+
+  let nearest_dot =
+    List.fold_left
+      (fun acc (dot_x, dot_y) ->
+        let dist_sq = distance_sq (x, y) (dot_x, dot_y) in
+        match acc with
+        | None -> Some (dot_x, dot_y, dist_sq)
+        | Some (_, _, min_dist_sq) ->
+            if dist_sq < min_dist_sq then Some (dot_x, dot_y, dist_sq) else acc)
+      None dots
+  in
+
+  match nearest_dot with
+  | Some (dot_x, dot_y, dist_sq) ->
+      if dist_sq <= radius * radius then Some (dot_x, dot_y) else None
+  | _ -> None

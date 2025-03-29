@@ -43,50 +43,6 @@ let draw_grid size window_size =
     done
   done
 
-(** [distance_sq (x1, y1) (x2, y2)] returns the squared distance between
-    [(x1, y1)] and [(x2, y2)]. *)
-let distance_sq (x1, y1) (x2, y2) =
-  ((x2 - x1) * (x2 - x1)) + ((y2 - y1) * (y2 - y1))
-
-(** [is_valid_move (x1, y1) (x2, y2) spacing] returns whether [(x2, y2)] is a
-    valid connection from [(x1, y1)]. A connection is considereed valid if the
-    squared distance between [x1, y1)] and [(x2, y2)] is less than the squared
-    [spacing] between adjacent points on the grid. *)
-let is_valid_move (x1, y1) (x2, y2) spacing =
-  let dist_sq = distance_sq (x1, y1) (x2, y2) in
-  dist_sq <= spacing * spacing
-
-(** [get_all_dots] returns all dots in a [size] x [size] grid. *)
-let get_all_dots size window_size =
-  let spacing = window_size / size in
-  List.flatten
-    (List.init size (fun i ->
-         List.init size (fun j ->
-             ((i * spacing) + (spacing / 2), (j * spacing) + (spacing / 2)))))
-
-(** [find_nearest_dot x y size window_size] returns the nearest dot to [(x, y)]
-    in the grid within a radius of 10. *)
-let find_nearest_dot x y size window_size =
-  let radius = 10 in
-
-  let dots = get_all_dots size window_size in
-
-  let nearest_dot =
-    List.fold_left
-      (fun acc (dot_x, dot_y) ->
-        let dist_sq = distance_sq (x, y) (dot_x, dot_y) in
-        match acc with
-        | None -> Some (dot_x, dot_y, dist_sq)
-        | Some (_, _, min_dist_sq) ->
-            if dist_sq < min_dist_sq then Some (dot_x, dot_y, dist_sq) else acc)
-      None dots
-  in
-
-  match nearest_dot with
-  | Some (dot_x, dot_y, dist_sq) ->
-      if dist_sq <= radius * radius then Some (dot_x, dot_y) else None
-  | _ -> None
-
 (** [draw_x x y color spacing] draws a 'X' with the color [color] by connecting
     the bottom left corner [(x, y)] to the top right corner and the top left
     corner to the bottom right corner where adjacent points are [spacing] apart.
@@ -105,7 +61,7 @@ let draw_line size window_size color board =
   let rec wait_for_valid_click () =
     let event = wait_next_event [ Button_down ] in
     let x, y = (event.mouse_x, event.mouse_y) in
-    match find_nearest_dot x y size window_size with
+    match find_nearest_dot (x, y) size window_size with
     | None -> wait_for_valid_click ()
     | Some (dot_x, dot_y) -> Some (dot_x, dot_y)
   in

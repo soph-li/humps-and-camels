@@ -28,3 +28,13 @@ val get_grid : t -> ((int * int) * (int * int) list) list
 (** [get_grid board] returns a list of all connections in [board]'s grid. Each
     entry in the list is of the form [(point, neighbors)], where [neighbors] is
     a list of points connected to [point]. *)
+
+val is_valid_move : int * int -> int * int -> int -> bool
+(** [is_valid_move (x1, y1) (x2, y2) spacing] returns whether [(x2, y2)] is a
+    valid connection from [(x1, y1)]. A connection is considereed valid if the
+    squared distance between [x1, y1)] and [(x2, y2)] is less than the squared
+    [spacing] between adjacent points on the grid. *)
+
+val find_nearest_dot : int * int -> int -> int -> (int * int) option
+(** [find_nearest_dot (x, y) size spacing] returns the nearest dot to [(x, y)]
+    in the grid, if it is within a radius of 10. Otherwise, returns [None]. *)
