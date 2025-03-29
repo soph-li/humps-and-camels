@@ -29,12 +29,20 @@ val get_grid : t -> ((int * int) * (int * int) list) list
     entry in the list is of the form [(point, neighbors)], where [neighbors] is
     a list of points connected to [point]. *)
 
-val is_valid_move : int * int -> int * int -> int -> t -> bool
-(** [is_valid_move (x1, y1) (x2, y2) spacing board] returns whether [(x2, y2)]
-    is a valid connection from [(x1, y1)]. A connection is considered valid if
-    the squared distance between [x1, y1)] and [(x2, y2)] is less than the
-    squared [spacing] between adjacent points on the grid. *)
+val is_valid_move : int * int -> int * int -> int -> int -> t -> bool
+(** [is_valid_move (x1, y1) (x2, y2) spacing size board] returns whether
+    [(x2, y2)] is a valid connection from [(x1, y1)]. A connection is considered
+    valid if 1) [(x1, y1)] and [(x2, y2)] are different points; 2) the point
+    [(x2, y2)] is within the bounds of the grid; 3) the squared distance between
+    [x1, y1)] and [(x2, y2)] is less than the squared [spacing] between adjacent
+    points on the grid; and 4) the line connecting [(x1, y1)] and [(x2, y2)] has
+    not already been drawn. Requires: [(x1, y1)] is within the bounds of the
+    grid. *)
 
 val find_nearest_dot : int * int -> int -> int -> (int * int) option
 (** [find_nearest_dot (x, y) size spacing] returns the nearest dot to [(x, y)]
     in the grid, if it is within a radius of 10. Otherwise, returns [None]. *)
+
+val has_available_moves : int * int -> int -> int -> t -> bool
+(** [has_available_moves (x, y) spacing size board] checks if [(x, y)] has any
+    valid moves left. *)

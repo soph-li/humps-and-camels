@@ -58,50 +58,58 @@ let draw_x x y color spacing =
     dots that are closest to the positions where the user clicked in the grid.
 *)
 let draw_line size window_size color board =
-  let rec wait_for_valid_click () =
+  let spacing = window_size / size in
+
+  (* Ensure the user picks a dot that has available moves. *)
+  let rec wait_for_valid_fst_dot () =
     let event = wait_next_event [ Button_down ] in
     let x, y = (event.mouse_x, event.mouse_y) in
     match find_nearest_dot (x, y) size window_size with
-    | None -> wait_for_valid_click ()
-    | Some (dot_x, dot_y) -> Some (dot_x, dot_y)
+    | Some (x, y) ->
+        if has_available_moves (x, y) spacing size board then Some (x, y)
+        else wait_for_valid_fst_dot ()
+    | _ -> wait_for_valid_fst_dot ()
   in
 
-  let first_dot = wait_for_valid_click () in
+  let first_dot = wait_for_valid_fst_dot () in
   match first_dot with
   | None -> ()
-  | Some (dot1_x, dot1_y) ->
+  | Some (dot1_x, dot1_y) -> (
       set_color black;
       fill_circle dot1_x dot1_y 5;
 
-      let rec wait_for_valid_snd_click () =
-        let second_dot = wait_for_valid_click () in
-        match second_dot with
-        | None -> ()
+      let rec wait_for_valid_snd_dot () =
+        let event = wait_next_event [ Button_down ] in
+        let x, y = (event.mouse_x, event.mouse_y) in
+        match find_nearest_dot (x, y) size window_size with
         | Some (dot2_x, dot2_y) ->
             if
-              is_valid_move (dot1_x, dot1_y) (dot2_x, dot2_y)
-                (window_size / size) board
-            then (
-              fill_circle dot2_x dot2_y 5;
-              set_color color;
-              set_line_width 5;
-              moveto dot1_x dot1_y;
-              lineto dot2_x dot2_y;
-
-              (* Update board *)
-              let new_board =
-                make_connection (dot1_x, dot1_y) (dot2_x, dot2_y) board
-              in
-              let spacing = window_size / size in
-              let completed_boxes =
-                completed_box_coordinates (dot1_x, dot1_y) (dot2_x, dot2_y)
-                  spacing new_board
-              in
-              (* Draw X's to mark completed boxes. *)
-              List.iter (fun (x, y) -> draw_x x y color spacing) completed_boxes)
-            else wait_for_valid_snd_click ()
+              is_valid_move (dot1_x, dot1_y) (dot2_x, dot2_y) spacing size board
+            then Some (dot2_x, dot2_y)
+            else wait_for_valid_snd_dot ()
+        | _ -> wait_for_valid_snd_dot ()
       in
-      wait_for_valid_snd_click ()
+
+      let second_dot = wait_for_valid_snd_dot () in
+      match second_dot with
+      | None -> ()
+      | Some (dot2_x, dot2_y) ->
+          fill_circle dot2_x dot2_y 5;
+          set_color color;
+          set_line_width 5;
+          moveto dot1_x dot1_y;
+          lineto dot2_x dot2_y;
+
+          (* Update board *)
+          let new_board =
+            make_connection (dot1_x, dot1_y) (dot2_x, dot2_y) board
+          in
+          let completed_boxes =
+            completed_box_coordinates (dot1_x, dot1_y) (dot2_x, dot2_y) spacing
+              new_board
+          in
+          (* Draw X's to mark completed boxes. *)
+          List.iter (fun (x, y) -> draw_x x y color spacing) completed_boxes)
 
 (** [get_valid_players ()] prompts the user until a valid number of players is
     entered or the user decides to quit. Raises [Quit] if the user enters
@@ -173,7 +181,7 @@ let () =
       | 4 -> 10
       | _ -> failwith "\nInvalid player count."
     in
-    (* Specify availible colors. *)
+    (* Specify available colors. *)
     print_endline "\nColors available:";
     print_endline " - black";
     print_endline " - red";
@@ -215,7 +223,7 @@ let () =
            final image in graphics show up before the program exits", accessed
            3/29/25. *)
         Unix.sleepf 1.;
-        print_endline "\nGame Over! The winner is Player _ !")
+        print_endline "\nGame over! The winner is Player _ !")
     in
     play_game color_list;
 

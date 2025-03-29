@@ -175,9 +175,10 @@ let get_grid board =
 let distance_sq (x1, y1) (x2, y2) =
   ((x2 - x1) * (x2 - x1)) + ((y2 - y1) * (y2 - y1))
 
-let is_valid_move (x1, y1) (x2, y2) spacing board =
+let is_valid_move (x1, y1) (x2, y2) spacing size board =
   let dist_sq = distance_sq (x1, y1) (x2, y2) in
-  if (x1, y1) = (x2, y2) then false
+  if x2 < 0 || x2 >= size * 100 || y2 < 0 || y2 >= size * 100 then false
+  else if (x1, y1) = (x2, y2) then false
   else if dist_sq > spacing * spacing then false
   else not (Hashtbl.mem board.drawn_lines ((x1, y1), (x2, y2)))
 
@@ -210,3 +211,11 @@ let find_nearest_dot (x, y) size window_size =
   | Some (dot_x, dot_y, dist_sq) ->
       if dist_sq <= radius * radius then Some (dot_x, dot_y) else None
   | _ -> None
+
+let has_available_moves (x, y) spacing size board =
+  let potential_moves =
+    [ (x + spacing, y); (x - spacing, y); (x, y + spacing); (x, y - spacing) ]
+  in
+  List.exists
+    (fun (x2, y2) -> is_valid_move (x, y) (x2, y2) spacing size board)
+    potential_moves
