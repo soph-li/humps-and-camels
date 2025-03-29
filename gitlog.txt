@@ -1,0 +1,227 @@
+commit d78a65c8c908eaf5a6b61da3393579c7ef8620b0
+Author: Yanwei Liu <ycl6@cornell.edu>
+Date:   Thu Mar 27 13:50:06 2025 -0400
+
+    Changed ending of gallery from .yml to .yaml
+
+commit 5eeaba61a37e82f5d18397cbefa7565b9e310b4f
+Author: Yanwei Liu <ycl6@cornell.edu>
+Date:   Thu Mar 27 00:32:04 2025 -0400
+
+    Added demo link to yaml file
+
+commit 6cf989e78f3a8cf7e52fdae4f5aaf5b4958ff40d
+Author: Cheryl Lam <cwl92@cornell.edu>
+Date:   Wed Mar 26 20:22:49 2025 -0400
+
+    Revise grid
+    
+    - Added get_grid and check_completed_box to interface
+    - Implemented get_grid
+    - Added unit test cases for make_connection
+
+commit 027d4edd1d89351afc7c905cedf6164a7d314c42
+Author: Cheryl Lam <cwl92@cornell.edu>
+Date:   Wed Mar 26 14:09:49 2025 -0400
+
+    Implement get_valid_players
+    
+    - Defined exception Quit
+    - Revised specifications in main and grid
+
+commit 9ebe6379d2b71b87271762c1a8c66a444f9b55c4
+Merge: d5b040f 62d754f
+Author: Cheryl Lam <cwl92@cornell.edu>
+Date:   Wed Mar 26 13:04:59 2025 -0400
+
+    Implement make_connection
+    
+    - Implemented helper function add_to_Set
+    - Wrote stub function for check_completed_box
+    Merge branch 'main' of github.coecis.cornell.edu:ycl6/cs3110-final-project
+
+commit d5b040fcef3ce3e8401d7f88825ffc9bc38988ee
+Author: Cheryl Lam <cwl92@cornell.edu>
+Date:   Wed Mar 26 12:59:28 2025 -0400
+
+    Implement make_connection
+    
+    - Implemented helper function add_to_set
+
+commit 62d754f653f84162413a552c104784d71e669f0e
+Author: Sophia Li <syl57@cornell.edu>
+Date:   Wed Mar 26 12:44:26 2025 -0400
+
+    Minor string formatting
+
+commit 596853af46cb52106de9512e80f9c5672e561630
+Author: Sophia Li <syl57@cornell.edu>
+Date:   Wed Mar 26 12:43:24 2025 -0400
+
+    Write temporary game start message
+
+commit 0c70351415fd175c9f7dff58ed753626aee8d522
+Author: Sophia Li <syl57@cornell.edu>
+Date:   Wed Mar 26 12:41:19 2025 -0400
+
+    Remove repeat error messages in error handling
+
+commit 138be93c84bba47f301827ffabbce9e214565082
+Author: Sophia Li <syl57@cornell.edu>
+Date:   Wed Mar 26 12:38:21 2025 -0400
+
+    Modify data type of color_list
+    
+    - Implement helper function to convert string to be of type color
+    - Add error handling to helper methods and main gameplay function
+    - Change list of player string inputs to be type color list
+
+commit aa05af16962b6ca37a7278d3c48fc4206eed19da
+Author: Sophia Li <syl57@cornell.edu>
+Date:   Wed Mar 26 11:18:37 2025 -0400
+
+    Implement color selection helper method
+    
+    - Reversed list of colors for indexing
+    - Selected predefined Graphics color from user input
+
+commit 7876e69c469f0df6437e8c4bde70608eec7977fe
+Merge: 288009a 3f39cc0
+Author: Sophia Li <syl57@cornell.edu>
+Date:   Wed Mar 26 11:14:14 2025 -0400
+
+    Merge branch 'main' of github.coecis.cornell.edu:ycl6/cs3110-final-project
+
+commit 288009a5ec121a3e72b060c757cc602cb6a003d6
+Author: Sophia Li <syl57@cornell.edu>
+Date:   Wed Mar 26 11:08:34 2025 -0400
+
+    Implement command line interactions with user
+    
+    - Handle error when closing GUI
+    - Create board with size based on inputted user number
+    - Begin user color selection implementation
+
+commit 3f39cc068885b0473055b230cc1e5d9e89eeb90b
+Author: Cheryl Lam <cwl92@cornell.edu>
+Date:   Wed Mar 26 10:20:07 2025 -0400
+
+    Revise make_connection
+
+commit 0c9ff448162db504549b092a09ddf1699cf9268c
+Author: Yanwei Liu <ycl6@cornell.edu>
+Date:   Wed Mar 26 02:01:14 2025 -0400
+
+    Implemented short functions for grid.ml
+
+commit cd2bab09cdeccd2031918cc4ab36c07fa9035adc
+Author: Cheryl Lam <cwl92@cornell.edu>
+Date:   Wed Mar 26 01:44:56 2025 -0400
+
+    Add description to yaml file
+
+commit f7006ee889cd20ceba030733523278a261b61ae1
+Author: Yanwei Liu <ycl6@cornell.edu>
+Date:   Tue Mar 25 20:05:07 2025 -0400
+
+    Added and added info to yaml file
+
+commit e4d5201f9b1a7008d62f8910ad0fb457cc84e221
+Merge: eaa2e42 76b3984
+Author: Yanwei Liu <ycl6@cornell.edu>
+Date:   Tue Mar 25 19:34:52 2025 -0400
+
+    Copied citations to AUTHORS.md
+    Merge branch 'main' of github.coecis.cornell.edu:ycl6/cs3110-final-project
+
+commit eaa2e42e9796fb8f16203c73fe1f8004d07f5e7f
+Author: Yanwei Liu <ycl6@cornell.edu>
+Date:   Tue Mar 25 19:30:29 2025 -0400
+
+    Copied citations to AUTHORS.md
+
+commit 76b3984413a00360b464d2d23251acdc5194b055
+Author: Sophia Li <syl57@cornell.edu>
+Date:   Tue Mar 25 19:29:45 2025 -0400
+
+    Revised installation instructions
+
+commit b8817264a9d61c6a9c87f87fdd718bba9f011b22
+Author: Cheryl Lam <cwl92@cornell.edu>
+Date:   Tue Mar 25 18:33:10 2025 -0400
+
+    Revise installation instructions
+
+commit a30fa5e9f1ac179a081f5d5600c8bc9db5ad19c8
+Author: Cheryl Lam <cwl92@cornell.edu>
+Date:   Tue Mar 25 18:31:52 2025 -0400
+
+    Add installation instructions
+
+commit 7c5113433ed89ea27515669ab3e329be0ee62fbb
+Author: Yanwei Liu <ycl6@cornell.edu>
+Date:   Sun Mar 23 14:34:36 2025 -0400
+
+    Created DS "Graph"
+    
+    - added basic function signatures and specs in graph.mli
+    - implemented type of DS and basic function stubs in graph.ml
+
+commit 3c353fbf4429e5770d3534f5e395086aad4cf09f
+Author: Yanwei Liu <ycl6@cornell.edu>
+Date:   Sun Mar 23 12:22:46 2025 -0400
+
+    Implemented is_valid_move
+    
+    - implemented is_valid_move and incorporated it into draw_line
+    - implemented recursive loop for selecting second point of a line
+    - increased line width for better visibility
+    - Added more comments for how to deal with Graphics error
+
+commit e76256c8782e231643aba065ff9a83e1e63407db
+Author: Cheryl Lam <cwl92@cornell.edu>
+Date:   Sat Mar 22 16:51:21 2025 -0400
+
+    Adjust board/window size based on user input
+
+commit dec7238bfe46c67033302003b222b699ba67d9ae
+Author: Cheryl Lam <cwl92@cornell.edu>
+Date:   Sat Mar 22 16:28:58 2025 -0400
+
+    Implement line drawing between two points
+
+commit 74be951788fdb40dc40a2cb615db24863deb8aca
+Author: Cheryl Lam <cwl92@cornell.edu>
+Date:   Sat Mar 22 15:12:24 2025 -0400
+
+    Remove .DS_Store
+
+commit 55027389a480e46dcf5ad87097b78c53d6b63f2b
+Author: Cheryl Lam <cwl92@cornell.edu>
+Date:   Sat Mar 22 15:05:13 2025 -0400
+
+    Implement draw_grid
+
+commit 8c58b2c1d7277f10b0901ee964e78a9173eefce9
+Author: Cheryl Lam <cwl92@cornell.edu>
+Date:   Sat Mar 8 12:41:51 2025 -0500
+
+    Add name and netid
+
+commit 1fa4ec0302703b461f946755d8c04a3057a82807
+Author: Sophia Li <syl57@cornell.edu>
+Date:   Sat Mar 8 12:36:57 2025 -0500
+
+    Added name and netid to README
+
+commit bfdbac8fc54f7f8458ee3929c9fd1a72e6063e5c
+Author: Yanwei Liu <ycl6@cornell.edu>
+Date:   Sat Mar 8 12:32:40 2025 -0500
+
+    Added name and netid to README
+
+commit 5eadaab7d56e49da85d43aaa60225ee34ad0d40a
+Author: Yanwei Liu <ycl6@cornell.edu>
+Date:   Sat Mar 8 12:19:25 2025 -0500
+
+    Initial commit

@@ -211,7 +211,7 @@ let () =
     open_graph
       (" " ^ string_of_int window_size ^ "x" ^ string_of_int window_size);
     draw_grid size window_size;
-    draw_line size window_size blue;
+    draw_line size window_size (List.hd color_list);
     set_line_width 10;
     ignore (read_key ());
     close_graph ()
