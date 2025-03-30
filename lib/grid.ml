@@ -33,35 +33,15 @@ end
 module PointSet = Set.Make (OrderedPairPoint)
 (** The values of the Hashtabl are sets of points. *)
 
-module LineHash = struct
-  type t = point * point
-
-  let equal ((x1, y1), (x2, y2)) ((a1, b1), (a2, b2)) =
-    (x1, y1, x2, y2) = (a1, b1, a2, b2) || (x1, y1, x2, y2) = (a2, b2, a1, b1)
-
-  let hash ((x1, y1), (x2, y2)) =
-    Hashtbl.hash (min x1 x2, min y1 y2, max x1 x2, max y1 y2)
-end
-
-module LineSet = Hashtbl.Make (LineHash)
-(** [LineSet] is a hash table storing drawn lines, where the key [(p1, p2)]
-    represents an undirected line connecting two points, and the value of the
-    key is (). *)
-
 type t = {
   grid : (point, PointSet.t) Hashtbl.t;
   mutable completed_boxes : int;
-  drawn_lines : (point * point, unit) Hashtbl.t;
 }
 (** A Grid is composed of [grid] and [completed boxes]. [grid] has keys that are
     points and values of sets of points. *)
 
 let make_grid size =
-  {
-    grid = Hashtbl.create (size * size);
-    completed_boxes = 0;
-    drawn_lines = Hashtbl.create (size * size);
-  }
+  { grid = Hashtbl.create (size * size); completed_boxes = 0 }
 
 let is_game_over { grid; completed_boxes } size =
   completed_boxes = (size - 1) * (size - 1)
@@ -159,8 +139,6 @@ let completed_box_coordinates (x1, y1) (x2, y2) spacing board =
 
 let make_connection (x1, y1) (x2, y2) board =
   let grid = board.grid in
-  Hashtbl.add board.drawn_lines ((x1, y1), (x2, y2)) ();
-  Hashtbl.add board.drawn_lines ((x2, y2), (x1, y1)) ();
   add_to_set (x1, y1) (x2, y2) grid;
   add_to_set (x2, y2) (x1, y1) grid;
   board
@@ -180,7 +158,10 @@ let is_valid_move (x1, y1) (x2, y2) spacing size board =
   if x2 < 0 || x2 >= size * 100 || y2 < 0 || y2 >= size * 100 then false
   else if (x1, y1) = (x2, y2) then false
   else if dist_sq > spacing * spacing then false
-  else not (Hashtbl.mem board.drawn_lines ((x1, y1), (x2, y2)))
+  else
+    match Hashtbl.find_opt board.grid (x1, y1) with
+    | Some neighbors -> not (PointSet.mem (x2, y2) neighbors)
+    | None -> true
 
 (** [get_all_dots] returns all dots in a [size] x [size] grid in [window_size] x
     [window_size]. *)
