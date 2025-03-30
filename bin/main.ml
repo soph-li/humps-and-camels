@@ -201,7 +201,7 @@ let () =
     let window_size = size * 100 in
     open_graph
       (" " ^ string_of_int window_size ^ "x" ^ string_of_int window_size);
-    (* display initial board *)
+    (* Display initial board. *)
     draw_grid size window_size;
 
     (* Main game loop *)
@@ -212,11 +212,20 @@ let () =
         | h :: _ -> h
       in
 
+      let prev_completed_boxes = completed_boxes board in
+
       draw_line size window_size current_color board;
+
+      let new_completed_boxes = completed_boxes board in
+
+      let completed_box = new_completed_boxes > prev_completed_boxes in
 
       if not (is_game_over board size) then (
         print_endline "Game continues...";
-        let new_color_list = List.tl color_list @ [ List.hd color_list ] in
+        let new_color_list =
+          if completed_box then color_list
+          else List.tl color_list @ [ List.hd color_list ]
+        in
         play_game new_color_list)
       else (
         (* Prompted ChatGPT -4o, "How to introduce delay in OCaml to allow the

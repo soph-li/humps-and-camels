@@ -135,9 +135,9 @@ let completed_boxes_tests =
             in board_2x2_one_box) 1; *)
        ]
 
-(** [make_is_game_over test_name board size expected_output] creates a test case to
-    check whether [is_game_over grid size] correctly identifies if the game is
-    complete. *)
+(** [make_is_game_over test_name board size expected_output] creates a test case
+    to check whether [is_game_over grid size] correctly identifies if the game
+    is complete. *)
 let make_is_game_over_test test_name board size expected_output =
   test_name >:: fun _ ->
   (* print_endline (string_of_int (completed_boxes board)); *)
@@ -155,21 +155,33 @@ let is_game_over_tests =
            board_4x4_two_box_vertical 4 false;
        ]
 
-(** [make_is_valid_move test_name (x1, y1) (x2, y2) spacing size board expected_output] creates a test case to
-    check whether [is_valid_move] correctly identifies if a move is valid. *)
-let make_is_valid_move_test test_name (x1, y1) (x2, y2) spacing size board expected_output =
+(** [make_is_valid_move test_name (x1, y1) (x2, y2) spacing size board
+     expected_output] creates a test case to check whether [is_valid_move]
+    correctly identifies if a move is valid. *)
+let make_is_valid_move_test test_name (x1, y1) (x2, y2) spacing size board
+    expected_output =
   test_name >:: fun _ ->
-  assert_equal expected_output (is_valid_move (x1, y1) (x2, y2) spacing size board )
+  assert_equal expected_output
+    (is_valid_move (x1, y1) (x2, y2) spacing size board)
 
 let is_valid_move_test =
   "test suite for make_is_valid_move"
   >::: [
-    make_is_valid_move_test "Not valid if p1 and p2 are the same points" (0, 0) (0, 0) 100 2 (make_grid 2) false;
-    make_is_valid_move_test "Not valid if p2 is out of bounds of the grid" (0, 0) (500, 500) 100 2 (make_grid 2) false;
-    make_is_valid_move_test "Not valid if points are non-adjacent" (0, 0) (200, 200) 100 2 (make_grid 4) false;
-    make_is_valid_move_test "Not valid if points are diagonal" (0, 0) (100, 100) 100 2 (make_grid 2) false;
-    make_is_valid_move_test "Not valid if line connecting p1 and p2 has already been drawn" (0, 0) (0, 1) 100 2 (board_2x2_one_box) false;
-    make_is_valid_move_test "Valid if p1 and p2 are nonequal, in bounds, adjacent, and currently non-connected" (0, 0) (0, 100) 100 2 (make_grid 2) true;
+         make_is_valid_move_test "Not valid if p1 and p2 are the same points"
+           (0, 0) (0, 0) 100 2 (make_grid 2) false;
+         make_is_valid_move_test "Not valid if p2 is out of bounds of the grid"
+           (0, 0) (500, 500) 100 2 (make_grid 2) false;
+         make_is_valid_move_test "Not valid if points are non-adjacent" (0, 0)
+           (200, 200) 100 2 (make_grid 4) false;
+         make_is_valid_move_test "Not valid if points are diagonal" (0, 0)
+           (100, 100) 100 2 (make_grid 2) false;
+         make_is_valid_move_test
+           "Not valid if line connecting p1 and p2 has already been drawn"
+           (0, 0) (0, 1) 100 2 board_2x2_one_box false;
+         make_is_valid_move_test
+           "Valid if p1 and p2 are nonequal, in bounds, adjacent, and \
+            currently non-connected"
+           (0, 0) (0, 100) 100 2 (make_grid 2) true;
        ]
 
 let _ =
