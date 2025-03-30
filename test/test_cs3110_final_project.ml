@@ -113,11 +113,30 @@ let check_completed_box_tests =
 let make_completed_boxes_test test_name board expected_output =
   test_name >:: fun _ ->
   (* print_endline (string_of_int (completed_boxes board)); *)
+  print_endline "\n Expected ";
+  print_string (string_of_int expected_output);
+  print_endline "Actual ";
+  print_string (string_of_int (completed_boxes board));
   assert_equal expected_output (completed_boxes board)
+
+(* let board_2x2_one_box_comp =
+  let board_1 = make_connection (0, 0) (0, 1) board_2x2 in
+  let board_2 = make_connection (0, 1) (1, 1) board_1 in
+  let board_3 = make_connection (1, 1) (1, 0) board_2 in
+  let _ = completed_box_coordinates (0, 0) (0, 1) 100 board_3 in
+  board_3 *)
 
 let completed_boxes_tests =
   "test suite for make_completed_boxes"
-  >::: [ make_completed_boxes_test "no completed boxes" (make_grid 2) 0 ]
+  >::: [
+         make_completed_boxes_test "no completed boxes" (make_grid 2) 0;
+         (* make_completed_boxes_test "no completed boxes"
+           (let _ =
+              completed_box_coordinates (0, 0) (0, 1) 100 board_2x2_one_box_comp
+            in
+            board_2x2_one_box)
+           1; *)
+       ]
 
 let _ =
   run_test_tt_main
