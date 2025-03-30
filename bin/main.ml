@@ -183,6 +183,7 @@ let () =
       | 4 -> 10
       | _ -> failwith "\nInvalid player count."
     in
+
     (* Specify available colors. *)
     print_endline "\nColors available:";
     print_endline " - black";
@@ -203,6 +204,7 @@ let () =
     let window_size = size * 100 in
     open_graph
       (" " ^ string_of_int window_size ^ "x" ^ string_of_int window_size);
+
     (* Display initial board. *)
     draw_grid size window_size;
 
@@ -230,23 +232,39 @@ let () =
         play_game color_list next_player_idx)
       else
         let final_scores = get_scores board in
-        let winner_player, max_score =
-          List.fold_left
-            (fun (best_player, best_score) (player, score) ->
-              if score > best_score then (player, score)
-              else (best_player, best_score))
-            (0, 0) final_scores
+
+        (* [determine_winners score] returns a list of players who have the most
+           points. *)
+        let determine_winners score =
+          let max_points =
+            List.fold_left
+              (fun acc (_, points) -> if points > acc then points else acc)
+              0 score
+          in
+          List.fold_right
+            (fun (candidate, points) acc ->
+              if points = max_points then candidate :: acc else acc)
+            score []
         in
 
-        print_endline
-          ("\nGame over! Player "
-          ^ string_of_int winner_player
-          ^ " won with a score of " ^ string_of_int max_score ^ ".");
+        let winners = determine_winners final_scores in
+
+        (match winners with
+        | [ winner ] ->
+            print_endline
+              ("\nGame over! Player " ^ string_of_int winner ^ " won.")
+        | _ ->
+            print_endline
+              "\nGame over! It's a tie between the following players:";
+            List.iter
+              (fun winner ->
+                print_endline (" - Player " ^ string_of_int winner))
+              winners);
 
         (* Prompted ChatGPT -4o, "How to introduce delay in OCaml to allow the
            final image in graphics show up before the program exits", accessed
            3/29/25. *)
-        Unix.sleepf 3.
+        Unix.sleepf 2.
     in
     play_game color_list 0;
 
