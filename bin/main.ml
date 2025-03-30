@@ -228,25 +228,25 @@ let () =
         in
 
         play_game color_list next_player_idx)
-      else (
-        (* Prompted ChatGPT -4o, "How to introduce delay in OCaml to allow the
-           final image in graphics show up before the program exits", accessed
-           3/29/25. *)
-        Unix.sleepf 1.;
-
+      else
         let final_scores = get_scores board in
         let winner_player, max_score =
           List.fold_left
             (fun (best_player, best_score) (player, score) ->
               if score > best_score then (player, score)
               else (best_player, best_score))
-            (0, min_int) final_scores
+            (0, 0) final_scores
         in
 
         print_endline
-          ("Game over! Player "
+          ("\nGame over! Player "
           ^ string_of_int winner_player
-          ^ " won with a score of " ^ string_of_int max_score ^ "."))
+          ^ " won with a score of " ^ string_of_int max_score ^ ".");
+
+        (* Prompted ChatGPT -4o, "How to introduce delay in OCaml to allow the
+           final image in graphics show up before the program exits", accessed
+           3/29/25. *)
+        Unix.sleepf 3.
     in
     play_game color_list 0;
 
