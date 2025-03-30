@@ -57,7 +57,7 @@ let draw_x x y color spacing =
 (** [draw_line size window_size color] draws a [color] line connecting the two
     dots that are closest to the positions where the user clicked in the grid.
 *)
-let draw_line size window_size color board =
+let draw_line size window_size color board player =
   let spacing = window_size / size in
 
   (* Ensure the user picks a dot that has available moves. *)
@@ -104,10 +104,12 @@ let draw_line size window_size color board =
           let new_board =
             make_connection (dot1_x, dot1_y) (dot2_x, dot2_y) board
           in
+
           let completed_boxes =
             completed_box_coordinates (dot1_x, dot1_y) (dot2_x, dot2_y) spacing
-              new_board
+              new_board player
           in
+
           (* Draw X's to mark completed boxes. *)
           List.iter (fun (x, y) -> draw_x x y color spacing) completed_boxes)
 
@@ -197,7 +199,7 @@ let () =
       ^ string_of_int (List.length color_list)
       ^ " players...");
 
-    let board = make_grid size in
+    let board = make_grid size player_num in
     let window_size = size * 100 in
     open_graph
       (" " ^ string_of_int window_size ^ "x" ^ string_of_int window_size);
@@ -205,16 +207,14 @@ let () =
     draw_grid size window_size;
 
     (* Main game loop *)
-    let rec play_game color_list =
-      let current_color =
-        match color_list with
-        | [] -> failwith "Error: No colors available"
-        | h :: _ -> h
-      in
+    let rec play_game color_list player_idx =
+      let current_color = List.nth color_list player_idx in
+
+      print_endline ("Player " ^ string_of_int (player_idx + 1) ^ "'s turn");
 
       let prev_completed_boxes = completed_boxes board in
 
-      draw_line size window_size current_color board;
+      draw_line size window_size current_color board (player_idx + 1);
 
       let new_completed_boxes = completed_boxes board in
 
@@ -222,19 +222,33 @@ let () =
 
       if not (is_game_over board size) then (
         print_endline "Game continues...";
-        let new_color_list =
-          if completed_box then color_list
-          else List.tl color_list @ [ List.hd color_list ]
+        let next_player_idx =
+          if completed_box then player_idx
+          else (player_idx + 1) mod List.length color_list
         in
-        play_game new_color_list)
+
+        play_game color_list next_player_idx)
       else (
         (* Prompted ChatGPT -4o, "How to introduce delay in OCaml to allow the
            final image in graphics show up before the program exits", accessed
            3/29/25. *)
         Unix.sleepf 1.;
-        print_endline "\nGame over! The winner is Player _ !")
+
+        let final_scores = get_scores board in
+        let winner_player, max_score =
+          List.fold_left
+            (fun (best_player, best_score) (player, score) ->
+              if score > best_score then (player, score)
+              else (best_player, best_score))
+            (0, min_int) final_scores
+        in
+
+        print_endline
+          ("Game over! Player "
+          ^ string_of_int winner_player
+          ^ " won with a score of " ^ string_of_int max_score ^ "."))
     in
-    play_game color_list;
+    play_game color_list 0;
 
     (* Handle closing of game. *)
     close_graph ()

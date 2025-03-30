@@ -2,7 +2,7 @@ open OUnit2
 open Cs3110_final_project.Grid
 
 (** [board_2x2] is a 2x2 grid of dots. *)
-let board_2x2 = make_grid 2
+let board_2x2 = make_grid 2 0
 
 (** [print_list lst] returns a string representation of [lst]. *)
 let rec print_list lst =
@@ -38,7 +38,7 @@ let make_check_completed_box_test test_name (x1, y1) (x2, y2) spacing board
     expected_coordinates =
   test_name >:: fun _ ->
   assert_equal expected_coordinates
-    (completed_box_coordinates (x1, y1) (x2, y2) spacing board)
+    (completed_box_coordinates (x1, y1) (x2, y2) spacing board 0)
     ~printer:print_list
 
 (** [board_2x2_one_box] is a 2x2 grid of dots with a box formed by the
@@ -54,7 +54,7 @@ let board_2x2_one_box =
     by the coordinates (0,0), (0,1), (1,1), and (1,0), and another formed by the
     coordinates (1,0), (1,1), (2,1), and (2,0). *)
 let board_4x4_two_box_vertical =
-  let board_4x4 = make_grid 4 in
+  let board_4x4 = make_grid 4 0 in
   let board_1 = make_connection (0, 0) (0, 1) board_4x4 in
   let board_2 = make_connection (0, 1) (1, 1) board_1 in
   let board_3 = make_connection (1, 1) (2, 1) board_2 in
@@ -68,7 +68,7 @@ let board_4x4_two_box_vertical =
     formed by the coordinates (0,0), (0,1), (1,1), and (1,0), and another formed
     by the coordinates (0,1), (0,2), (1,2), and (1,1). *)
 let board_4x4_two_box_horizontal =
-  let board_4x4 = make_grid 4 in
+  let board_4x4 = make_grid 4 0 in
   let board_1 = make_connection (0, 0) (0, 1) board_4x4 in
   let board_2 = make_connection (0, 1) (0, 2) board_1 in
   let board_3 = make_connection (0, 2) (1, 2) board_2 in
@@ -123,13 +123,13 @@ let board_2x2_one_box_comp =
   let board_1 = make_connection (0, 0) (0, 1) board_2x2 in
   let board_2 = make_connection (0, 1) (1, 1) board_1 in
   let board_3 = make_connection (1, 1) (1, 0) board_2 in
-  let _ = completed_box_coordinates (0, 0) (0, 1) 100 board_3 in
+  let _ = completed_box_coordinates (0, 0) (0, 1) 100 board_3 0 in
   board_3
 
 let completed_boxes_tests =
   "test suite for make_completed_boxes"
   >::: [
-         make_completed_boxes_test "no completed boxes" (make_grid 2) 0;
+         make_completed_boxes_test "no completed boxes" (make_grid 2 0) 0;
          (* make_completed_boxes_test "no completed boxes" (let _ =
             completed_box_coordinates (0, 0) (0, 1) 100 board_2x2_one_box_comp
             in board_2x2_one_box) 1; *)
@@ -147,7 +147,7 @@ let is_game_over_tests =
   "test suite for make_completed_boxes"
   >::: [
          make_is_game_over_test "a game with no completed boxes is not over"
-           (make_grid 2) 2 false;
+           (make_grid 2 0) 2 false;
          (* make_is_game_over_test "a game with a 2x2 grid with 1 completed box
             is over" (board_2x2_one_box) 2 true; *)
          make_is_game_over_test
@@ -168,20 +168,20 @@ let is_valid_move_test =
   "test suite for make_is_valid_move"
   >::: [
          make_is_valid_move_test "Not valid if p1 and p2 are the same points"
-           (0, 0) (0, 0) 100 2 (make_grid 2) false;
+           (0, 0) (0, 0) 100 2 (make_grid 2 0) false;
          make_is_valid_move_test "Not valid if p2 is out of bounds of the grid"
-           (0, 0) (500, 500) 100 2 (make_grid 2) false;
+           (0, 0) (500, 500) 100 2 (make_grid 2 0) false;
          make_is_valid_move_test "Not valid if points are non-adjacent" (0, 0)
-           (200, 200) 100 2 (make_grid 4) false;
+           (200, 200) 100 2 (make_grid 4 0) false;
          make_is_valid_move_test "Not valid if points are diagonal" (0, 0)
-           (100, 100) 100 2 (make_grid 2) false;
+           (100, 100) 100 2 (make_grid 2 0) false;
          make_is_valid_move_test
            "Not valid if line connecting p1 and p2 has already been drawn"
            (0, 0) (0, 1) 100 2 board_2x2_one_box false;
          make_is_valid_move_test
            "Valid if p1 and p2 are nonequal, in bounds, adjacent, and \
             currently non-connected"
-           (0, 0) (0, 100) 100 2 (make_grid 2) true;
+           (0, 0) (0, 100) 100 2 (make_grid 2 0) true;
        ]
 
 let _ =

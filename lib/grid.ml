@@ -36,12 +36,17 @@ module PointSet = Set.Make (OrderedPairPoint)
 type t = {
   grid : (point, PointSet.t) Hashtbl.t;
   mutable completed_boxes : int;
+  scores : (int, int) Hashtbl.t;
 }
 (** A Grid is composed of [grid] and [completed boxes]. [grid] has keys that are
     points and values of sets of points. *)
 
-let make_grid size =
-  { grid = Hashtbl.create (size * size); completed_boxes = 0 }
+let make_grid size num_players =
+  {
+    grid = Hashtbl.create (size * size);
+    completed_boxes = 0;
+    scores = Hashtbl.create num_players;
+  }
 
 let is_game_over { grid; completed_boxes } size =
   completed_boxes = (size - 1) * (size - 1)
@@ -82,7 +87,7 @@ let is_box_closed bottom_left bottom_right top_left top_right grid =
 let order_coordinates (x1, y1) (x2, y2) =
   if x1 > x2 || (x1 = x2 && y1 > y2) then (x2, y2, x1, y1) else (x1, y1, x2, y2)
 
-let completed_box_coordinates (x1, y1) (x2, y2) spacing board =
+let completed_box_coordinates (x1, y1) (x2, y2) spacing board player =
   let x1, y1, x2, y2 = order_coordinates (x1, y1) (x2, y2) in
   let grid = board.grid in
   let completed_boxes = ref [] in
@@ -95,7 +100,11 @@ let completed_box_coordinates (x1, y1) (x2, y2) spacing board =
     let top_right = (x2, y2 + spacing) in
     if is_box_closed bottom_left bottom_right top_left top_right grid then (
       completed_boxes := bottom_left :: !completed_boxes;
-      board.completed_boxes <- board.completed_boxes + 1)
+      board.completed_boxes <- board.completed_boxes + 1;
+      let current_score =
+        try Hashtbl.find board.scores player with Not_found -> 0
+      in
+      Hashtbl.replace board.scores player (current_score + 1))
     else ()
   else ();
 
@@ -107,7 +116,11 @@ let completed_box_coordinates (x1, y1) (x2, y2) spacing board =
     let top_right = (x2, y2) in
     if is_box_closed bottom_left bottom_right top_left top_right grid then (
       completed_boxes := bottom_left :: !completed_boxes;
-      board.completed_boxes <- board.completed_boxes + 1)
+      board.completed_boxes <- board.completed_boxes + 1;
+      let current_score =
+        try Hashtbl.find board.scores player with Not_found -> 0
+      in
+      Hashtbl.replace board.scores player (current_score + 1))
     else ()
   else ();
 
@@ -119,7 +132,11 @@ let completed_box_coordinates (x1, y1) (x2, y2) spacing board =
     let top_right = (x2 + spacing, y2) in
     if is_box_closed bottom_left bottom_right top_left top_right grid then (
       completed_boxes := bottom_left :: !completed_boxes;
-      board.completed_boxes <- board.completed_boxes + 1)
+      board.completed_boxes <- board.completed_boxes + 1;
+      let current_score =
+        try Hashtbl.find board.scores player with Not_found -> 0
+      in
+      Hashtbl.replace board.scores player (current_score + 1))
     else ()
   else ();
 
@@ -131,7 +148,11 @@ let completed_box_coordinates (x1, y1) (x2, y2) spacing board =
     let top_right = (x2, y2) in
     if is_box_closed bottom_left bottom_right top_left top_right grid then (
       completed_boxes := bottom_left :: !completed_boxes;
-      board.completed_boxes <- board.completed_boxes + 1)
+      board.completed_boxes <- board.completed_boxes + 1;
+      let current_score =
+        try Hashtbl.find board.scores player with Not_found -> 0
+      in
+      Hashtbl.replace board.scores player (current_score + 1))
     else ()
   else ();
 
@@ -200,3 +221,6 @@ let has_available_moves (x, y) spacing size board =
   List.exists
     (fun (x2, y2) -> is_valid_move (x, y) (x2, y2) spacing size board)
     potential_moves
+
+let get_scores board =
+  Hashtbl.fold (fun player score acc -> (player, score) :: acc) board.scores []
