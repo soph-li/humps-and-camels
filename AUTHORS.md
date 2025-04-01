@@ -25,6 +25,8 @@ Prompted ChatGPT-4o, "How to handle window closure in OCaml Graphics",
 Prompted ChatGPT-4o with my "if not" branch, lines 248-253 and "What's wrong" to     
     figure out I needed to use "begin and end."
 
+Prompted ChatGPT-40 "How to draw line leaving point, following user mouse position, Ocaml graphics", accessed 4/1/25.
+
 --------
 grid.ml
 
