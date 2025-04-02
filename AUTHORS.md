@@ -27,6 +27,10 @@ Prompted ChatGPT-4o with my "if not" branch, lines 248-253 and "What's wrong" to
 
 Prompted ChatGPT-40 "How to draw line leaving point, following user mouse position, Ocaml graphics", accessed 4/1/25.
 
+Prompted ChatGPT-4o, "How to tell if mouse button pressed Ocaml graphics," accessed 4/2/25.
+
+Referenced https://ocaml.org/p/graphics/5.1.1/doc/Graphics/index.html for mouse events, accessed 4/2/25.
+
 --------
 grid.ml
 
@@ -38,3 +42,4 @@ Referenced code under functional interface for special Hash table for keys,
 
 Used large primes for hashing from
       https://planetmath.org/goodhashtableprimes
+

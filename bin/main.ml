@@ -119,13 +119,16 @@ let draw_line size window_size color board player color_list =
           moveto start_x start_y;
           lineto x2 y2;
 
-          (* Check if second point is valid *)
+          (* Prompted ChatGPT-4o, "How to tell if mouse button pressed,"
+             accessed 4/2/25. Referenced
+             https://ocaml.org/p/graphics/5.1.1/doc/Graphics/index.html for
+             mouse events, accessed 4/2/25. *)
           if event.button then
             match find_nearest_dot (x2, y2) size window_size with
             | Some (dot2_x, dot2_y) ->
                 if
                   is_valid_move (start_x, start_y) (dot2_x, dot2_y) spacing size
-                    board
+                    board (* Check if second point is valid *)
                 then (
                   (* Add new line segment to list of lines. *)
                   let updated_lines =
