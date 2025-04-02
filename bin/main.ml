@@ -58,8 +58,27 @@ let draw_x x y color spacing =
     dots that are closest to the positions where the user clicked in the grid.
 *)
 let draw_line size window_size color board player color_list =
-  (* let lines = ref [] in *)
   let spacing = window_size / size in
+
+  (* Redraw updated grid with all previous lines and completed boxes. *)
+  let redraw_board lines completed_boxes =
+    clear_graph ();
+    draw_grid size window_size;
+
+    (* Draw previous line segments *)
+    List.iter
+      (fun (x1, y1, x2, y2, player_color) ->
+        set_color player_color;
+        (* color of player who drew the line *)
+        moveto x1 y1;
+        lineto x2 y2)
+      lines;
+
+    (* Redraw X's for completed boxes. *)
+    List.iter
+      (fun ((x, y), player_color) -> draw_x x y player_color spacing)
+      completed_boxes
+  in
 
   (* Ensure the user picks a dot that has available moves. *)
   let rec wait_for_valid_fst_dot () =
@@ -72,107 +91,84 @@ let draw_line size window_size color board player color_list =
     | _ -> wait_for_valid_fst_dot ()
   in
 
-  let first_dot = wait_for_valid_fst_dot () in
-  match first_dot with
-  | None -> ()
-  | Some (dot1_x, dot1_y) ->
-      set_color black;
-      fill_circle dot1_x dot1_y 5;
-
-      (* Draw live line from first dot to mouse position. *)
-      (* Prompted ChatGPT-40 "How to draw line leaving point, following user mouse position, Ocaml graphics.", accesssed 4/1/25.s*)
-      let rec follow_mouse (start_x, start_y) lines completed_boxes player_idx =
-        let event = wait_next_event [ Mouse_motion; Button_down ] in
-        let x2, y2 = (event.mouse_x, event.mouse_y) in
-
-        (* Redraw updated grid *)
-        clear_graph ();
-        draw_grid size window_size;
-        (* Draw previous line segments *)
-        List.iter
-          (fun (x1, y1, x2, y2, player_color) ->
-            set_color player_color;
-            (* color of player who drew the line *)
-            moveto x1 y1;
-            lineto x2 y2)
-          lines;
-
-        (* Redraw X's for completed boxes. *)
-        List.iter
-          (fun ((x, y), player_color) -> draw_x x y player_color spacing)
-          completed_boxes;
-
-        (* Redraw point *)
+  let rec play lines completed_boxes player_idx =
+    (* Wait for user to put down a first dot. *)
+    let first_dot = wait_for_valid_fst_dot () in
+    match first_dot with
+    | None -> ()
+    | Some (dot1_x, dot1_y) ->
         set_color black;
-        fill_circle start_x start_y 5;
+        (* draw dot *)
+        fill_circle dot1_x dot1_y 5;
 
-        (* Draw live wire *)
-        let cur_color = List.nth color_list player_idx in
-        set_color cur_color;
-        set_line_width 3;
-        moveto start_x start_y;
-        lineto x2 y2;
+        (* Draw live line from first dot to mouse position. *)
+        (* Prompted ChatGPT-40 "How to draw line leaving point, following user mouse position, Ocaml graphics.", accesssed 4/1/25.s*)
+        let rec follow_mouse (start_x, start_y) =
+          let event = wait_next_event [ Mouse_motion; Button_down ] in
+          let x2, y2 = (event.mouse_x, event.mouse_y) in
+          redraw_board lines completed_boxes;
 
-        if event.button = true then (
-          let rec wait_for_valid_snd_dot () =
-            let event = wait_next_event [ Button_down ] in
-            let x, y = (event.mouse_x, event.mouse_y) in
-            match find_nearest_dot (x, y) size window_size with
+          (* Redraw start point *)
+          set_color black;
+          fill_circle start_x start_y 5;
+
+          (* Draw live wire *)
+          let cur_color = List.nth color_list player_idx in
+          set_color cur_color;
+          set_line_width 3;
+          moveto start_x start_y;
+          lineto x2 y2;
+
+          (* Check if second point is valid *)
+          if event.button then
+            match find_nearest_dot (x2, y2) size window_size with
             | Some (dot2_x, dot2_y) ->
                 if
                   is_valid_move (start_x, start_y) (dot2_x, dot2_y) spacing size
                     board
-                then Some (dot2_x, dot2_y)
-                else wait_for_valid_snd_dot ()
-            | _ -> wait_for_valid_snd_dot ()
-          in
+                then (
+                  (* Add new line segment to list of lines. *)
+                  let updated_lines =
+                    (start_x, start_y, dot2_x, dot2_y, cur_color) :: lines
+                  in
 
-          let second_dot = wait_for_valid_snd_dot () in
-          match second_dot with
-          | None -> ()
-          | Some (dot2_x, dot2_y) ->
-              set_color cur_color;
-              moveto start_x start_y;
-              lineto dot2_x dot2_y;
-              fill_circle dot2_x dot2_y 5;
+                  (* Update board connections *)
+                  let new_board =
+                    make_connection (start_x, start_y) (dot2_x, dot2_y) board
+                  in
 
-              (* Add new line segment to list of lines. *)
-              let updated_lines =
-                (start_x, start_y, dot2_x, dot2_y, cur_color) :: lines
-              in
+                  (* Update list of completed boxes with coordinates and color
+                     of player who made the move. *)
+                  let new_completed_boxes =
+                    completed_box_coordinates (start_x, start_y)
+                      (dot2_x, dot2_y) spacing new_board player_idx
+                  in
+                  let updated_completed_boxes =
+                    List.fold_left
+                      (fun acc (x, y) -> ((x, y), cur_color) :: acc)
+                      completed_boxes new_completed_boxes
+                  in
 
-              (* Update board connections *)
-              let new_board =
-                make_connection (start_x, start_y) (dot2_x, dot2_y) board
-              in
+                  (* Draw X's to mark boxes that were just completed. *)
+                  List.iter
+                    (fun (x, y) -> draw_x x y cur_color spacing)
+                    new_completed_boxes;
 
-              (* Update list of completed boxes with coordinates and color of
-                 player who made the move. *)
-              let new_completed_boxes =
-                completed_box_coordinates (start_x, start_y) (dot2_x, dot2_y)
-                  spacing new_board player_idx
-              in
-              let updated_completed_boxes =
-                List.fold_left
-                  (fun acc (x, y) -> ((x, y), cur_color) :: acc)
-                  completed_boxes new_completed_boxes
-              in
+                  (* Change players for next turn. *)
+                  let next_player_idx =
+                    (player_idx + 1) mod List.length color_list
+                  in
 
-              (* Draw X's to mark boxes that were just completed. *)
-              List.iter
-                (fun (x, y) -> draw_x x y cur_color spacing)
-                new_completed_boxes;
-
-              (* Change players for livewire. *)
-              let next_player_idx =
-                (player_idx + 1) mod List.length color_list
-              in
-              follow_mouse (dot2_x, dot2_y) updated_lines
-                updated_completed_boxes next_player_idx)
-        else follow_mouse (start_x, start_y) lines completed_boxes player_idx
-        (* No valid second point yet *)
-      in
-      follow_mouse (dot1_x, dot1_y) [] [] (player - 1)
+                  play updated_lines updated_completed_boxes next_player_idx)
+                else follow_mouse (start_x, start_y)
+            | None -> follow_mouse (start_x, start_y)
+          else follow_mouse (start_x, start_y)
+          (* No valid second point yet *)
+        in
+        follow_mouse (dot1_x, dot1_y)
+  in
+  play [] [] (player - 1)
+(* start gameplay *)
 
 (** [get_valid_players ()] prompts the user until a valid number of players is
     entered or the user decides to quit. Raises [Quit] if the user enters
@@ -278,6 +274,8 @@ let () =
       let prev_completed_boxes = completed_boxes board in
 
       draw_line size window_size current_color board (player_idx + 1) color_list;
+
+      print_endline "here";
 
       let new_completed_boxes = completed_boxes board in
 
