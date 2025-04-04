@@ -62,7 +62,12 @@ let draw_line size window_size color board player color_list =
 
   (* Redraw updated grid with all previous lines and completed boxes. *)
   let redraw_board lines completed_boxes =
+    auto_synchronize false;
+
+    (* Prompted ChaptGPT-4o "How to fix flickering screen with clear_graph for
+       display," accessed 4/4/25. *)
     clear_graph ();
+
     draw_grid size window_size;
 
     (* Draw previous line segments *)
@@ -79,26 +84,26 @@ let draw_line size window_size color board player color_list =
       (fun ((x, y), player_color) -> draw_x x y player_color spacing)
       completed_boxes;
 
-    synchronize ()
-    (* Prompted ChaptGPT-4o "How to fix flickering screen with clear_graph for
-       display," accessed 4/4/25. *)
+    synchronize ();
+
+    auto_synchronize true
   in
 
   (* Ensure the user picks a dot that has available moves. *)
-  let rec wait_for_valid_fst_dot () =
+  let rec wait_for_valid_fst_dot player_idx () =
     print_endline ("Player " ^ string_of_int player ^ "'s turn");
     let event = wait_next_event [ Button_down ] in
     let x, y = (event.mouse_x, event.mouse_y) in
     match find_nearest_dot (x, y) size window_size with
     | Some (x, y) ->
         if has_available_moves (x, y) spacing size board then Some (x, y)
-        else wait_for_valid_fst_dot ()
-    | _ -> wait_for_valid_fst_dot ()
+        else wait_for_valid_fst_dot player_idx ()
+    | _ -> wait_for_valid_fst_dot player_idx ()
   in
 
-  let rec play lines completed_boxes player_idx =
+  let rec play lines_lst completed_boxes_lst player_idx =
     (* Wait for user to put down a first dot. *)
-    let first_dot = wait_for_valid_fst_dot () in
+    let first_dot = wait_for_valid_fst_dot player_idx () in
     match first_dot with
     | None -> ()
     | Some (dot1_x, dot1_y) ->
@@ -111,7 +116,7 @@ let draw_line size window_size color board player color_list =
         let rec follow_mouse (start_x, start_y) =
           let event = wait_next_event [ Mouse_motion; Button_down ] in
           let x2, y2 = (event.mouse_x, event.mouse_y) in
-          redraw_board lines completed_boxes;
+          redraw_board lines_lst completed_boxes_lst;
 
           (* Redraw start point *)
           set_color black;
@@ -137,8 +142,11 @@ let draw_line size window_size color board player color_list =
                 then (
                   (* Add new line segment to list of lines. *)
                   let updated_lines =
-                    (start_x, start_y, dot2_x, dot2_y, cur_color) :: lines
+                    (start_x, start_y, dot2_x, dot2_y, cur_color) :: lines_lst
                   in
+
+                  let prev_completed_boxes = completed_boxes board in
+                  (* Get previous box count to compare to new box count *)
 
                   (* Update board connections *)
                   let new_board =
@@ -154,7 +162,7 @@ let draw_line size window_size color board player color_list =
                   let updated_completed_boxes =
                     List.fold_left
                       (fun acc (x, y) -> ((x, y), cur_color) :: acc)
-                      completed_boxes new_completed_boxes
+                      completed_boxes_lst new_completed_boxes
                   in
 
                   (* Draw X's to mark boxes that were just completed. *)
@@ -171,7 +179,10 @@ let draw_line size window_size color board player color_list =
 
                   (* Change players for next turn. *)
                   let next_player_idx =
-                    (player_idx + 1) mod List.length color_list
+                    if
+                      prev_completed_boxes < List.length updated_completed_boxes
+                    then player_idx
+                    else (player_idx + 1) mod List.length color_list
                   in
 
                   play updated_lines updated_completed_boxes next_player_idx)
