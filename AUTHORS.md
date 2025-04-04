@@ -31,6 +31,9 @@ Prompted ChatGPT-4o, "How to tell if mouse button pressed Ocaml graphics," acces
 
 Referenced https://ocaml.org/p/graphics/5.1.1/doc/Graphics/index.html for mouse events, accessed 4/2/25.
 
+Prompted ChaptGPT-4o "How to fix flickering screen with clear_graph for
+       display," accessed 4/4/25.
+
 --------
 grid.ml
 

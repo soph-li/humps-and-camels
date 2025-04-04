@@ -77,11 +77,16 @@ let draw_line size window_size color board player color_list =
     (* Redraw X's for completed boxes. *)
     List.iter
       (fun ((x, y), player_color) -> draw_x x y player_color spacing)
-      completed_boxes
+      completed_boxes;
+
+    synchronize ()
+    (* Prompted ChaptGPT-4o "How to fix flickering screen with clear_graph for
+       display," accessed 4/4/25. *)
   in
 
   (* Ensure the user picks a dot that has available moves. *)
   let rec wait_for_valid_fst_dot () =
+    print_endline ("Player " ^ string_of_int player ^ "'s turn");
     let event = wait_next_event [ Button_down ] in
     let x, y = (event.mouse_x, event.mouse_y) in
     match find_nearest_dot (x, y) size window_size with
@@ -156,6 +161,13 @@ let draw_line size window_size color board player color_list =
                   List.iter
                     (fun (x, y) -> draw_x x y cur_color spacing)
                     new_completed_boxes;
+
+                  (* Exits if game is over. *)
+                  if is_game_over board size then (
+                    Unix.sleepf 2.;
+                    print_endline "Game over";
+                    raise Quit)
+                  else print_endline "game continues...";
 
                   (* Change players for next turn. *)
                   let next_player_idx =
@@ -272,8 +284,8 @@ let () =
     let rec play_game color_list player_idx =
       let current_color = List.nth color_list player_idx in
 
-      print_endline ("Player " ^ string_of_int (player_idx + 1) ^ "'s turn");
-
+      (* print_endline ("Player " ^ string_of_int (player_idx + 1) ^ "'s
+         turn"); *)
       let prev_completed_boxes = completed_boxes board in
 
       draw_line size window_size current_color board (player_idx + 1) color_list;
