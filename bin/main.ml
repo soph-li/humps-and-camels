@@ -231,6 +231,64 @@ let rec select_player_color ind player_num selected_colors =
       print_endline "\nInvalid color! Please try again with a valid choice.";
       select_player_color ind player_num selected_colors)
 
+(** [draw_margin_text str grid_size window_h y_pos] draws the given text in the
+    allocated score panel of the window. *)
+let draw_margin_text str grid_size window_h y_pos =
+  set_color black;
+  set_text_size 20;
+  moveto (grid_size + 20) (window_h - y_pos);
+  draw_string str
+
+(** [draw_scores board colors grid_size window_h] draws the tallied score of
+    each player during gameplay. *)
+let draw_scores board colors grid_size window_h panel_w =
+  (* Draw score panel area *)
+  set_color white;
+  fill_rect grid_size 0 panel_w window_h;
+  set_color black;
+  
+  (* Draw title *)
+  draw_margin_text "Player Scores" grid_size window_h 50;
+
+  (* Draw scores *)
+  set_text_size 20;
+  let scores = get_scores board in
+  List.iteri
+    (fun idx (player, score) ->
+      moveto (grid_size + 20) (window_h - 80 - (idx * 30));
+      draw_string (Printf.sprintf "Player %d: %d" player score))
+    scores
+
+(** [draw_game_over window_w window_h winners] draws the game over screen
+    following the completion of a board with a winners message. *)
+let draw_game_over window_w window_h winners =
+  clear_graph ();
+  set_color black;
+  set_text_size 50;
+
+  let end_msg = "Game Over!" in
+  let text_width = fst (text_size end_msg) in
+  let x = (window_w - text_width) / 2 in
+  let y = window_h / 3 in
+  moveto x y;
+  draw_string end_msg;
+
+  let y_winner = y - 50 in
+  match winners with
+  | [ winner ] ->
+      moveto x y_winner;
+      draw_string ("Player " ^ string_of_int winner ^ " wins!")
+  | _ ->
+      moveto x y_winner;
+      draw_string "It's a tie between:";
+      let offset = ref (y_winner - 30) in
+      List.iter
+        (fun w ->
+          moveto x !offset;
+          draw_string ("Player " ^ string_of_int w);
+          offset := !offset - 25)
+        winners
+
 (* Main *)
 let () =
   try
@@ -261,12 +319,18 @@ let () =
       ^ " players...");
 
     let board = make_grid size player_num in
-    let window_size = size * 100 in
+    let spacing = 100 in
+    let grid_size = size * spacing in
+    let score_panel_width = 150 in
+    let window_width = grid_size + score_panel_width in
+    let window_height = grid_size in
+
     open_graph
-      (" " ^ string_of_int window_size ^ "x" ^ string_of_int window_size);
+      (" " ^ string_of_int window_width ^ "x" ^ string_of_int window_height);
 
     (* Display initial board. *)
-    draw_grid size window_size;
+    draw_grid size grid_size;
+    draw_scores board color_list grid_size window_height score_panel_width;
 
     (* Main game loop *)
     let rec play_game color_list player_idx =
@@ -276,7 +340,8 @@ let () =
 
       let prev_completed_boxes = completed_boxes board in
 
-      draw_line size window_size current_color board (player_idx + 1) color_list;
+      draw_line size grid_size current_color board (player_idx + 1) color_list;
+      draw_scores board color_list grid_size window_height score_panel_width;
 
       print_endline "here";
 
@@ -310,6 +375,7 @@ let () =
         in
 
         let winners = determine_winners final_scores in
+        draw_game_over window_width window_height winners;
 
         (match winners with
         | [ winner ] ->
