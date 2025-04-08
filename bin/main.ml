@@ -97,6 +97,14 @@ let draw_game_over window_w window_h winners =
           offset := !offset - 25)
         winners
 
+(**[center_align str] draws the given string to be center aligned in a window. *)
+let center_align y str window_width = 
+  let str_len = text_size str in 
+  let text_width = fst (str_len) in
+  let x = (window_width - text_width) / 2 in
+  moveto x y;
+  draw_string str
+
 (** [draw_line size window_size color] draws a [color] line connecting the two
     dots that are closest to the positions where the user clicked in the grid.
 *)
