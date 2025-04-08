@@ -85,7 +85,7 @@ let draw_game_over window_w window_h winners =
   match winners with
   | [ winner ] ->
       moveto x y_winner;
-      draw_string ("Player " ^ string_of_int winner ^ " wins!")
+      draw_string ("Player " ^ string_of_int (winner + 1) ^ " wins!")
   | _ ->
       moveto x y_winner;
       draw_string "It's a tie between:";
@@ -93,7 +93,7 @@ let draw_game_over window_w window_h winners =
       List.iter
         (fun w ->
           moveto x !offset;
-          draw_string ("Player " ^ string_of_int w);
+          draw_string ("Player " ^ string_of_int (w + 1));
           offset := !offset - 25)
         winners
 
