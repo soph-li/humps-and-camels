@@ -24,6 +24,9 @@ open Cs3110_final_project.Grid
 (** Prompted ChatGPT-4o, "How to handle window closure in OCaml Graphics",
     accessed 3/25/25. *)
 
+(** Prompted ChaptGPT-4o "Is there pre-set alignment in OCaml Graphics" accessed
+     4/8/25. *)
+
 exception Quit
 (** Raised if user quits the program. *)
 
@@ -99,6 +102,8 @@ let draw_game_over window_w window_h winners =
 
 (**[center_align str] draws the given string to be center aligned in a window. *)
 let center_align y str window_width = 
+  (* Prompted ChaptGPT-4o "Is there pre-set alignment in OCaml Graphics" accessed
+     4/8/25. *)
   let str_len = text_size str in 
   let text_width = fst (str_len) in
   let x = (window_width - text_width) / 2 in

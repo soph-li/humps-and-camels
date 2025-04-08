@@ -34,6 +34,7 @@ Referenced https://ocaml.org/p/graphics/5.1.1/doc/Graphics/index.html for mouse 
 Prompted ChaptGPT-4o "How to fix flickering screen with clear_graph for
        display," accessed 4/4/25.
 
+Prompted ChaptGPT-4o "Is there pre-set alignment in OCaml Graphics" accessed 4/8/25.
 --------
 grid.ml
 
