@@ -54,11 +54,55 @@ let draw_x x y color spacing =
   moveto x (y + spacing);
   lineto (x + spacing) y
 
+(* [determine_winners score] returns a list of players who have the most
+   points. *)
+let determine_winners score =
+  let max_points =
+    List.fold_left
+      (fun acc (_, points) -> if points > acc then points else acc)
+      0 score
+  in
+  List.fold_right
+    (fun (candidate, points) acc ->
+      if points = max_points then candidate :: acc else acc)
+    score []
+
+(** [draw_game_over window_w window_h winners] draws the game over screen
+    following the completion of a board with a winners message. *)
+let draw_game_over window_w window_h winners =
+  clear_graph ();
+  set_color black;
+  set_text_size 50;
+
+  let end_msg = "Game Over!" in
+  let text_width = fst (text_size end_msg) in
+  let x = (window_w - text_width) / 2 in
+  let y = window_h / 2 in
+  moveto x y;
+  draw_string end_msg;
+
+  let y_winner = y - 50 in
+  match winners with
+  | [ winner ] ->
+      moveto x y_winner;
+      draw_string ("Player " ^ string_of_int winner ^ " wins!")
+  | _ ->
+      moveto x y_winner;
+      draw_string "It's a tie between:";
+      let offset = ref (y_winner - 30) in
+      List.iter
+        (fun w ->
+          moveto x !offset;
+          draw_string ("Player " ^ string_of_int w);
+          offset := !offset - 25)
+        winners
+
 (** [draw_line size window_size color] draws a [color] line connecting the two
     dots that are closest to the positions where the user clicked in the grid.
 *)
-let draw_line size window_size color board player color_list =
-  let spacing = window_size / size in
+let draw_line size board_size color board player color_list window_width
+    window_height =
+  let spacing = board_size / size in
 
   (* Redraw updated grid with all previous lines and completed boxes. *)
   let redraw_board lines completed_boxes =
@@ -68,7 +112,7 @@ let draw_line size window_size color board player color_list =
        display," accessed 4/4/25. *)
     clear_graph ();
 
-    draw_grid size window_size;
+    draw_grid size board_size;
 
     (* Draw previous line segments *)
     List.iter
@@ -94,7 +138,7 @@ let draw_line size window_size color board player color_list =
     print_endline ("Player " ^ string_of_int player ^ "'s turn");
     let event = wait_next_event [ Button_down ] in
     let x, y = (event.mouse_x, event.mouse_y) in
-    match find_nearest_dot (x, y) size window_size with
+    match find_nearest_dot (x, y) size board_size with
     | Some (x, y) ->
         if has_available_moves (x, y) spacing size board then Some (x, y)
         else wait_for_valid_fst_dot player_idx ()
@@ -134,7 +178,7 @@ let draw_line size window_size color board player color_list =
              https://ocaml.org/p/graphics/5.1.1/doc/Graphics/index.html for
              mouse events, accessed 4/2/25. *)
           if event.button then
-            match find_nearest_dot (x2, y2) size window_size with
+            match find_nearest_dot (x2, y2) size board_size with
             | Some (dot2_x, dot2_y) ->
                 if
                   is_valid_move (start_x, start_y) (dot2_x, dot2_y) spacing size
@@ -172,6 +216,9 @@ let draw_line size window_size color board player color_list =
 
                   (* Exits if game is over. *)
                   if is_game_over board size then (
+                    let final_scores = get_scores board in
+                    let winners = determine_winners final_scores in
+                    draw_game_over window_width window_height winners;
                     Unix.sleepf 2.;
                     print_endline "Game over";
                     raise Quit)
@@ -269,7 +316,7 @@ let draw_scores board colors grid_size window_h panel_w =
   set_color white;
   fill_rect grid_size 0 panel_w window_h;
   set_color black;
-  
+
   (* Draw title *)
   draw_margin_text "Player Scores" grid_size window_h 50;
 
@@ -281,36 +328,6 @@ let draw_scores board colors grid_size window_h panel_w =
       moveto (grid_size + 20) (window_h - 80 - (idx * 30));
       draw_string (Printf.sprintf "Player %d: %d" player score))
     scores
-
-(** [draw_game_over window_w window_h winners] draws the game over screen
-    following the completion of a board with a winners message. *)
-let draw_game_over window_w window_h winners =
-  clear_graph ();
-  set_color black;
-  set_text_size 50;
-
-  let end_msg = "Game Over!" in
-  let text_width = fst (text_size end_msg) in
-  let x = (window_w - text_width) / 2 in
-  let y = window_h / 3 in
-  moveto x y;
-  draw_string end_msg;
-
-  let y_winner = y - 50 in
-  match winners with
-  | [ winner ] ->
-      moveto x y_winner;
-      draw_string ("Player " ^ string_of_int winner ^ " wins!")
-  | _ ->
-      moveto x y_winner;
-      draw_string "It's a tie between:";
-      let offset = ref (y_winner - 30) in
-      List.iter
-        (fun w ->
-          moveto x !offset;
-          draw_string ("Player " ^ string_of_int w);
-          offset := !offset - 25)
-        winners
 
 (* Main *)
 let () =
@@ -363,7 +380,7 @@ let () =
          turn"); *)
       let prev_completed_boxes = completed_boxes board in
 
-      draw_line size grid_size current_color board (player_idx + 1) color_list;
+      draw_line size grid_size current_color board (player_idx + 1) color_list window_height window_width;
       draw_scores board color_list grid_size window_height score_panel_width;
 
       print_endline "here";
@@ -382,21 +399,6 @@ let () =
         play_game color_list next_player_idx)
       else
         let final_scores = get_scores board in
-
-        (* [determine_winners score] returns a list of players who have the most
-           points. *)
-        let determine_winners score =
-          let max_points =
-            List.fold_left
-              (fun acc (_, points) -> if points > acc then points else acc)
-              0 score
-          in
-          List.fold_right
-            (fun (candidate, points) acc ->
-              if points = max_points then candidate :: acc else acc)
-            score []
-        in
-
         let winners = determine_winners final_scores in
         draw_game_over window_width window_height winners;
 
