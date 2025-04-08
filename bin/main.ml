@@ -25,7 +25,7 @@ open Cs3110_final_project.Grid
     accessed 3/25/25. *)
 
 (** Prompted ChaptGPT-4o "Is there pre-set alignment in OCaml Graphics" accessed
-     4/8/25. *)
+    4/8/25. *)
 
 exception Quit
 (** Raised if user quits the program. *)
@@ -100,12 +100,13 @@ let draw_game_over window_w window_h winners =
           offset := !offset - 25)
         winners
 
-(**[center_align str] draws the given string to be center aligned in a window. *)
-let center_align y str window_width = 
-  (* Prompted ChaptGPT-4o "Is there pre-set alignment in OCaml Graphics" accessed
-     4/8/25. *)
-  let str_len = text_size str in 
-  let text_width = fst (str_len) in
+(**[center_align str] draws the given string to be center aligned in a window.
+*)
+let center_align y str window_width =
+  (* Prompted ChaptGPT-4o "Is there pre-set alignment in OCaml Graphics"
+     accessed 4/8/25. *)
+  let str_len = text_size str in
+  let text_width = fst str_len in
   let x = (window_width - text_width) / 2 in
   moveto x y;
   draw_string str
@@ -148,7 +149,7 @@ let draw_line size board_size color board player color_list window_width
 
   (* Ensure the user picks a dot that has available moves. *)
   let rec wait_for_valid_fst_dot player_idx () =
-    print_endline ("Player " ^ string_of_int player ^ "'s turn");
+    print_endline ("Player " ^ string_of_int (player_idx + 1) ^ "'s turn");
     let event = wait_next_event [ Button_down ] in
     let x, y = (event.mouse_x, event.mouse_y) in
     match find_nearest_dot (x, y) size board_size with
@@ -393,7 +394,8 @@ let () =
          turn"); *)
       let prev_completed_boxes = completed_boxes board in
 
-      draw_line size grid_size current_color board (player_idx + 1) color_list window_height window_width;
+      draw_line size grid_size current_color board (player_idx + 1) color_list
+        window_height window_width;
       draw_scores board color_list grid_size window_height score_panel_width;
 
       print_endline "here";
