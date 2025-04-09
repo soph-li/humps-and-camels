@@ -57,6 +57,38 @@ let draw_x x y color spacing =
   moveto x (y + spacing);
   lineto (x + spacing) y
 
+(** [draw_margin_text str grid_size window_h y_pos] draws the given text in the
+    allocated score panel of the window. *)
+let draw_margin_text str grid_size window_h y_pos =
+  set_color black;
+  set_text_size 20;
+  moveto (grid_size + 20) (window_h - y_pos);
+  draw_string str
+
+(** [draw_scores board colors grid_size window_h] draws the tallied score of
+    each player during gameplay. *)
+let draw_scores board colors grid_size window_h panel_w =
+  (* auto_synchronize false; *)
+  (* Draw score panel area *)
+  set_color white;
+  fill_rect grid_size 0 panel_w window_h;
+  set_color black;
+
+  (* Draw title *)
+  draw_margin_text "Player Scores" grid_size window_h 50;
+
+  (* Draw scores *)
+  set_text_size 20;
+  let scores = get_scores board in
+  List.iteri
+    (fun idx (player, score) ->
+      moveto (grid_size + 20) (window_h - 80 - (idx * 30));
+      draw_string (Printf.sprintf "Player %d: %d" player score))
+    scores
+(* synchronize ();
+
+   auto_synchronize true *)
+
 (* [determine_winners score] returns a list of players who have the most
    points. *)
 let determine_winners score =
@@ -115,7 +147,7 @@ let center_align y str window_width =
     dots that are closest to the positions where the user clicked in the grid.
 *)
 let draw_line size board_size color board player color_list window_width
-    window_height =
+    window_height score_panel_width =
   let spacing = board_size / size in
 
   (* Redraw updated grid with all previous lines and completed boxes. *)
@@ -125,6 +157,8 @@ let draw_line size board_size color board player color_list window_width
     (* Prompted ChaptGPT-4o "How to fix flickering screen with clear_graph for
        display," accessed 4/4/25. *)
     clear_graph ();
+
+    draw_scores board color_list board_size window_height score_panel_width;
 
     draw_grid size board_size;
 
@@ -174,6 +208,7 @@ let draw_line size board_size color board player color_list window_width
         let rec follow_mouse (start_x, start_y) =
           let event = wait_next_event [ Mouse_motion; Button_down ] in
           let x2, y2 = (event.mouse_x, event.mouse_y) in
+
           redraw_board lines_lst completed_boxes_lst;
 
           (* Redraw start point *)
@@ -315,34 +350,6 @@ let rec select_player_color ind player_num selected_colors =
       print_endline "\nInvalid color! Please try again with a valid choice.";
       select_player_color ind player_num selected_colors)
 
-(** [draw_margin_text str grid_size window_h y_pos] draws the given text in the
-    allocated score panel of the window. *)
-let draw_margin_text str grid_size window_h y_pos =
-  set_color black;
-  set_text_size 20;
-  moveto (grid_size + 20) (window_h - y_pos);
-  draw_string str
-
-(** [draw_scores board colors grid_size window_h] draws the tallied score of
-    each player during gameplay. *)
-let draw_scores board colors grid_size window_h panel_w =
-  (* Draw score panel area *)
-  set_color white;
-  fill_rect grid_size 0 panel_w window_h;
-  set_color black;
-
-  (* Draw title *)
-  draw_margin_text "Player Scores" grid_size window_h 50;
-
-  (* Draw scores *)
-  set_text_size 20;
-  let scores = get_scores board in
-  List.iteri
-    (fun idx (player, score) ->
-      moveto (grid_size + 20) (window_h - 80 - (idx * 30));
-      draw_string (Printf.sprintf "Player %d: %d" player score))
-    scores
-
 (* Main *)
 let () =
   try
@@ -395,7 +402,7 @@ let () =
       let prev_completed_boxes = completed_boxes board in
 
       draw_line size grid_size current_color board (player_idx + 1) color_list
-        window_height window_width;
+        window_height window_width score_panel_width;
       draw_scores board color_list grid_size window_height score_panel_width;
 
       print_endline "here";
