@@ -298,7 +298,7 @@ let draw_line size board_size color board player color_list window_width
 let rec get_valid_players () =
   print_endline "Enter number of players (2-4): ";
   try
-    let input = read_line () in
+    let input = String.trim (read_line ()) in
     if input = "quit" then raise Quit
     else
       let player_num = int_of_string input in
@@ -337,7 +337,7 @@ let rec select_player_color ind player_num selected_colors =
     print_endline
       ("\nPlayer " ^ string_of_int (ind + 1) ^ ", enter your color choice: ");
 
-    let input = read_line () in
+    let input =  String.trim (String.lowercase_ascii (read_line ())) in
     try
       let colorized_input = color_of_string input in
       if List.mem colorized_input selected_colors then (
