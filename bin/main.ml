@@ -1,3 +1,5 @@
+(* Add ending dot and one box option for game!!!!!!*)
+
 open Graphics
 open Unix
 
@@ -158,8 +160,8 @@ let draw_line size board_size color board player color_list window_width
        display," accessed 4/4/25. *)
     clear_graph ();
 
-    draw_scores board color_list board_size window_height score_panel_width;
-
+    (* draw_scores board color_list board_size window_height
+       score_panel_width; *)
     draw_grid size board_size;
 
     (* Draw previous line segments *)
@@ -168,7 +170,11 @@ let draw_line size board_size color board player color_list window_width
         set_color player_color;
         (* color of player who drew the line *)
         moveto x1 y1;
-        lineto x2 y2)
+        lineto x2 y2;
+        set_color black;
+        (* draw dots *)
+        fill_circle x1 y1 5;
+        fill_circle x2 y2 5)
       lines;
 
     (* Redraw X's for completed boxes. *)
@@ -233,6 +239,8 @@ let draw_line size board_size color board player color_list window_width
                   is_valid_move (start_x, start_y) (dot2_x, dot2_y) spacing size
                     board (* Check if second point is valid *)
                 then (
+                  set_color black;
+                  fill_circle dot2_x dot2_y 5;
                   (* Add new line segment to list of lines. *)
                   let updated_lines =
                     (start_x, start_y, dot2_x, dot2_y, cur_color) :: lines_lst
@@ -303,6 +311,7 @@ let rec get_valid_players () =
     else
       let player_num = int_of_string input in
       if player_num < 2 || player_num > 4 then (
+        (* if player_num < 1 || player_num > 4 then ( *)
         print_endline
           "\n\
            Please try again with a valid number from 2-4, or type 'quit' to \
@@ -337,7 +346,7 @@ let rec select_player_color ind player_num selected_colors =
     print_endline
       ("\nPlayer " ^ string_of_int (ind + 1) ^ ", enter your color choice: ");
 
-    let input =  String.trim (String.lowercase_ascii (read_line ())) in
+    let input = String.trim (String.lowercase_ascii (read_line ())) in
     try
       let colorized_input = color_of_string input in
       if List.mem colorized_input selected_colors then (
@@ -357,6 +366,7 @@ let () =
     let player_num = get_valid_players () in
     let size =
       match player_num with
+      (* | 1 -> 2 one box case for testing end_screen *)
       | 2 -> 4
       | 3 -> 6
       | 4 -> 10
@@ -383,7 +393,8 @@ let () =
     let spacing = 100 in
     let grid_size = size * spacing in
     let score_panel_width = 150 in
-    let window_width = grid_size + score_panel_width in
+    let window_width = grid_size in
+    (* let window_width = grid_size + score_panel_width in *)
     let window_height = grid_size in
 
     open_graph
@@ -391,7 +402,9 @@ let () =
 
     (* Display initial board. *)
     draw_grid size grid_size;
-    draw_scores board color_list grid_size window_height score_panel_width;
+
+    (* draw_scores board color_list grid_size window_height
+       score_panel_width; *)
 
     (* Main game loop *)
     let rec play_game color_list player_idx =
@@ -403,10 +416,9 @@ let () =
 
       draw_line size grid_size current_color board (player_idx + 1) color_list
         window_height window_width score_panel_width;
-      draw_scores board color_list grid_size window_height score_panel_width;
 
-      print_endline "here";
-
+      (* draw_scores board color_list grid_size window_height
+         score_panel_width; *)
       let new_completed_boxes = completed_boxes board in
 
       let completed_box = new_completed_boxes > prev_completed_boxes in
