@@ -122,8 +122,11 @@ let draw_game_over window_w window_h winners =
   let y_winner = y - 50 in
   match sorted_winners with
   | [ winner ] ->
-      moveto x y_winner;
-      draw_string ("Player " ^ string_of_int (winner + 1) ^ " wins!")
+      let win_msg = "Player " ^ string_of_int (winner + 1) ^ " wins!" in
+      let win_width = fst (text_size win_msg) in
+      let x_win = (window_w - win_width) / 2 in
+      moveto x_win y_winner;
+      draw_string win_msg
   | _ ->
       let tie_msg = "It's a tie between:" in
       let text_width = fst (text_size tie_msg) in
