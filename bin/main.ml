@@ -462,7 +462,7 @@ let () =
         (* Prompted ChatGPT -4o, "How to introduce delay in OCaml to allow the
            final image in graphics show up before the program exits", accessed
            3/29/25. *)
-        Unix.sleepf 2.
+        Unix.sleepf 3.
     in
     play_game color_list 0;
 
