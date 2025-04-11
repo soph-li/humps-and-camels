@@ -107,6 +107,7 @@ let determine_winners score =
 (** [draw_game_over window_w window_h winners] draws the game over screen
     following the completion of a board with a winners message. *)
 let draw_game_over window_w window_h winners =
+  Unix.sleepf 1.;
   clear_graph ();
   set_color black;
   set_text_size 50;
@@ -117,22 +118,29 @@ let draw_game_over window_w window_h winners =
   let y = window_h / 2 in
   moveto x y;
   draw_string end_msg;
-
+  let sorted_winners = List.sort compare winners in
   let y_winner = y - 50 in
-  match winners with
+  match sorted_winners with
   | [ winner ] ->
       moveto x y_winner;
       draw_string ("Player " ^ string_of_int (winner + 1) ^ " wins!")
   | _ ->
-      moveto x y_winner;
-      draw_string "It's a tie between:";
+      let tie_msg = "It's a tie between:" in
+      let text_width = fst (text_size tie_msg) in
+      let x_tie = (window_w - text_width) / 2 in
+      moveto x_tie y_winner;
+      draw_string tie_msg;
+
       let offset = ref (y_winner - 30) in
       List.iter
         (fun w ->
-          moveto x !offset;
-          draw_string ("Player " ^ string_of_int (w + 1));
+          let player_str = "Player " ^ string_of_int (w + 1) in
+          let text_width = fst (text_size player_str) in
+          let x_player = (window_w - text_width) / 2 in
+          moveto x_player !offset;
+          draw_string player_str;
           offset := !offset - 25)
-        winners
+        sorted_winners
 
 (**[center_align str] draws the given string to be center aligned in a window.
 *)
