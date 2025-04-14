@@ -156,160 +156,174 @@ let center_align y str window_width =
   moveto x y;
   draw_string str
 
+(** Redraw the updated grid with all previous lines and completed boxes. *)
+let redraw_board size board_size spacing lines completed_boxes =
+  auto_synchronize false;
+
+  (* Prompted ChaptGPT-4o "How to fix flickering screen with clear_graph for
+     display," accessed 4/4/25. *)
+  clear_graph ();
+
+  (* draw_scores board color_list board_size window_height score_panel_width; *)
+  draw_grid size board_size;
+
+  (* Draw previous line segments *)
+  List.iter
+    (fun (x1, y1, x2, y2, player_color) ->
+      set_color player_color;
+      (* color of player who drew the line *)
+      moveto x1 y1;
+      lineto x2 y2;
+      set_color black;
+      (* draw dots *)
+      fill_circle x1 y1 5;
+      fill_circle x2 y2 5)
+    lines;
+
+  (* Redraw X's for completed boxes. *)
+  List.iter
+    (fun ((x, y), player_color) -> draw_x x y player_color spacing)
+    completed_boxes;
+  synchronize ();
+  auto_synchronize true
+
+(* Wait for player to click a valid first dot. *)
+let rec wait_for_valid_fst_dot player_idx board size board_size spacing () =
+  print_endline ("Player " ^ string_of_int (player_idx + 1) ^ "'s turn");
+  let event = wait_next_event [ Button_down ] in
+  let x, y = (event.mouse_x, event.mouse_y) in
+  match find_nearest_dot (x, y) size board_size with
+  | Some (x, y) ->
+      if has_available_moves (x, y) spacing size board then Some (x, y)
+      else wait_for_valid_fst_dot player_idx board size board_size spacing ()
+  | _ -> wait_for_valid_fst_dot player_idx board size board_size spacing ()
+
+(** Check if game is over and end game properly if it is. *)
+let check_if_game_over board size window_width window_height =
+  if is_game_over board size then (
+    let final_scores = get_scores board in
+    let winners = determine_winners final_scores in
+    draw_game_over window_width window_height winners;
+    Unix.sleepf 2.;
+    print_endline "Game over";
+    raise Quit)
+
+(* Prompted ChatGPT-40 "How to draw line leaving point, following user mouse
+   position, Ocaml graphics.", accesssed 4/1/25. *)
+
+(** Draw live line from first dot to mouse position. *)
+let rec follow_mouse size board_size spacing board cur_color color_list
+    player_idx lines_lst completed_boxes_lst window_width window_height
+    (start_x, start_y) =
+  let event = wait_next_event [ Mouse_motion; Button_down ] in
+  let x2, y2 = (event.mouse_x, event.mouse_y) in
+
+  redraw_board size board_size spacing lines_lst completed_boxes_lst;
+
+  (* Redraw start point *)
+  set_color black;
+  fill_circle start_x start_y 5;
+
+  (* Draw live wire *)
+  let cur_color = List.nth color_list player_idx in
+  set_color cur_color;
+  set_line_width 3;
+  moveto start_x start_y;
+  lineto x2 y2;
+
+  (* Prompted ChatGPT-4o, "How to tell if mouse button pressed," accessed
+     4/2/25. Referenced
+     https://ocaml.org/p/graphics/5.1.1/doc/Graphics/index.html for mouse
+     events, accessed 4/2/25. *)
+  if event.button then
+    match find_nearest_dot (x2, y2) size board_size with
+    | Some (dot2_x, dot2_y) ->
+        if
+          is_valid_move (start_x, start_y) (dot2_x, dot2_y) spacing size
+            board (* Check if second point is valid *)
+        then (
+          set_color black;
+          fill_circle dot2_x dot2_y 5;
+          (* Add new line segment to list of lines. *)
+          let updated_lines =
+            (start_x, start_y, dot2_x, dot2_y, cur_color) :: lines_lst
+          in
+          let prev_completed_boxes = completed_boxes board in
+          (* Get previous box count to compare to new box count *)
+
+          (* Update board connections *)
+          let new_board =
+            make_connection (start_x, start_y) (dot2_x, dot2_y) board
+          in
+          (* Update list of completed boxes with coordinates and color of player
+             who made the move. *)
+          let new_completed_boxes =
+            completed_box_coordinates (start_x, start_y) (dot2_x, dot2_y)
+              spacing new_board player_idx
+          in
+          let updated_completed_boxes =
+            List.fold_left
+              (fun acc (x, y) -> ((x, y), cur_color) :: acc)
+              completed_boxes_lst new_completed_boxes
+          in
+          (* Draw X's to mark boxes that were just completed. *)
+          List.iter
+            (fun (x, y) -> draw_x x y cur_color spacing)
+            new_completed_boxes;
+          check_if_game_over new_board size window_width window_height;
+
+          (* Change players for next turn. *)
+          let next_player_idx =
+            if prev_completed_boxes < List.length updated_completed_boxes then
+              player_idx
+            else (player_idx + 1) mod List.length color_list
+          in
+          play size board_size spacing new_board updated_lines
+            updated_completed_boxes next_player_idx color_list window_width
+            window_height)
+        else
+          follow_mouse size board_size spacing board cur_color color_list
+            player_idx lines_lst completed_boxes_lst window_width window_height
+            (start_x, start_y)
+    | None ->
+        follow_mouse size board_size spacing board cur_color color_list
+          player_idx lines_lst completed_boxes_lst window_width window_height
+          (start_x, start_y)
+  else
+    follow_mouse size board_size spacing board cur_color color_list player_idx
+      lines_lst completed_boxes_lst window_width window_height (start_x, start_y)
+(* No valid second point yet *)
+
+(** Play turn of a player *)
+
+(* Prompted ChaptGPT-4o "how to connect mutually recursive functions" alonmg
+   with follow_mouse and play to figure out to use "and," accessed 4/14/25. *)
+and play size board_size spacing board lines_lst completed_boxes_lst player_idx
+    color_list window_width window_height =
+  (* Wait for user to put down a first dot. *)
+  let first_dot =
+    wait_for_valid_fst_dot player_idx board size board_size spacing ()
+  in
+  (* Draw live line from valid first dot to mouse position. *)
+  match first_dot with
+  | None -> ()
+  | Some (dot1_x, dot1_y) ->
+      set_color black;
+      (* draw dot *)
+      fill_circle dot1_x dot1_y 5;
+      let cur_color = List.nth color_list player_idx in
+      follow_mouse size board_size spacing board cur_color color_list player_idx
+        lines_lst completed_boxes_lst window_width window_height (dot1_x, dot1_y)
+
 (** [draw_line size window_size color] draws a [color] line connecting the two
     dots that are closest to the positions where the user clicked in the grid.
 *)
 let draw_line size board_size color board player color_list window_width
     window_height score_panel_width =
   let spacing = board_size / size in
-
-  (* Redraw updated grid with all previous lines and completed boxes. *)
-  let redraw_board lines completed_boxes =
-    auto_synchronize false;
-
-    (* Prompted ChaptGPT-4o "How to fix flickering screen with clear_graph for
-       display," accessed 4/4/25. *)
-    clear_graph ();
-
-    (* draw_scores board color_list board_size window_height
-       score_panel_width; *)
-    draw_grid size board_size;
-
-    (* Draw previous line segments *)
-    List.iter
-      (fun (x1, y1, x2, y2, player_color) ->
-        set_color player_color;
-        (* color of player who drew the line *)
-        moveto x1 y1;
-        lineto x2 y2;
-        set_color black;
-        (* draw dots *)
-        fill_circle x1 y1 5;
-        fill_circle x2 y2 5)
-      lines;
-
-    (* Redraw X's for completed boxes. *)
-    List.iter
-      (fun ((x, y), player_color) -> draw_x x y player_color spacing)
-      completed_boxes;
-
-    synchronize ();
-
-    auto_synchronize true
-  in
-
-  (* Ensure the user picks a dot that has available moves. *)
-  let rec wait_for_valid_fst_dot player_idx () =
-    print_endline ("Player " ^ string_of_int (player_idx + 1) ^ "'s turn");
-    let event = wait_next_event [ Button_down ] in
-    let x, y = (event.mouse_x, event.mouse_y) in
-    match find_nearest_dot (x, y) size board_size with
-    | Some (x, y) ->
-        if has_available_moves (x, y) spacing size board then Some (x, y)
-        else wait_for_valid_fst_dot player_idx ()
-    | _ -> wait_for_valid_fst_dot player_idx ()
-  in
-
-  let rec play lines_lst completed_boxes_lst player_idx =
-    (* Wait for user to put down a first dot. *)
-    let first_dot = wait_for_valid_fst_dot player_idx () in
-    match first_dot with
-    | None -> ()
-    | Some (dot1_x, dot1_y) ->
-        set_color black;
-        (* draw dot *)
-        fill_circle dot1_x dot1_y 5;
-
-        (* Draw live line from first dot to mouse position. *)
-        (* Prompted ChatGPT-40 "How to draw line leaving point, following user mouse position, Ocaml graphics.", accesssed 4/1/25.s*)
-        let rec follow_mouse (start_x, start_y) =
-          let event = wait_next_event [ Mouse_motion; Button_down ] in
-          let x2, y2 = (event.mouse_x, event.mouse_y) in
-
-          redraw_board lines_lst completed_boxes_lst;
-
-          (* Redraw start point *)
-          set_color black;
-          fill_circle start_x start_y 5;
-
-          (* Draw live wire *)
-          let cur_color = List.nth color_list player_idx in
-          set_color cur_color;
-          set_line_width 3;
-          moveto start_x start_y;
-          lineto x2 y2;
-
-          (* Prompted ChatGPT-4o, "How to tell if mouse button pressed,"
-             accessed 4/2/25. Referenced
-             https://ocaml.org/p/graphics/5.1.1/doc/Graphics/index.html for
-             mouse events, accessed 4/2/25. *)
-          if event.button then
-            match find_nearest_dot (x2, y2) size board_size with
-            | Some (dot2_x, dot2_y) ->
-                if
-                  is_valid_move (start_x, start_y) (dot2_x, dot2_y) spacing size
-                    board (* Check if second point is valid *)
-                then (
-                  set_color black;
-                  fill_circle dot2_x dot2_y 5;
-                  (* Add new line segment to list of lines. *)
-                  let updated_lines =
-                    (start_x, start_y, dot2_x, dot2_y, cur_color) :: lines_lst
-                  in
-
-                  let prev_completed_boxes = completed_boxes board in
-                  (* Get previous box count to compare to new box count *)
-
-                  (* Update board connections *)
-                  let new_board =
-                    make_connection (start_x, start_y) (dot2_x, dot2_y) board
-                  in
-
-                  (* Update list of completed boxes with coordinates and color
-                     of player who made the move. *)
-                  let new_completed_boxes =
-                    completed_box_coordinates (start_x, start_y)
-                      (dot2_x, dot2_y) spacing new_board player_idx
-                  in
-                  let updated_completed_boxes =
-                    List.fold_left
-                      (fun acc (x, y) -> ((x, y), cur_color) :: acc)
-                      completed_boxes_lst new_completed_boxes
-                  in
-
-                  (* Draw X's to mark boxes that were just completed. *)
-                  List.iter
-                    (fun (x, y) -> draw_x x y cur_color spacing)
-                    new_completed_boxes;
-
-                  (* Exits if game is over. *)
-                  if is_game_over board size then (
-                    let final_scores = get_scores board in
-                    let winners = determine_winners final_scores in
-                    draw_game_over window_width window_height winners;
-                    Unix.sleepf 2.;
-                    print_endline "Game over";
-                    raise Quit)
-                  else print_endline "game continues...";
-
-                  (* Change players for next turn. *)
-                  let next_player_idx =
-                    if
-                      prev_completed_boxes < List.length updated_completed_boxes
-                    then player_idx
-                    else (player_idx + 1) mod List.length color_list
-                  in
-
-                  play updated_lines updated_completed_boxes next_player_idx)
-                else follow_mouse (start_x, start_y)
-            | None -> follow_mouse (start_x, start_y)
-          else follow_mouse (start_x, start_y)
-          (* No valid second point yet *)
-        in
-        follow_mouse (dot1_x, dot1_y)
-  in
-  play [] [] (player - 1)
-(* start gameplay *)
+  (* start gameplay *)
+  play size board_size spacing board [] [] (player - 1) color_list window_width
+    window_height
 
 (** [get_valid_players ()] prompts the user until a valid number of players is
     entered or the user decides to quit. Raises [Quit] if the user enters

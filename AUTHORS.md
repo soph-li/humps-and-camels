@@ -35,6 +35,9 @@ Prompted ChaptGPT-4o "How to fix flickering screen with clear_graph for
        display," accessed 4/4/25.
 
 Prompted ChaptGPT-4o "Is there pre-set alignment in OCaml Graphics" accessed 4/8/25.
+
+Prompted ChaptGPT-4o "how to connect mutually recursive functions" along with follow_mouse and play to figure out to use "and," accessed 4/14/25.
+
 --------
 grid.ml
 
