@@ -1,5 +1,6 @@
 open OUnit2
-open Cs3110_final_project.Grid
+open Cs3110_final_project.Game
+open Cs3110_final_project.Board
 
 (** [board_2x2] is a 2x2 grid of dots. *)
 let board_2x2 = make_grid 2 0

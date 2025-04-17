@@ -2,8 +2,9 @@
 
 open Graphics
 open Unix
+open Cs3110_final_project.Game
+open Cs3110_final_project.Board
 
-open Cs3110_final_project.Grid
 (** Prompted ChatGPT-4o, "How to install OCaml Graphics", accessed 3/22/25. *)
 
 (** Prompted ChatGPT-4o, "What should I do if I encountered Fatal error:
@@ -32,65 +33,6 @@ open Cs3110_final_project.Grid
 exception Quit
 (** Raised if user quits the program. *)
 
-(** [draw_grid size window_size] draws a [size] x [size] grid of dots in a
-    [window_size] x [window_size] window. Requires: [size] and [window_size] are
-    positive. *)
-let draw_grid size window_size =
-  set_color black;
-
-  let spacing = window_size / size in
-
-  for i = 0 to size - 1 do
-    for j = 0 to size - 1 do
-      let x = (i * spacing) + (spacing / 2) in
-      let y = (j * spacing) + (spacing / 2) in
-      fill_circle x y 2
-    done
-  done
-
-(** [draw_x x y color spacing] draws a 'X' with the color [color] by connecting
-    the bottom left corner [(x, y)] to the top right corner and the top left
-    corner to the bottom right corner where adjacent points are [spacing] apart.
-*)
-let draw_x x y color spacing =
-  set_color color;
-  moveto x y;
-  lineto (x + spacing) (y + spacing);
-  moveto x (y + spacing);
-  lineto (x + spacing) y
-
-(** [draw_margin_text str grid_size window_h y_pos] draws the given text in the
-    allocated score panel of the window. *)
-let draw_margin_text str grid_size window_h y_pos =
-  set_color black;
-  set_text_size 20;
-  moveto (grid_size + 20) (window_h - y_pos);
-  draw_string str
-
-(** [draw_scores board colors grid_size window_h] draws the tallied score of
-    each player during gameplay. *)
-let draw_scores board colors grid_size window_h panel_w =
-  (* auto_synchronize false; *)
-  (* Draw score panel area *)
-  set_color white;
-  fill_rect grid_size 0 panel_w window_h;
-  set_color black;
-
-  (* Draw title *)
-  draw_margin_text "Player Scores" grid_size window_h 50;
-
-  (* Draw scores *)
-  set_text_size 20;
-  let scores = get_scores board in
-  List.iteri
-    (fun idx (player, score) ->
-      moveto (grid_size + 20) (window_h - 80 - (idx * 30));
-      draw_string (Printf.sprintf "Player %d: %d" player score))
-    scores
-(* synchronize ();
-
-   auto_synchronize true *)
-
 (* [determine_winners score] returns a list of players who have the most
    points. *)
 let determine_winners score =
@@ -104,100 +46,6 @@ let determine_winners score =
       if points = max_points then candidate :: acc else acc)
     score []
 
-(** [draw_game_over window_w window_h winners] draws the game over screen
-    following the completion of a board with a winners message. *)
-let draw_game_over window_w window_h winners =
-  Unix.sleepf 1.;
-  clear_graph ();
-  set_color black;
-  set_text_size 50;
-
-  let end_msg = "Game Over!" in
-  let text_width = fst (text_size end_msg) in
-  let x = (window_w - text_width) / 2 in
-  let y = window_h / 2 in
-  moveto x y;
-  draw_string end_msg;
-  let sorted_winners = List.sort compare winners in
-  let y_winner = y - 50 in
-  match sorted_winners with
-  | [ winner ] ->
-      let win_msg = "Player " ^ string_of_int (winner + 1) ^ " wins!" in
-      let win_width = fst (text_size win_msg) in
-      let x_win = (window_w - win_width) / 2 in
-      moveto x_win y_winner;
-      draw_string win_msg
-  | _ ->
-      let tie_msg = "It's a tie between:" in
-      let text_width = fst (text_size tie_msg) in
-      let x_tie = (window_w - text_width) / 2 in
-      moveto x_tie y_winner;
-      draw_string tie_msg;
-
-      let offset = ref (y_winner - 30) in
-      List.iter
-        (fun w ->
-          let player_str = "Player " ^ string_of_int (w + 1) in
-          let text_width = fst (text_size player_str) in
-          let x_player = (window_w - text_width) / 2 in
-          moveto x_player !offset;
-          draw_string player_str;
-          offset := !offset - 25)
-        sorted_winners
-
-(**[center_align str] draws the given string to be center aligned in a window.
-*)
-let center_align y str window_width =
-  (* Prompted ChaptGPT-4o "Is there pre-set alignment in OCaml Graphics"
-     accessed 4/8/25. *)
-  let str_len = text_size str in
-  let text_width = fst str_len in
-  let x = (window_width - text_width) / 2 in
-  moveto x y;
-  draw_string str
-
-(** Redraw the updated grid with all previous lines and completed boxes. *)
-let redraw_board size board_size spacing lines completed_boxes =
-  auto_synchronize false;
-
-  (* Prompted ChaptGPT-4o "How to fix flickering screen with clear_graph for
-     display," accessed 4/4/25. *)
-  clear_graph ();
-
-  (* draw_scores board color_list board_size window_height score_panel_width; *)
-  draw_grid size board_size;
-
-  (* Draw previous line segments *)
-  List.iter
-    (fun (x1, y1, x2, y2, player_color) ->
-      set_color player_color;
-      (* color of player who drew the line *)
-      moveto x1 y1;
-      lineto x2 y2;
-      set_color black;
-      (* draw dots *)
-      fill_circle x1 y1 5;
-      fill_circle x2 y2 5)
-    lines;
-
-  (* Redraw X's for completed boxes. *)
-  List.iter
-    (fun ((x, y), player_color) -> draw_x x y player_color spacing)
-    completed_boxes;
-  synchronize ();
-  auto_synchronize true
-
-(* Wait for player to click a valid first dot. *)
-let rec wait_for_valid_fst_dot player_idx board size board_size spacing () =
-  print_endline ("Player " ^ string_of_int (player_idx + 1) ^ "'s turn");
-  let event = wait_next_event [ Button_down ] in
-  let x, y = (event.mouse_x, event.mouse_y) in
-  match find_nearest_dot (x, y) size board_size with
-  | Some (x, y) ->
-      if has_available_moves (x, y) spacing size board then Some (x, y)
-      else wait_for_valid_fst_dot player_idx board size board_size spacing ()
-  | _ -> wait_for_valid_fst_dot player_idx board size board_size spacing ()
-
 (** Check if game is over and end game properly if it is. *)
 let check_if_game_over board size window_width window_height =
   if is_game_over board size then (
@@ -207,6 +55,17 @@ let check_if_game_over board size window_width window_height =
     Unix.sleepf 2.;
     print_endline "Game over";
     raise Quit)
+
+(** Wait for player to click a valid first dot. *)
+let rec wait_for_valid_fst_dot player_idx board size board_size spacing () =
+  print_endline ("Player " ^ string_of_int (player_idx + 1) ^ "'s turn");
+  let event = wait_next_event [ Button_down ] in
+  let x, y = (event.mouse_x, event.mouse_y) in
+  match find_nearest_dot (x, y) size board_size with
+  | Some (x, y) ->
+      if has_available_moves (x, y) spacing size board then Some (x, y)
+      else wait_for_valid_fst_dot player_idx board size board_size spacing ()
+  | _ -> wait_for_valid_fst_dot player_idx board size board_size spacing ()
 
 (* Prompted ChatGPT-40 "How to draw line leaving point, following user mouse
    position, Ocaml graphics.", accesssed 4/1/25. *)
