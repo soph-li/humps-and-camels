@@ -31,12 +31,17 @@ Prompted ChatGPT-4o, "How to tell if mouse button pressed Ocaml graphics," acces
 
 Referenced https://ocaml.org/p/graphics/5.1.1/doc/Graphics/index.html for mouse events, accessed 4/2/25.
 
-Prompted ChaptGPT-4o "How to fix flickering screen with clear_graph for
+Prompted ChatGPT-4o "How to fix flickering screen with clear_graph for
        display," accessed 4/4/25.
 
-Prompted ChaptGPT-4o "Is there pre-set alignment in OCaml Graphics" accessed 4/8/25.
+Prompted ChatGPT-4o "Is there pre-set alignment in OCaml Graphics" accessed 4/8/25.
 
-Prompted ChaptGPT-4o "how to connect mutually recursive functions" along with follow_mouse and play to figure out to use "and," accessed 4/14/25.
+Prompted ChatGPT-4o "Animation physics guide in OCaml Graphics," accessed 4/20/2025.
+
+Prompted ChatGPT-4o "How to have OCaml Graphics animation while not entirely clearing board," 
+        accessed 4/22/2025.
+
+Prompted ChatGPT-4o "how to connect mutually recursive functions" along with follow_mouse and play to figure out to use "and," accessed 4/14/25.
 
 --------
 grid.ml
