@@ -2,6 +2,16 @@ open Graphics
 open Unix
 open Game
 
+type confetti = {
+  mutable x : int;
+  mutable y : int;
+  dx : int;
+  dy : int;
+  color : color;
+}
+(** The type representing a single confetti particle, including its coordinates
+    and velocity. *)
+
 let draw_grid size window_size =
   set_color black;
 
@@ -21,6 +31,40 @@ let draw_x x y color spacing =
   lineto (x + spacing) (y + spacing);
   moveto x (y + spacing);
   lineto (x + spacing) y
+
+(** [generate_confetti n window_w window_h] generates [n] confetti particles
+    randomly positioned within the top region of the window of width [window_w]
+    and height [window_h]. Each particle has a random color and initial
+    velocity. *)
+let generate_confetti n window_w window_h =
+  let rand_color () =
+    [| red; green; blue; yellow; cyan; magenta |].(Random.int 6)
+  in
+  List.init n (fun _ ->
+      {
+        x = Random.int window_w;
+        y = window_h + Random.int 200;
+        dx = Random.int 5 - 2;
+        dy = -(Random.int 8 + 4);
+        color = rand_color ();
+      })
+
+let animate_confetti window_w window_h =
+  let confetti = generate_confetti 150 window_w window_h in
+  auto_synchronize false;
+  while List.exists (fun p -> p.y > 0) confetti do
+    clear_graph ();
+    List.iter
+      (fun p ->
+        set_color p.color;
+        fill_circle p.x p.y 4;
+        p.x <- p.x + p.dx;
+        p.y <- p.y + p.dy)
+      confetti;
+    synchronize ();
+    Unix.sleepf 0.03
+  done;
+  auto_synchronize true
 
 let draw_margin_text str grid_size window_h y_pos =
   set_color black;
@@ -62,6 +106,8 @@ let draw_game_over window_w window_h winners =
   let y = window_h / 2 in
   moveto x y;
   draw_string end_msg;
+  animate_confetti window_w window_h;
+  set_color black;
   let sorted_winners = List.sort compare winners in
   let y_winner = y - 50 in
   match sorted_winners with
@@ -127,7 +173,3 @@ let redraw_board size board_size spacing lines completed_boxes =
     completed_boxes;
   synchronize ();
   auto_synchronize true
-
-
-
-
