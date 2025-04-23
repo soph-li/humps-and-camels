@@ -117,8 +117,8 @@ let rec follow_mouse size board_size spacing board cur_color color_list
           (* Update list of completed boxes with coordinates and color of player
              who made the move. *)
           let new_completed_boxes =
-            completed_box_coordinates (start_x, start_y) (dot2_x, dot2_y)
-              spacing new_board player_idx
+            get_box_coordinates (start_x, start_y) (dot2_x, dot2_y) spacing
+              new_board player_idx
           in
           let updated_completed_boxes =
             List.fold_left

@@ -39,7 +39,7 @@ let make_check_completed_box_test test_name (x1, y1) (x2, y2) spacing board
     expected_coordinates =
   test_name >:: fun _ ->
   assert_equal expected_coordinates
-    (completed_box_coordinates (x1, y1) (x2, y2) spacing board 0)
+    (get_box_coordinates (x1, y1) (x2, y2) spacing board 0)
     ~printer:print_list
 
 (** [board_2x2_one_box] is a 2x2 grid of dots with a box formed by the
@@ -124,7 +124,7 @@ let board_2x2_one_box_comp =
   let board_1 = make_connection (0, 0) (0, 1) board_2x2 in
   let board_2 = make_connection (0, 1) (1, 1) board_1 in
   let board_3 = make_connection (1, 1) (1, 0) board_2 in
-  let _ = completed_box_coordinates (0, 0) (0, 1) 100 board_3 0 in
+  let _ = get_box_coordinates (0, 0) (0, 1) 100 board_3 0 in
   board_3
 
 let completed_boxes_tests =

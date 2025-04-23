@@ -87,10 +87,19 @@ let is_box_closed bottom_left bottom_right top_left top_right grid =
 let order_coordinates (x1, y1) (x2, y2) =
   if x1 > x2 || (x1 = x2 && y1 > y2) then (x2, y2, x1, y1) else (x1, y1, x2, y2)
 
-let completed_box_coordinates (x1, y1) (x2, y2) spacing board player =
+let get_box_coordinates (x1, y1) (x2, y2) spacing board player =
   let x1, y1, x2, y2 = order_coordinates (x1, y1) (x2, y2) in
   let grid = board.grid in
   let completed_boxes = ref [] in
+
+  let update_points bottom_left =
+    completed_boxes := bottom_left :: !completed_boxes;
+    board.completed_boxes <- board.completed_boxes + 1;
+    let current_score =
+      try Hashtbl.find board.scores player with Not_found -> 0
+    in
+    Hashtbl.replace board.scores player (current_score + 1)
+  in
 
   (* Check for a completed box above the current horizontal line. *)
   if y1 = y2 then
@@ -98,13 +107,8 @@ let completed_box_coordinates (x1, y1) (x2, y2) spacing board player =
     let bottom_right = (x2, y2) in
     let top_left = (x1, y1 + spacing) in
     let top_right = (x2, y2 + spacing) in
-    if is_box_closed bottom_left bottom_right top_left top_right grid then (
-      completed_boxes := bottom_left :: !completed_boxes;
-      board.completed_boxes <- board.completed_boxes + 1;
-      let current_score =
-        try Hashtbl.find board.scores player with Not_found -> 0
-      in
-      Hashtbl.replace board.scores player (current_score + 1))
+    if is_box_closed bottom_left bottom_right top_left top_right grid then
+      update_points bottom_left
     else ()
   else ();
 
@@ -114,13 +118,8 @@ let completed_box_coordinates (x1, y1) (x2, y2) spacing board player =
     let bottom_right = (x2, y2 - spacing) in
     let top_left = (x1, y1) in
     let top_right = (x2, y2) in
-    if is_box_closed bottom_left bottom_right top_left top_right grid then (
-      completed_boxes := bottom_left :: !completed_boxes;
-      board.completed_boxes <- board.completed_boxes + 1;
-      let current_score =
-        try Hashtbl.find board.scores player with Not_found -> 0
-      in
-      Hashtbl.replace board.scores player (current_score + 1))
+    if is_box_closed bottom_left bottom_right top_left top_right grid then
+      update_points bottom_left
     else ()
   else ();
 
@@ -130,13 +129,8 @@ let completed_box_coordinates (x1, y1) (x2, y2) spacing board player =
     let bottom_right = (x1 + spacing, y1) in
     let top_left = (x2, y2) in
     let top_right = (x2 + spacing, y2) in
-    if is_box_closed bottom_left bottom_right top_left top_right grid then (
-      completed_boxes := bottom_left :: !completed_boxes;
-      board.completed_boxes <- board.completed_boxes + 1;
-      let current_score =
-        try Hashtbl.find board.scores player with Not_found -> 0
-      in
-      Hashtbl.replace board.scores player (current_score + 1))
+    if is_box_closed bottom_left bottom_right top_left top_right grid then
+      update_points bottom_left
     else ()
   else ();
 
@@ -146,13 +140,8 @@ let completed_box_coordinates (x1, y1) (x2, y2) spacing board player =
     let bottom_right = (x1, y1) in
     let top_left = (x2 - spacing, y2) in
     let top_right = (x2, y2) in
-    if is_box_closed bottom_left bottom_right top_left top_right grid then (
-      completed_boxes := bottom_left :: !completed_boxes;
-      board.completed_boxes <- board.completed_boxes + 1;
-      let current_score =
-        try Hashtbl.find board.scores player with Not_found -> 0
-      in
-      Hashtbl.replace board.scores player (current_score + 1))
+    if is_box_closed bottom_left bottom_right top_left top_right grid then
+      update_points bottom_left
     else ()
   else ();
 
