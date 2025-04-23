@@ -253,7 +253,7 @@ let () =
       (* | 1 -> 2 one box case for testing end_screen *)
       | 2 -> 4
       | 3 -> 6
-      | 4 -> 10
+      | 4 -> 8
       | _ -> failwith "\nInvalid player count."
     in
 
