@@ -1,16 +1,19 @@
+val draw_grid : int -> int -> unit
 (** [draw_grid size window_size] draws a [size] x [size] grid of dots in a
     [window_size] x [window_size] window. Requires: [size] and [window_size] are
     positive. *)
 
-val draw_grid : int -> int -> unit
-
+val draw_x : int -> int -> int -> int -> unit
 (** [draw_x x y color spacing] draws a 'X' with the color [color] by connecting
     the bottom left corner [(x, y)] to the top right corner and the top left
     corner to the bottom right corner where adjacent points are [spacing] apart.
 *)
 
-val draw_x : int -> int -> int -> int -> unit
+val draw_button : int -> int -> int -> int -> string -> unit
+(** [draw_button x y w h label] draws a rectangular button of the given 
+    dimensions, labeled by [label]. *)
 
+val draw_margin_text : string -> int -> int -> int -> unit
 (** [draw_margin_text str grid_size window_h y_pos] draws the given text in the
     allocated score panel of the window. *)
 

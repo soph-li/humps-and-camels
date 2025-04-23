@@ -32,6 +32,41 @@ let draw_x x y color spacing =
   moveto x (y + spacing);
   lineto (x + spacing) y
 
+let draw_button x y w h label =
+  set_color black;
+  fill_rect x y w h;
+  set_color white;
+  let text_w, text_h = text_size label in
+  moveto (x + ((w - text_w) / 2)) (y + ((h - text_h) / 2));
+  draw_string label
+
+let wait_for_end_choice window_w window_h =
+  let button_w = 150 in
+  let button_h = 50 in
+  let replay_x = (window_w / 2) - button_w - 10 in
+  let quit_x = (window_w / 2) + 10 in
+  let y = 100 in
+
+  draw_button replay_x y button_w button_h "Replay";
+  draw_button quit_x y button_w button_h "Quit";
+
+  let rec wait () =
+    let status = wait_next_event [ Button_down ] in
+    let mx = status.mouse_x in
+    let my = status.mouse_y in
+    if
+      mx >= replay_x
+      && mx <= replay_x + button_w
+      && my >= y
+      && my <= y + button_h
+    then "replay"
+    else if
+      mx >= quit_x && mx <= quit_x + button_w && my >= y && my <= y + button_h
+    then "quit"
+    else wait ()
+  in
+  wait ()
+
 let draw_turn_indicator player window_w window_h =
   let indicator_text = "Player " ^ string_of_int (player + 1) ^ "'s Turn" in
   let margin = 15 in
@@ -60,7 +95,7 @@ let generate_confetti n window_w window_h =
         x = Random.int window_w;
         y = window_h + Random.int 200;
         dx = Random.int 5 - 2;
-        dy = -(Random.int 8 + 4);
+        dy = -(Random.int 12 + 8);
         color = rand_color ();
       })
 
