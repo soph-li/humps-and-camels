@@ -17,9 +17,9 @@ val make_connection : int * int -> int * int -> t -> t
 (** [make_connection grid (x1, y1) (x2, y2)] is [grid] with a new connection 
 between points [(x1, y1)] and [(x2, y2)]]. *)
 
-val completed_box_coordinates :
+val get_box_coordinates :
   int * int -> int * int -> int -> t -> int -> (int * int) list
-(** [check_completed_box (x1, y1) (x2, y2) spacing board player] checks if a box
+(** [get_box_coordinates (x1, y1) (x2, y2) spacing board player] checks if a box
     is completed after adding the line connecting [(x1, y1)] and [(x1, y1)] in
     [board], where dots are spaced according to [spacing]. If a box is
     completed, it updates [board] with the incremented completed box count for
