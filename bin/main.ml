@@ -70,6 +70,39 @@ let rec wait_for_valid_fst_dot player_idx board size board_size spacing () =
 (* Prompted ChatGPT-40 "How to draw line leaving point, following user mouse
    position, Ocaml graphics.", accesssed 4/1/25. *)
 
+(** [update_board (start_x, start_y) (dot2_x, dot2_y) board spacing player_idx
+     cur_color completed_boxes_lst size window_width window_height] returns the
+    updated_board, updated_completed_boxes, and the other unchanged variables.
+*)
+let rec update_board (start_x, start_y) (dot2_x, dot2_y) board spacing
+    player_idx cur_color completed_boxes_lst size window_width window_height =
+  (* Update board connections *)
+  let new_board = make_connection (start_x, start_y) (dot2_x, dot2_y) board in
+  (* Update list of completed boxes with coordinates and color of player who
+     made the move. *)
+  let new_completed_boxes =
+    get_box_coordinates (start_x, start_y) (dot2_x, dot2_y) spacing new_board
+      player_idx
+  in
+  let updated_completed_boxes =
+    List.fold_left
+      (fun acc (x, y) -> ((x, y), cur_color) :: acc)
+      completed_boxes_lst new_completed_boxes
+  in
+  (* Draw X's to mark boxes that were just completed. *)
+  let () =
+    List.iter (fun (x, y) -> draw_x x y cur_color spacing) new_completed_boxes;
+    check_if_game_over new_board size window_width window_height
+  in
+  ( new_board,
+    spacing,
+    player_idx,
+    cur_color,
+    updated_completed_boxes,
+    size,
+    window_width,
+    window_height )
+
 (** Draw live line from first dot to mouse position. *)
 let rec follow_mouse size board_size spacing board cur_color color_list
     player_idx lines_lst completed_boxes_lst window_width window_height
@@ -110,26 +143,18 @@ let rec follow_mouse size board_size spacing board cur_color color_list
           let prev_completed_boxes = completed_boxes board in
           (* Get previous box count to compare to new box count *)
 
-          (* Update board connections *)
-          let new_board =
-            make_connection (start_x, start_y) (dot2_x, dot2_y) board
+          let ( new_board,
+                spacing,
+                player_idx,
+                cur_color,
+                updated_completed_boxes,
+                size,
+                window_width,
+                window_height ) =
+            update_board (start_x, start_y) (dot2_x, dot2_y) board spacing
+              player_idx cur_color completed_boxes_lst size window_width
+              window_height
           in
-          (* Update list of completed boxes with coordinates and color of player
-             who made the move. *)
-          let new_completed_boxes =
-            get_box_coordinates (start_x, start_y) (dot2_x, dot2_y) spacing
-              new_board player_idx
-          in
-          let updated_completed_boxes =
-            List.fold_left
-              (fun acc (x, y) -> ((x, y), cur_color) :: acc)
-              completed_boxes_lst new_completed_boxes
-          in
-          (* Draw X's to mark boxes that were just completed. *)
-          List.iter
-            (fun (x, y) -> draw_x x y cur_color spacing)
-            new_completed_boxes;
-          check_if_game_over new_board size window_width window_height;
 
           (* Change players for next turn. *)
           let next_player_idx =
