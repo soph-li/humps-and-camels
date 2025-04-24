@@ -1,3 +1,5 @@
 (library
  (name cs3110_final_project)
- (libraries graphics unix))
+ (libraries graphics unix)
+ (instrumentation
+  (backend bisect_ppx)))
