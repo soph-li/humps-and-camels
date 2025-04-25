@@ -32,6 +32,11 @@ let draw_x x y color spacing =
   moveto x (y + spacing);
   lineto (x + spacing) y
 
+let draw_xs cur_color spacing new_completed_boxes new_board size window_width
+    window_height =
+  List.iter (fun (x, y) -> draw_x x y cur_color spacing) new_completed_boxes
+ 
+  
 let draw_button x y w h label =
   set_color black;
   fill_rect x y w h;

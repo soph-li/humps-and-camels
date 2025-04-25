@@ -70,6 +70,8 @@ let rec wait_for_valid_fst_dot player_idx board size board_size spacing () =
 (* Prompted ChatGPT-40 "How to draw line leaving point, following user mouse
    position, Ocaml graphics.", accesssed 4/1/25. *)
 
+(* Draw X's to mark boxes that were just completed. *)
+
 (** [update_board (start_x, start_y) (dot2_x, dot2_y) board spacing player_idx
      cur_color completed_boxes_lst size window_width window_height] returns the
     updated_board, updated_completed_boxes, and the other unchanged variables.
@@ -89,19 +91,7 @@ let rec update_board (start_x, start_y) (dot2_x, dot2_y) board spacing
       (fun acc (x, y) -> ((x, y), cur_color) :: acc)
       completed_boxes_lst new_completed_boxes
   in
-  (* Draw X's to mark boxes that were just completed. *)
-  let () =
-    List.iter (fun (x, y) -> draw_x x y cur_color spacing) new_completed_boxes;
-    check_if_game_over new_board size window_width window_height
-  in
-  ( new_board,
-    spacing,
-    player_idx,
-    cur_color,
-    updated_completed_boxes,
-    size,
-    window_width,
-    window_height )
+  (new_board, updated_completed_boxes, size)
 
 (** Draw live line from first dot to mouse position. *)
 let rec follow_mouse size board_size spacing board cur_color color_list
@@ -109,20 +99,16 @@ let rec follow_mouse size board_size spacing board cur_color color_list
     (start_x, start_y) =
   let event = wait_next_event [ Mouse_motion; Button_down ] in
   let x2, y2 = (event.mouse_x, event.mouse_y) in
-
   redraw_board size board_size spacing lines_lst completed_boxes_lst;
-
   (* Redraw start point *)
   set_color black;
   fill_circle start_x start_y 5;
-
   (* Draw live wire *)
   let cur_color = List.nth color_list player_idx in
   set_color cur_color;
   set_line_width 3;
   moveto start_x start_y;
   lineto x2 y2;
-
   (* Prompted ChatGPT-4o, "How to tell if mouse button pressed," accessed
      4/2/25. Referenced
      https://ocaml.org/p/graphics/5.1.1/doc/Graphics/index.html for mouse
@@ -142,20 +128,14 @@ let rec follow_mouse size board_size spacing board cur_color color_list
           in
           let prev_completed_boxes = completed_boxes board in
           (* Get previous box count to compare to new box count *)
-
-          let ( new_board,
-                spacing,
-                player_idx,
-                cur_color,
-                updated_completed_boxes,
-                size,
-                window_width,
-                window_height ) =
+          let new_board, updated_completed_boxes, size =
             update_board (start_x, start_y) (dot2_x, dot2_y) board spacing
               player_idx cur_color completed_boxes_lst size window_width
               window_height
           in
-
+          redraw_board size board_size spacing updated_lines
+            updated_completed_boxes;
+          check_if_game_over new_board size window_width window_height;
           (* Change players for next turn. *)
           let next_player_idx =
             if prev_completed_boxes < List.length updated_completed_boxes then
@@ -176,10 +156,8 @@ let rec follow_mouse size board_size spacing board cur_color color_list
   else
     follow_mouse size board_size spacing board cur_color color_list player_idx
       lines_lst completed_boxes_lst window_width window_height (start_x, start_y)
-(* No valid second point yet *)
 
-(** Play turn of a player *)
-
+(* Play turn of a player *)
 (* Prompted ChaptGPT-4o "how to connect mutually recursive functions" alonmg
    with follow_mouse and play to figure out to use "and," accessed 4/14/25. *)
 and play size board_size spacing board lines_lst completed_boxes_lst player_idx

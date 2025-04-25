@@ -9,8 +9,12 @@ val draw_x : int -> int -> int -> int -> unit
     corner to the bottom right corner where adjacent points are [spacing] apart.
 *)
 
+val draw_xs : int -> int -> (int * int) list -> 'a -> 'b -> 'c -> 'd -> unit
+(** [draw_xs cur_color spacing new_completed_boxes new_board size window_width]
+    draws an 'X' through every completed box with the appropriate color. *)
+
 val draw_button : int -> int -> int -> int -> string -> unit
-(** [draw_button x y w h label] draws a rectangular button of the given 
+(** [draw_button x y w h label] draws a rectangular button of the given
     dimensions, labeled by [label]. *)
 
 val draw_margin_text : string -> int -> int -> int -> unit
