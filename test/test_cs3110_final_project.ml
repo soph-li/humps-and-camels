@@ -10,6 +10,10 @@ let rec print_list lst =
   | (x, y) :: t ->
       "(" ^ string_of_int x ^ ", " ^ string_of_int y ^ ")" ^ "; " ^ print_list t
 
+(*****************************************************************************
+ * Tests for grid.
+ *****************************************************************************)
+
 (** [make_check_completed_box_test test_name (x1, y1) (x2, y2) spacing board
      expected_output] creates a test case named [test_name]. It tests whether
     adding a line connecting [(x1,y1)] and [(x2,y2)] forms a box in [grid] with
@@ -189,13 +193,13 @@ let make_play_random_game_test test_name size num_players =
   let points_with_moves =
     List.filter (fun p -> has_available_moves p spacing size grid) all_points
   in
-  assert_equal true (points_with_moves <> []);
+  assert_equal true (points_with_moves <> []) ~printer:string_of_bool;
 
   let final_board, moves, game_over =
     play_random_game grid spacing size num_players
   in
   (* The game completes properly. *)
-  assert_equal true game_over;
+  assert_equal true game_over ~printer:string_of_bool;
   (* The number of completed boxes is equal to the total number of boxes. *)
   assert_equal
     ((size - 1) * (size - 1))
