@@ -2,8 +2,8 @@
 
 open Graphics
 open Unix
-open Cs3110_final_project.Game
-open Cs3110_final_project.Board
+open Cs3110_final_project.Grid
+open Cs3110_final_project.Board_ui
 
 (** Prompted ChatGPT-4o, "How to install OCaml Graphics", accessed 3/22/25. *)
 

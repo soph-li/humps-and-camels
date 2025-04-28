@@ -1,6 +1,6 @@
 open OUnit2
-open Cs3110_final_project.Game
-open Cs3110_final_project.Board
+open Cs3110_final_project.Grid
+open Cs3110_final_project.Board_ui
 
 (** [board_2x2] is a 2x2 grid of dots. *)
 let board_2x2 = make_grid 2 0
@@ -184,6 +184,22 @@ let is_valid_move_test =
             currently non-connected"
            (0, 0) (0, 100) 100 2 (make_grid 2 0) true;
        ]
+
+(*****************************************************************************)
+(*****************************************************************************)
+(*****************************************************************************)
+
+(** Generate a list of all possible points on a board of given size *)
+let generate_all_points size spacing =
+  let rec gen_x x acc =
+    if x >= size * spacing then acc else gen_x (x + spacing) (x :: acc)
+  in
+  let rec gen_y y acc =
+    if y >= size * spacing then acc else gen_y (y + spacing) (y :: acc)
+  in
+  let xs = gen_x 0 [] in
+  let ys = gen_y 0 [] in
+  List.concat (List.map (fun x -> List.map (fun y -> (x, y)) ys) xs)
 
 let _ =
   run_test_tt_main

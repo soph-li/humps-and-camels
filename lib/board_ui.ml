@@ -1,6 +1,6 @@
 open Graphics
 open Unix
-open Game
+open Grid
 
 type confetti = {
   mutable x : int;
