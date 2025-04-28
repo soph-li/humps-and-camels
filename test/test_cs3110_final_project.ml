@@ -187,19 +187,105 @@ let is_valid_move_test =
 
 (*****************************************************************************)
 (*****************************************************************************)
-(*****************************************************************************)
 
-(** Generate a list of all possible points on a board of given size *)
-let generate_all_points size spacing =
-  let rec gen_x x acc =
-    if x >= size * spacing then acc else gen_x (x + spacing) (x :: acc)
+(** [get_all_points size spacing] returns all points in a [size x size] grid. *)
+let get_all_points size spacing =
+  List.flatten
+    (List.init size (fun i ->
+         List.init size (fun j ->
+             ((i * spacing) + (spacing / 2), (j * spacing) + (spacing / 2)))))
+
+(** [get_valid_moves_from_point (x, y) spacing size grid] is all possible valid
+    moves from [(x, y)] *)
+let get_valid_moves_from_point (x, y) spacing size grid =
+  let potential_moves =
+    [ (x + spacing, y); (x - spacing, y); (x, y + spacing); (x, y - spacing) ]
   in
-  let rec gen_y y acc =
-    if y >= size * spacing then acc else gen_y (y + spacing) (y :: acc)
+  List.filter
+    (fun (x2, y2) -> is_valid_move (x, y) (x2, y2) spacing size grid)
+    potential_moves
+
+(** [make_random_move] make a random valid move on the grid. *)
+let make_random_move grid size spacing player =
+  let all_points = get_all_points size spacing in
+  let points_with_moves =
+    List.filter (fun p -> has_available_moves p spacing size grid) all_points
   in
-  let xs = gen_x 0 [] in
-  let ys = gen_y 0 [] in
-  List.concat (List.map (fun x -> List.map (fun y -> (x, y)) ys) xs)
+  if points_with_moves = [] then None
+  else
+    let from_point =
+      List.nth points_with_moves (Random.int (List.length points_with_moves))
+    in
+    let moves = get_valid_moves_from_point from_point spacing size grid in
+    let to_point = List.nth moves (Random.int (List.length moves)) in
+    let new_board = make_connection from_point to_point grid in
+    let completed_boxes =
+      get_box_coordinates from_point to_point spacing new_board player
+    in
+    Some (new_board, completed_boxes <> [])
+
+(** [play_random_game grid size num_players] plays [grid] with [num_players]
+    until completion. *)
+let play_random_game grid spacing size num_players =
+  let rec play player_idx moves board =
+    if is_game_over board size then (board, moves, true)
+    else
+      match make_random_move board size spacing player_idx with
+      | None -> (board, moves, true)
+      | Some (new_board, completed_box) ->
+          let next_player =
+            if completed_box then player_idx
+            else (player_idx + 1) mod num_players
+          in
+          play next_player (moves + 1) new_board
+  in
+  play 0 0 grid
+
+(** [make_play_random_game_test] creates a test case named [test_name],
+    simulating a game with [num_players] players on a [size x size] grid. *)
+let make_play_random_game_test test_name size num_players =
+  test_name >:: fun _ ->
+  let spacing = 1 in
+  let grid = make_grid size num_players in
+
+  (* Initial board should have available moves. *)
+  let all_points = get_all_points size spacing in
+  let points_with_moves =
+    List.filter (fun p -> has_available_moves p spacing size grid) all_points
+  in
+  assert_equal true (points_with_moves <> []);
+
+  let final_board, moves, game_over =
+    play_random_game grid spacing size num_players
+  in
+  (* The game completes properly. *)
+  assert_equal true game_over;
+  (* The number of completed boxes is equal to the total number of boxes. *)
+  assert_equal
+    ((size - 1) * (size - 1))
+    (completed_boxes final_board)
+    ~printer:string_of_int;
+  (* The sum of all players' scores is equal to the total number of boxes. *)
+  let scores = get_scores final_board in
+  let total_score =
+    List.fold_left (fun acc (_, score) -> acc + score) 0 scores
+  in
+  assert_equal ((size - 1) * (size - 1)) total_score ~printer:string_of_int
+(* There should be no more available moves. *)
+(* let final_points_with_moves =
+    List.filter
+      (fun p -> has_available_moves p spacing size final_board)
+      all_points
+  in
+  assert_equal 0 (List.length final_points_with_moves) ~printer:string_of_int *)
+
+let play_random_game_test =
+  "Test suite to simulate playing a game until completion"
+  >::: [
+         make_play_random_game_test "4x4 game" 4 2;
+         make_play_random_game_test "6x6 game" 6 3;
+         make_play_random_game_test "8x8 game" 8 4;
+       ]
 
 let _ =
   run_test_tt_main
@@ -210,4 +296,5 @@ let _ =
            completed_boxes_tests;
            is_game_over_tests;
            is_valid_move_test;
+           play_random_game_test;
          ])
