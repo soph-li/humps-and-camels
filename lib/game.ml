@@ -173,36 +173,6 @@ let is_valid_move (x1, y1) (x2, y2) spacing size board =
     | Some neighbors -> not (PointSet.mem (x2, y2) neighbors)
     | None -> true
 
-(** [get_all_dots] returns all dots in a [size] x [size] grid in [window_size] x
-    [window_size]. *)
-let get_all_dots size window_size =
-  let spacing = window_size / size in
-  List.flatten
-    (List.init size (fun i ->
-         List.init size (fun j ->
-             ((i * spacing) + (spacing / 2), (j * spacing) + (spacing / 2)))))
-
-let find_nearest_dot (x, y) size window_size =
-  let radius = 10 in
-
-  let dots = get_all_dots size window_size in
-
-  let nearest_dot =
-    List.fold_left
-      (fun acc (dot_x, dot_y) ->
-        let dist_sq = distance_sq (x, y) (dot_x, dot_y) in
-        match acc with
-        | None -> Some (dot_x, dot_y, dist_sq)
-        | Some (_, _, min_dist_sq) ->
-            if dist_sq < min_dist_sq then Some (dot_x, dot_y, dist_sq) else acc)
-      None dots
-  in
-
-  match nearest_dot with
-  | Some (dot_x, dot_y, dist_sq) ->
-      if dist_sq <= radius * radius then Some (dot_x, dot_y) else None
-  | _ -> None
-
 let has_available_moves (x, y) spacing size board =
   let potential_moves =
     [ (x + spacing, y); (x - spacing, y); (x, y + spacing); (x, y - spacing) ]

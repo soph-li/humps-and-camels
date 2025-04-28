@@ -9,14 +9,12 @@ type confetti = {
   dy : int;
   color : color;
 }
-(** The type representing a single confetti particle, including its coordinates
-    and velocity. *)
+(** The type of a single confetti particle, including its coordinates and
+    velocity. *)
 
 let draw_grid size window_size =
   set_color black;
-
   let spacing = window_size / size in
-
   for i = 0 to size - 1 do
     for j = 0 to size - 1 do
       let x = (i * spacing) + (spacing / 2) in
@@ -32,11 +30,10 @@ let draw_x x y color spacing =
   moveto x (y + spacing);
   lineto (x + spacing) y
 
-let draw_xs cur_color spacing new_completed_boxes new_board size window_width
-    window_height =
-  List.iter (fun (x, y) -> draw_x x y cur_color spacing) new_completed_boxes
- 
-  
+(* let draw_xs cur_color spacing new_completed_boxes new_board size window_width
+   window_height = List.iter (fun (x, y) -> draw_x x y cur_color spacing)
+   new_completed_boxes *)
+
 let draw_button x y w h label =
   set_color black;
   fill_rect x y w h;
@@ -228,3 +225,38 @@ let redraw_board size board_size spacing lines completed_boxes =
     completed_boxes;
   synchronize ();
   auto_synchronize true
+
+(** [distance_sq (x1, y1) (x2, y2)] returns the squared distance between
+    [(x1, y1)] and [(x2, y2)]. *)
+let distance_sq (x1, y1) (x2, y2) =
+  ((x2 - x1) * (x2 - x1)) + ((y2 - y1) * (y2 - y1))
+
+(** [get_all_dots] returns all dots in a [size] x [size] grid in [window_size] x
+    [window_size]. *)
+let get_all_dots size window_size =
+  let spacing = window_size / size in
+  List.flatten
+    (List.init size (fun i ->
+         List.init size (fun j ->
+             ((i * spacing) + (spacing / 2), (j * spacing) + (spacing / 2)))))
+
+let find_nearest_dot (x, y) size window_size =
+  let radius = 10 in
+
+  let dots = get_all_dots size window_size in
+
+  let nearest_dot =
+    List.fold_left
+      (fun acc (dot_x, dot_y) ->
+        let dist_sq = distance_sq (x, y) (dot_x, dot_y) in
+        match acc with
+        | None -> Some (dot_x, dot_y, dist_sq)
+        | Some (_, _, min_dist_sq) ->
+            if dist_sq < min_dist_sq then Some (dot_x, dot_y, dist_sq) else acc)
+      None dots
+  in
+
+  match nearest_dot with
+  | Some (dot_x, dot_y, dist_sq) ->
+      if dist_sq <= radius * radius then Some (dot_x, dot_y) else None
+  | _ -> None

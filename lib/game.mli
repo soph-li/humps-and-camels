@@ -42,10 +42,6 @@ val is_valid_move : int * int -> int * int -> int -> int -> t -> bool
     not already been drawn. Requires: [(x1, y1)] is within the bounds of the
     grid. *)
 
-val find_nearest_dot : int * int -> int -> int -> (int * int) option
-(** [find_nearest_dot (x, y) size spacing] returns the nearest dot to [(x, y)]
-    in the grid, if it is within a radius of 10. Otherwise, returns [None]. *)
-
 val has_available_moves : int * int -> int -> int -> t -> bool
 (** [has_available_moves (x, y) spacing size board] checks if [(x, y)] has any
     valid moves left. *)

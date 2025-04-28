@@ -33,8 +33,8 @@ open Cs3110_final_project.Board
 exception Quit
 (** Raised if user quits the program. *)
 
-(* [determine_winners score] returns a list of players who have the most
-   points. *)
+(** [determine_winners score] returns a list of players who have the most
+    points. *)
 let determine_winners score =
   let max_points =
     List.fold_left
@@ -46,17 +46,19 @@ let determine_winners score =
       if points = max_points then candidate :: acc else acc)
     score []
 
-(** Check if game is over and end game properly if it is. *)
+(** [check_if_game_over board size window_width window_height] checks if the
+    game is over and if so, it end game properly. *)
 let check_if_game_over board size window_width window_height =
   if is_game_over board size then (
     let final_scores = get_scores board in
     let winners = determine_winners final_scores in
     draw_game_over window_width window_height winners;
-    Unix.sleepf 2.;
+    (* Unix.sleepf 2.; *)
     print_endline "Game over";
     raise Quit)
 
-(** Wait for player to click a valid first dot. *)
+(** [wait_for_valid_fst_dot player_idx board size board_size spacing] waits for
+    player to click a valid first dot. *)
 let rec wait_for_valid_fst_dot player_idx board size board_size spacing () =
   print_endline ("Player " ^ string_of_int (player_idx + 1) ^ "'s turn");
   let event = wait_next_event [ Button_down ] in
@@ -323,7 +325,7 @@ let () =
         let winners = determine_winners final_scores in
         draw_game_over window_width window_height winners;
 
-        (match winners with
+        match winners with
         | [ winner ] ->
             print_endline
               ("\nGame over! Player " ^ string_of_int winner ^ " won.")
@@ -333,17 +335,15 @@ let () =
             List.iter
               (fun winner ->
                 print_endline (" - Player " ^ string_of_int winner))
-              winners);
-
-        (* Prompted ChatGPT -4o, "How to introduce delay in OCaml to allow the
+              winners
+      (* Prompted ChatGPT -4o, "How to introduce delay in OCaml to allow the
            final image in graphics show up before the program exits", accessed
            3/29/25. *)
-        Unix.sleepf 3.
+      (* Unix.sleepf 3. *)
     in
-    play_game color_list 0;
-
+    play_game color_list 0
     (* Handle closing of game. *)
-    close_graph ()
+    (* close_graph () *)
   with
   | Failure e ->
       print_endline e;
