@@ -100,7 +100,7 @@ let make_is_valid_move_test test_name (x1, y1) (x2, y2) spacing size board
     (is_valid_move (x1, y1) (x2, y2) spacing size board)
 
 let is_valid_move_test =
-  "test suite for make_is_valid_move"
+  "Test suite for make_is_valid_move"
   >::: [
          make_is_valid_move_test "Not valid if p1 and p2 are the same points"
            (0, 0) (0, 0) 100 2 (make_grid 2 0) false;
@@ -119,8 +119,9 @@ let is_valid_move_test =
            (0, 0) (0, 100) 100 2 (make_grid 2 0) true;
        ]
 
-(*****************************************************************************)
-(*****************************************************************************)
+(*****************************************************************************
+ * Simulate playing a game until completion.
+ *****************************************************************************)
 
 (** [get_all_points size spacing] returns all points in a [size x size] grid. *)
 let get_all_points size spacing =
@@ -214,7 +215,7 @@ let make_play_random_game_test test_name size num_players =
   assert_equal 0 (List.length final_points_with_moves) ~printer:string_of_int
 
 let play_random_game_test =
-  "Simulate playing a game until completion"
+  "Test suite for simulating playing a game until completion"
   >::: [
          make_play_random_game_test "4x4 game" 4 2;
          make_play_random_game_test "6x6 game" 6 3;

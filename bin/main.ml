@@ -53,7 +53,7 @@ let check_if_game_over board size window_width window_height =
     let final_scores = get_scores board in
     let winners = determine_winners final_scores in
     draw_game_over window_width window_height winners;
-    (* Unix.sleepf 2.; *)
+    Unix.sleepf 2.;
     print_endline "Game over";
     raise Quit)
 
