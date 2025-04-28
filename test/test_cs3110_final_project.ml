@@ -2,9 +2,6 @@ open OUnit2
 open Cs3110_final_project.Grid
 open Cs3110_final_project.Board_ui
 
-(** [board_2x2] is a 2x2 grid of dots. *)
-let board_2x2 = make_grid 2 0
-
 (** [print_list lst] returns a string representation of [lst]. *)
 let rec print_list lst =
   match lst with
@@ -23,6 +20,9 @@ let make_check_completed_box_test test_name (x1, y1) (x2, y2) spacing board
   assert_equal expected_coordinates
     (get_box_coordinates (x1, y1) (x2, y2) spacing board 0)
     ~printer:print_list
+
+(** [board_2x2] is a 2x2 grid of dots. *)
+let board_2x2 = make_grid 2 0
 
 (** [board_2x2_one_box] is a 2x2 grid of dots with a box formed by the
     coordinates (0,0), (0,1), (1,0), and (1,1). *)
@@ -98,6 +98,7 @@ let make_is_valid_move_test test_name (x1, y1) (x2, y2) spacing size board
   test_name >:: fun _ ->
   assert_equal expected_output
     (is_valid_move (x1, y1) (x2, y2) spacing size board)
+    ~printer:string_of_bool
 
 let is_valid_move_test =
   "Test suite for make_is_valid_move"
@@ -221,6 +222,10 @@ let play_random_game_test =
          make_play_random_game_test "6x6 game" 6 3;
          make_play_random_game_test "8x8 game" 8 5;
        ]
+
+(*****************************************************************************
+ * Tests for board_ui.
+ *****************************************************************************)
 
 let _ =
   run_test_tt_main
