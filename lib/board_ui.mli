@@ -1,4 +1,10 @@
-type confetti
+type confetti = {
+  mutable x : int;
+  mutable y : int;
+  dx : int;
+  dy : int;
+  color : Graphics.color;
+}
 (** The type of a single confetti particle, including its coordinates and
     velocity. *)
 
