@@ -1,3 +1,7 @@
+type confetti
+(** The type of a single confetti particle, including its coordinates and
+    velocity. *)
+
 val draw_grid : int -> int -> unit
 (** [draw_grid size window_size] draws a [size] x [size] grid of dots in a
     [window_size] x [window_size] window. Requires: [size] and [window_size] are
@@ -25,6 +29,12 @@ val draw_margin_text : string -> int -> int -> int -> unit
 val draw_turn_indicator : int -> int -> int -> unit
 (** [draw_turn_indicator player window_w window_h] displays a message in the
     corner of the window indicating that it is currently [player]'s turn. *)
+
+val generate_confetti : int -> int -> int -> confetti list
+(** [generate_confetti n window_w window_h] generates [n] confetti particles
+    randomly positioned within the top region of the window of width [window_w]
+    and height [window_h]. Each particle has a random color and initial
+    velocity. *)
 
 val animate_confetti : int -> int -> unit
 (** [animate_confetti window_w window_h] animates a confetti effect until all
