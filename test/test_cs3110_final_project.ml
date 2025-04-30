@@ -263,12 +263,7 @@ let find_nearest_dot_tests =
            (Some (50, 50));
        ]
 
-let make_is_valid_move_test test_name (x1, y1) (x2, y2) spacing size board
-    expected_output =
-  test_name >:: fun _ ->
-  assert_equal expected_output
-    (is_valid_move (x1, y1) (x2, y2) spacing size board)
-    ~printer:string_of_bool
+
 
 (*****************************************************************************
  * Tests for board_ui.
