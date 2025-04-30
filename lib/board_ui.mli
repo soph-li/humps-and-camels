@@ -63,7 +63,3 @@ val redraw_board :
   unit
 (** [redraw_board size board_size spacing lines completed_boxes] redraws the
     updated grid with all previous lines and completed boxes. *)
-
-val find_nearest_dot : int * int -> int -> int -> (int * int) option
-(** [find_nearest_dot (x, y) size spacing] returns the nearest dot to [(x, y)]
-    in the grid, if it is within a radius of 10. Otherwise, returns [None]. *)

@@ -49,3 +49,7 @@ val has_available_moves : int * int -> int -> int -> t -> bool
 val get_scores : t -> (int * int) list
 (** [get_scores board] returns the list of scores for each players. An element
     in the list is in the form [(player, score)]. *)
+
+val find_nearest_dot : int * int -> int -> int -> (int * int) option
+(** [find_nearest_dot (x, y) size spacing] returns the nearest dot to [(x, y)]
+    in the grid, if it is within a radius of 10. Otherwise, returns [None]. *)
