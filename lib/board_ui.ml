@@ -9,8 +9,6 @@ type confetti = {
   dy : int;
   color : color;
 }
-(** The type of a single confetti particle, including its coordinates and
-    velocity. *)
 
 let draw_grid size window_size =
   set_color black;
@@ -84,10 +82,6 @@ let draw_turn_indicator player window_w window_h =
   moveto (2 * margin) (window_h - font_height - margin);
   draw_string indicator_text
 
-(** [generate_confetti n window_w window_h] generates [n] confetti particles
-    randomly positioned within the top region of the window of width [window_w]
-    and height [window_h]. Each particle has a random color and initial
-    velocity. *)
 let generate_confetti n window_w window_h =
   let rand_color () =
     [| red; green; blue; yellow; cyan; magenta |].(Random.int 6)
