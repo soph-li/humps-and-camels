@@ -41,6 +41,14 @@ Prompted ChatGPT-4o "Animation physics guide in OCaml Graphics," accessed 4/20/2
 Prompted ChatGPT-4o "How to have OCaml Graphics animation while not entirely clearing board," 
         accessed 4/22/2025.
 
+Prompted ChatGPT-4o "How to generate random particles in OCaml Graphics," accessed 4/22/2025.
+
+Referenced https://youtu.be/GiA6ls9mOL4?si=L-gneW9pyqKtq-Dh for confetti animation, accessed 4/20/2025.
+
+Referenced 
+        https://adarsh-gupta.medium.com/animating-confetti-in-javascript-a-step-by-step-guide-34b23c31d8e0
+        for confetti animation, accessed 4/21/2025.
+
 Prompted ChatGPT-4o "how to connect mutually recursive functions" along with follow_mouse and play to figure out to use "and," accessed 4/14/25.
 
 --------
