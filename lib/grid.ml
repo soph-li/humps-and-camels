@@ -186,8 +186,7 @@ let get_scores board =
 
 (** [get_all_dots] returns all dots in a [size] x [size] grid in [window_size] x
     [window_size]. *)
-let get_all_dots size window_size =
-  let spacing = window_size / size in
+let get_all_dots size spacing =
   List.flatten
     (List.init size (fun i ->
          List.init size (fun j ->
@@ -196,7 +195,8 @@ let get_all_dots size window_size =
 let find_nearest_dot (x, y) size window_size =
   let radius = 10 in
 
-  let dots = get_all_dots size window_size in
+  let spacing = window_size / size in
+  let dots = get_all_dots size spacing in
 
   let nearest_dot =
     List.fold_left
