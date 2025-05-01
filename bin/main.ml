@@ -94,7 +94,7 @@ let rec update_board (start_x, start_y) (dot2_x, dot2_y) board spacing
       (fun acc (x, y) -> ((x, y), cur_color) :: acc)
       completed_boxes_lst new_completed_boxes
   in
-  (new_board, updated_completed_boxes, size)
+  (new_board, updated_completed_boxes)
 
 (** [draw_livewire color_list player_idx start_x start_y x2 y2] draws a line
     from [(start_x, start_x)] to [(x2, y2)] with the color in [color_list] at
@@ -137,7 +137,7 @@ let rec follow_mouse size board_size spacing board cur_color color_list
           in
           let prev_completed_boxes = completed_boxes board in
           (* Get previous box count to compare to new box count *)
-          let new_board, updated_completed_boxes, size =
+          let new_board, updated_completed_boxes =
             update_board (start_x, start_y) (dot2_x, dot2_y) board spacing
               player_idx cur_color completed_boxes_lst size window_width
               window_height
