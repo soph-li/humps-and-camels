@@ -33,6 +33,8 @@ open Cs3110_final_project.Board_ui
 exception Quit
 (** Raised if user quits the program. *)
 
+exception Restart
+
 (** [determine_winners score] returns a list of players who have the most
     points. *)
 let determine_winners score =
@@ -52,10 +54,13 @@ let check_if_game_over board size window_width window_height =
   if is_game_over board size then (
     let final_scores = get_scores board in
     let winners = determine_winners final_scores in
-    draw_game_over window_width window_height winners;
-    Unix.sleepf 2.;
+    let choice = draw_game_over window_width window_height winners in
     print_endline "Game over";
-    raise Quit)
+    Unix.sleepf 0.5;
+    match choice with
+    | "replay" -> raise Restart
+    | "quit" -> raise Quit
+    | _ -> raise Quit)
 
 (** [wait_for_valid_fst_dot player_idx board size board_size spacing] waits for
     player to click a valid first dot. *)
@@ -105,33 +110,6 @@ let rec draw_livewire color_list player_idx start_x start_y x2 y2 =
   moveto start_x start_y;
   lineto x2 y2
 
-(** Handles a player's move by updating the board state. Updates the list of
-    line segments and completed boxes. Redraws the board, checks if the game is
-    over, and updates the player index. *)
-let rec handle_move dot2_x dot2_y start_x start_y cur_color lines_lst
-    completed_boxes board board_size spacing player_idx completed_boxes_lst size
-    window_width window_height color_list =
-  set_color black;
-  fill_circle dot2_x dot2_y 5;
-  (* Add new line segment to list of lines. *)
-  let updated_lines =
-    (start_x, start_y, dot2_x, dot2_y, cur_color) :: lines_lst
-  in
-  let prev_completed_boxes = completed_boxes board in
-  (* Get previous box count to compare to new box count *)
-  let new_board, updated_completed_boxes =
-    update_board (start_x, start_y) (dot2_x, dot2_y) board spacing player_idx
-      cur_color completed_boxes_lst size window_width window_height
-  in
-  redraw_board size board_size spacing updated_lines updated_completed_boxes;
-  check_if_game_over new_board size window_width window_height;
-  (* Change players for next turn. *)
-  let next_player_idx =
-    if prev_completed_boxes < List.length updated_completed_boxes then
-      player_idx
-    else (player_idx + 1) mod List.length color_list
-  in
-  (new_board, updated_completed_boxes, updated_lines, next_player_idx)
 
 (** Draw live line from first dot to mouse position. *)
 let rec follow_mouse size board_size spacing board cur_color color_list
@@ -342,12 +320,11 @@ let rec play_game color_list player_idx board size grid_size window_height
       else (player_idx + 1) mod List.length color_list
     in
 
-    play_game color_list next_player_idx board size grid_size window_height
-      window_width score_panel_width)
-  else
-    let final_scores = get_scores board in
-    let winners = determine_winners final_scores in
-    draw_game_over window_width window_height winners;
+        play_game color_list next_player_idx)
+      else
+        let final_scores = get_scores board in
+        let winners = determine_winners final_scores in
+        draw_game_over window_width window_height winners;
 
     match winners with
     | [ winner ] ->
@@ -381,6 +358,7 @@ let () =
       print_endline e;
       close_graph ()
   | Quit -> print_endline "\nExited game."
+  | Restart -> print_endline "\nRestarting game."
   | Graphics.Graphic_failure _ ->
       print_endline "\nThank you for playing!";
       close_graph ()
