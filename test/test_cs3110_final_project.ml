@@ -1,6 +1,7 @@
 open OUnit2
 open Cs3110_final_project.Grid
 open Cs3110_final_project.Board_ui
+open Graphics
 
 (** [print_list lst] returns a string representation of [lst]. *)
 let rec print_list lst =
@@ -267,6 +268,22 @@ let find_nearest_dot_tests =
 (*****************************************************************************
  * Tests for board_ui.
  *****************************************************************************)
+
+let make_function_executes_test test_name input expected_output =
+  test_name >:: fun _ -> assert_equal expected_output input
+
+let function_executes_tests =
+  "Test suite for testing if board ui functions execute"
+  >::: [
+         make_function_executes_test "draw_grid" (draw_grid 4 4) ();
+         make_function_executes_test "draw_x" (draw_x 2 2 (rgb 255 0 0) 20) ();
+         (* Referenced https://ocaml.org/manual/4.05/libref/Graphics.html for
+                       how to define Ocaml Graphics colors, accessed 4/30/25. *)
+         make_function_executes_test "draw_button"
+           (draw_button 1 1 1 2 "test")
+           ();
+       ]
+
 let test_generate_confetti test_name =
   test_name >:: fun _ ->
   let window_w = 800 in
@@ -304,5 +321,6 @@ let _ =
            is_valid_move_tests;
            play_random_game_tests;
            find_nearest_dot_tests;
+           function_executes_tests;
            front_end_test;
          ])
