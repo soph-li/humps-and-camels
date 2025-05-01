@@ -284,6 +284,25 @@ let function_executes_tests =
          make_function_executes_test "draw_button"
            (draw_button 1 1 1 2 "test")
            ();
+         make_function_executes_test "draw_turn_indicator"
+           (draw_turn_indicator 1 400 400)
+           ();
+         make_function_executes_test "animate_confetti"
+           (animate_confetti 400 400) ();
+         make_function_executes_test "draw_margin_text"
+           (draw_margin_text "margin" 100 100 20)
+           ();
+         make_function_executes_test "draw_scores"
+           (draw_scores (make_grid 4 2) 100 100 20)
+           ();
+         make_function_executes_test "center_align"
+           (center_align 100 "txt" 200)
+           ();
+         make_function_executes_test "redraw_board"
+           (redraw_board 4 100 20
+              [ (0, 1, 2, 3, 4); (10, 9, 8, 7, 6) ]
+              [ ((1, 2), 3); ((5, 6), 8) ])
+           ();
        ]
 
 let test_generate_confetti test_name =
