@@ -54,13 +54,9 @@ let check_if_game_over board size window_width window_height =
   if is_game_over board size then (
     let final_scores = get_scores board in
     let winners = determine_winners final_scores in
-    let choice = draw_game_over window_width window_height winners in
     print_endline "Game over";
-    Unix.sleepf 0.5;
-    match choice with
-    | "replay" -> raise Restart
-    | "quit" -> raise Quit
-    | _ -> raise Quit)
+    draw_game_over window_width window_height winners)
+  else ""
 
 (** [wait_for_valid_fst_dot player_idx board size board_size spacing] waits for
     player to click a valid first dot. *)
@@ -148,16 +144,27 @@ let rec follow_mouse size board_size spacing board cur_color color_list
           in
           redraw_board size board_size spacing updated_lines
             updated_completed_boxes;
-          check_if_game_over new_board size window_width window_height;
-          (* Change players for next turn. *)
-          let next_player_idx =
-            if prev_completed_boxes < List.length updated_completed_boxes then
-              player_idx
-            else (player_idx + 1) mod List.length color_list
+          let choice =
+            check_if_game_over new_board size window_width window_height
           in
-          play size board_size spacing new_board updated_lines
-            updated_completed_boxes next_player_idx color_list window_width
-            window_height)
+          match choice with
+          | "replay" ->
+              Unix.sleepf 0.5;
+              raise Restart
+          | "quit" ->
+              Unix.sleepf 0.5;
+              raise Quit
+          | "" ->
+              (* Game continues, proceed with the next turn *)
+              let next_player_idx =
+                if prev_completed_boxes < List.length updated_completed_boxes
+                then player_idx (* Same player if they completed a box *)
+                else (player_idx + 1) mod List.length color_list
+              in
+              play size board_size spacing new_board updated_lines
+                updated_completed_boxes next_player_idx color_list window_width
+                window_height
+          | _ -> raise Quit)
         else
           follow_mouse size board_size spacing board cur_color color_list
             player_idx lines_lst completed_boxes_lst window_width window_height
@@ -260,7 +267,7 @@ let rec select_player_color ind player_num selected_colors =
       select_player_color ind player_num selected_colors)
 
 (* Main *)
-let () =
+let rec start_game () =
   try
     (* Get valid number of players. *)
     let player_num = get_valid_players () in
@@ -360,10 +367,15 @@ let () =
       print_endline e;
       close_graph ()
   | Quit -> print_endline "\nExited game."
-  | Restart -> print_endline "\nRestarting game."
+  | Restart ->
+      print_endline "\nRestarting game.";
+      close_graph ();
+      start_game ()
   | Graphics.Graphic_failure _ ->
       print_endline "\nThank you for playing!";
       close_graph ()
   | _ ->
       print_endline "\nError: An unexpected error occured.";
       close_graph ()
+
+let () = start_game ()
