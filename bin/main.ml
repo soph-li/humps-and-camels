@@ -51,7 +51,7 @@ let determine_winners score =
 (** [check_if_game_over board size window_width window_height] checks if the
     game is over and if so, it end game properly. *)
 let check_if_game_over board size window_width window_height =
-  if is_game_over board size then 
+  if is_game_over board size then
     let final_scores = get_scores board in
     let winners = determine_winners final_scores in
     (* print_endline "Game over"; *)
@@ -107,32 +107,41 @@ let rec draw_livewire color_list player_idx start_x start_y x2 y2 =
   lineto x2 y2
 
 (** Handles a player's move by updating the board state. Updates the list of
-   line segments and completed boxes. Redraws the board, checks if the game is
-   over, and updates the player index. *)
-   let rec handle_move dot2_x dot2_y start_x start_y cur_color lines_lst
-   completed_boxes board board_size spacing player_idx completed_boxes_lst size
-   window_width window_height color_list =
- set_color black;
- fill_circle dot2_x dot2_y 5;
- (* Add new line segment to list of lines. *)
- let updated_lines =
-   (start_x, start_y, dot2_x, dot2_y, cur_color) :: lines_lst
- in
- let prev_completed_boxes = completed_boxes board in
- (* Get previous box count to compare to new box count *)
- let new_board, updated_completed_boxes =
-   update_board (start_x, start_y) (dot2_x, dot2_y) board spacing player_idx
-     cur_color completed_boxes_lst size window_width window_height
- in
- redraw_board size board_size spacing updated_lines updated_completed_boxes;
- let _ = check_if_game_over new_board size window_width window_height in
- (* Change players for next turn. *)
- let next_player_idx =
-   if prev_completed_boxes < List.length updated_completed_boxes then
-     player_idx
-   else (player_idx + 1) mod List.length color_list
- in
- (new_board, updated_completed_boxes, updated_lines, next_player_idx)
+    line segments and completed boxes. Redraws the board, checks if the game is
+    over, and updates the player index. *)
+let rec handle_move dot2_x dot2_y start_x start_y cur_color lines_lst
+    completed_boxes board board_size spacing player_idx completed_boxes_lst size
+    window_width window_height color_list =
+  set_color black;
+  fill_circle dot2_x dot2_y 5;
+  (* Add new line segment to list of lines. *)
+  let updated_lines =
+    (start_x, start_y, dot2_x, dot2_y, cur_color) :: lines_lst
+  in
+  let prev_completed_boxes = completed_boxes board in
+  (* Get previous box count to compare to new box count *)
+  let new_board, updated_completed_boxes =
+    update_board (start_x, start_y) (dot2_x, dot2_y) board spacing player_idx
+      cur_color completed_boxes_lst size window_width window_height
+  in
+  redraw_board size board_size spacing updated_lines updated_completed_boxes;
+  let choice = check_if_game_over new_board size window_width window_height in
+  match choice with
+  | "replay" ->
+      Unix.sleepf 0.5;
+      raise Restart
+  | "quit" ->
+      Unix.sleepf 0.5;
+      raise Quit
+  | "" ->
+      (* Change players for next turn. *)
+      let next_player_idx =
+        if prev_completed_boxes < List.length updated_completed_boxes then
+          player_idx
+        else (player_idx + 1) mod List.length color_list
+      in
+      (new_board, updated_completed_boxes, updated_lines, next_player_idx)
+  | _ -> raise Quit
 
 (** Draw live line from first dot to mouse position. *)
 let rec follow_mouse size board_size spacing board cur_color color_list
@@ -156,17 +165,17 @@ let rec follow_mouse size board_size spacing board cur_color color_list
         if
           is_valid_move (start_x, start_y) (dot2_x, dot2_y) spacing size
             board (* Check if second point is valid *)
-        then (* Handle move and update board accordingly. *)
-            let new_board, updated_completed_boxes, updated_lines, next_player_idx
-                =
-              handle_move dot2_x dot2_y start_x start_y cur_color lines_lst
-                completed_boxes board board_size spacing player_idx
-                completed_boxes_lst size window_width window_height color_list
-            in
-              play size board_size spacing new_board updated_lines
-                updated_completed_boxes next_player_idx color_list window_width
-                window_height
-          
+        then
+          (* Handle move and update board accordingly. *)
+          let new_board, updated_completed_boxes, updated_lines, next_player_idx
+              =
+            handle_move dot2_x dot2_y start_x start_y cur_color lines_lst
+              completed_boxes board board_size spacing player_idx
+              completed_boxes_lst size window_width window_height color_list
+          in
+          play size board_size spacing new_board updated_lines
+            updated_completed_boxes next_player_idx color_list window_width
+            window_height
         else
           follow_mouse size board_size spacing board cur_color color_list
             player_idx lines_lst completed_boxes_lst window_width window_height
