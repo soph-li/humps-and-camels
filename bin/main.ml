@@ -95,6 +95,17 @@ let rec update_board (start_x, start_y) (dot2_x, dot2_y) board spacing
   in
   (new_board, updated_completed_boxes, size)
 
+(** [draw_livewire color_list player_idx start_x start_y x2 y2] draws a line
+    from [(start_x, start_x)] to [(x2, y2)] with the color in [color_list] at
+    [player_idx]. *)
+let rec draw_livewire color_list player_idx start_x start_y x2 y2 =
+  let cur_color = List.nth color_list player_idx in
+  set_color cur_color;
+  set_line_width 3;
+  moveto start_x start_y;
+  lineto x2 y2
+
+
 (** Draw live line from first dot to mouse position. *)
 let rec follow_mouse size board_size spacing board cur_color color_list
     player_idx lines_lst completed_boxes_lst window_width window_height
@@ -105,12 +116,8 @@ let rec follow_mouse size board_size spacing board cur_color color_list
   (* Redraw start point *)
   set_color black;
   fill_circle start_x start_y 5;
+  draw_livewire color_list player_idx start_x start_y x2 y2;
   (* Draw live wire *)
-  let cur_color = List.nth color_list player_idx in
-  set_color cur_color;
-  set_line_width 3;
-  moveto start_x start_y;
-  lineto x2 y2;
   (* Prompted ChatGPT-4o, "How to tell if mouse button pressed," accessed
      4/2/25. Referenced
      https://ocaml.org/p/graphics/5.1.1/doc/Graphics/index.html for mouse

@@ -104,7 +104,7 @@ let make_is_valid_move_test test_name (x1, y1) (x2, y2) spacing size board
     (is_valid_move (x1, y1) (x2, y2) spacing size board)
     ~printer:string_of_bool
 
-let is_valid_move_test =
+let is_valid_move_tests =
   "Test suite for make_is_valid_move"
   >::: [
          make_is_valid_move_test "Not valid if p1 and p2 are the same points"
@@ -219,12 +219,48 @@ let make_play_random_game_test test_name size num_players =
   in
   assert_equal 0 (List.length final_points_with_moves) ~printer:string_of_int
 
-let play_random_game_test =
+let play_random_game_tests =
   "Test suite for simulating playing a game until completion"
   >::: [
          make_play_random_game_test "4x4 game" 4 2;
          make_play_random_game_test "6x6 game" 6 3;
          make_play_random_game_test "8x8 game" 8 5;
+       ]
+
+(** [print_point_opt opt_point] is the string representation of [opt_point]. *)
+let print_point_opt opt_point =
+  match opt_point with
+  | Some (x, y) -> "Some (" ^ string_of_int x ^ ", " ^ string_of_int y ^ ")"
+  | None -> "None"
+
+(** [make_find_nearest_dot_test test_name (x_in, y_in, size, window_size)
+     expected_output] makes a test case with name [test_name] to check if
+    [find_nearest dot x_in x_out size window_size] equals the appropriate
+    [expected_output]*)
+let make_find_nearest_dot_test test_name (x_in, y_in, size, window_size)
+    expected_output =
+  test_name >:: fun _ ->
+  assert_equal expected_output
+    (find_nearest_dot (x_in, y_in) size window_size)
+    ~printer:print_point_opt
+
+let find_nearest_dot_tests =
+  "Test suite for find_nearest_dot"
+  >::: [
+         make_find_nearest_dot_test "No nearest dots detected" (5, 5, 4, 400)
+           None;
+         make_find_nearest_dot_test "Clicked just outside radius 10"
+           (111, 100, 4, 400) None;
+         make_find_nearest_dot_test "Clicked right on border" (0, 0, 10, 400)
+           None;
+         make_find_nearest_dot_test "Clicked just inside radius 10"
+           (141, 150, 4, 400)
+           (Some (150, 150));
+         make_find_nearest_dot_test "Nearest dot found well within radius 10"
+           (105, 105, 10, 400)
+           (Some (100, 100));
+         make_find_nearest_dot_test "Clicked right on dot" (50, 50, 4, 400)
+           (Some (50, 50));
        ]
 
 (*****************************************************************************
@@ -235,5 +271,8 @@ let _ =
   run_test_tt_main
     ("all tests"
     >::: [
-           check_completed_box_tests; is_valid_move_test; play_random_game_test;
+           check_completed_box_tests;
+           is_valid_move_tests;
+           play_random_game_tests;
+           find_nearest_dot_tests;
          ])
