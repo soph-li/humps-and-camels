@@ -33,6 +33,8 @@ open Cs3110_final_project.Board_ui
 exception Quit
 (** Raised if user quits the program. *)
 
+exception Restart
+
 (** [determine_winners score] returns a list of players who have the most
     points. *)
 let determine_winners score =
@@ -56,7 +58,7 @@ let check_if_game_over board size window_width window_height =
     print_endline "Game over";
     Unix.sleepf 0.5;
     match choice with
-    | "replay" -> raise Quit
+    | "replay" -> raise Restart
     | "quit" -> raise Quit
     | _ -> raise Quit)
 
@@ -358,6 +360,7 @@ let () =
       print_endline e;
       close_graph ()
   | Quit -> print_endline "\nExited game."
+  | Restart -> print_endline "\nRestarting game."
   | Graphics.Graphic_failure _ ->
       print_endline "\nThank you for playing!";
       close_graph ()
