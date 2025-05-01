@@ -266,6 +266,34 @@ let find_nearest_dot_tests =
 (*****************************************************************************
  * Tests for board_ui.
  *****************************************************************************)
+let test_generate_confetti test_name =
+  test_name >:: fun _ ->
+  let window_w = 800 in
+  let window_h = 600 in
+  let n = 100 in
+  let confetti = generate_confetti n window_w window_h in
+
+  (* Check correct number generated *)
+  assert_equal n (List.length confetti);
+
+  (* Check positions are within bounds *)
+  List.iter
+    (fun p ->
+      assert_bool "x within window" (p.x >= 0 && p.x <= window_w);
+      assert_bool "y within window+200"
+        (p.y >= window_h && p.y <= window_h + 200))
+    confetti;
+
+  (* Check velocities *)
+  List.iter
+    (fun p ->
+      assert_bool "dx between -2 and 2" (p.dx >= -2 && p.dx <= 2);
+      assert_bool "dy between -20 and -8" (p.dy <= -8 && p.dy >= -20))
+    confetti
+
+let front_end_test =
+  "Test suite for UI-related functions in frontend"
+  >::: [ test_generate_confetti "Confetti particles are randomly generated" ]
 
 let _ =
   run_test_tt_main
@@ -275,4 +303,5 @@ let _ =
            is_valid_move_tests;
            play_random_game_tests;
            find_nearest_dot_tests;
+           front_end_test;
          ])
