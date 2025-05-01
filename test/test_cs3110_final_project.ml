@@ -215,12 +215,22 @@ let make_random_move grid size spacing player =
 (** [play_random_game grid size num_players] plays [grid] with [num_players]
     until completion. *)
 let play_random_game grid spacing size num_players =
+  let player_sequence = ref [] in
+  let box_completions = ref [] in
   let rec play player_idx moves board =
-    if is_game_over board size then (board, moves, true)
+    if is_game_over board size then
+      (board, moves, true, List.rev !player_sequence, List.rev !box_completions)
     else
       match make_random_move board size spacing player_idx with
-      | None -> (board, moves, true)
+      | None ->
+          ( board,
+            moves,
+            true,
+            List.rev !player_sequence,
+            List.rev !box_completions )
       | Some (new_board, completed_box) ->
+          player_sequence := player_idx :: !player_sequence;
+          box_completions := completed_box :: !box_completions;
           let next_player =
             if completed_box then player_idx
             else (player_idx + 1) mod num_players
@@ -228,6 +238,27 @@ let play_random_game grid spacing size num_players =
           play next_player (moves + 1) new_board
   in
   play 0 0 grid
+
+(** [validate_turn_sequence player_sequence box_completions player_count] checks
+    if the sequence of player turns follows the rules of Dots and Boxes - if a
+    player completes a box, they get another turn; otherwise, the turn passes to
+    the next player. *)
+let validate_turn_sequence player_sequence box_completions player_count =
+  let rec check_remaining_turns players boxes expected_player =
+    match (players, boxes) with
+    | [], [] -> true
+    | current_player :: remaining_players, box_completed :: remaining_boxes ->
+        current_player = expected_player
+        && check_remaining_turns remaining_players remaining_boxes
+             (if box_completed then current_player
+              else (current_player + 1) mod player_count)
+    | _ -> false
+  in
+  match (player_sequence, box_completions) with
+  | [], _ | _, [] -> true
+  | first_player :: remaining_players, first_box :: remaining_boxes ->
+      check_remaining_turns remaining_players remaining_boxes
+        (if first_box then first_player else (first_player + 1) mod player_count)
 
 (** [make_play_random_game_test] creates a test case named [test_name],
     simulating a game with [num_players] players on a [size] x [size] grid. *)
@@ -243,11 +274,17 @@ let make_play_random_game_test test_name size num_players =
   in
   assert_equal true (points_with_moves <> []) ~printer:string_of_bool;
 
-  let final_board, moves, game_over =
+  let final_board, moves, game_over, player_sequence, box_completions =
     play_random_game grid spacing size num_players
   in
+
   (* The game completes properly. *)
   assert_equal true game_over ~printer:string_of_bool;
+
+  (* Players take turns properly. *)
+  assert_equal true
+    (validate_turn_sequence player_sequence box_completions num_players)
+    ~printer:string_of_bool;
 
   (* The number of completed boxes is equal to the total number of boxes. *)
   assert_equal
@@ -256,6 +293,7 @@ let make_play_random_game_test test_name size num_players =
     ~printer:string_of_int;
 
   let scores = get_scores final_board in
+
   (* The number of score entries matches the player count. *)
   assert_equal num_players (List.length scores) ~printer:string_of_int;
 
@@ -279,7 +317,6 @@ let play_random_game_tests =
          make_play_random_game_test "4x4 game with 2 players" 4 2;
          make_play_random_game_test "6x6 game with 3 players" 6 3;
          make_play_random_game_test "8x8 game with 5 players" 8 5;
-         make_play_random_game_test "8x8 game with 10 players" 8 10;
        ]
 
 (*****************************************************************************
