@@ -52,10 +52,13 @@ let check_if_game_over board size window_width window_height =
   if is_game_over board size then (
     let final_scores = get_scores board in
     let winners = determine_winners final_scores in
-    draw_game_over window_width window_height winners;
-    Unix.sleepf 2.;
+    let choice = draw_game_over window_width window_height winners in
     print_endline "Game over";
-    raise Quit)
+    Unix.sleepf 0.5;
+    match choice with
+    | "replay" -> raise Quit
+    | "quit" -> raise Quit
+    | _ -> raise Quit)
 
 (** [wait_for_valid_fst_dot player_idx board size board_size spacing] waits for
     player to click a valid first dot. *)
@@ -104,7 +107,6 @@ let rec draw_livewire color_list player_idx start_x start_y x2 y2 =
   set_line_width 3;
   moveto start_x start_y;
   lineto x2 y2
-
 
 (** Draw live line from first dot to mouse position. *)
 let rec follow_mouse size board_size spacing board cur_color color_list
@@ -330,7 +332,7 @@ let () =
       else
         let final_scores = get_scores board in
         let winners = determine_winners final_scores in
-        draw_game_over window_width window_height winners;
+        ignore (draw_game_over window_width window_height winners);
 
         match winners with
         | [ winner ] ->

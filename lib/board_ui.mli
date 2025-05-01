@@ -52,7 +52,7 @@ val draw_scores : Grid.t -> 'a -> int -> int -> int -> unit
 (** [draw_scores board colors grid_size window_h] draws the tallied score of
     each player during gameplay. *)
 
-val draw_game_over : int -> int -> int list -> unit
+val draw_game_over : int -> int -> int list -> string
 (** [draw_game_over window_w window_h winners] draws the game over screen
     following the completion of a board with a winners message. *)
 
