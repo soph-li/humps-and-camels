@@ -105,7 +105,9 @@ let make_is_valid_move_test test_name (x1, y1) (x2, y2) spacing size board
   test_name >:: fun _ ->
   assert_equal expected_output
     (is_valid_move (x1, y1) (x2, y2) spacing size board)
-    ~printer:string_of_bool
+    ~printer:(fun boolean ->
+      Printf.sprintf "Move from (%d,%d) to (%d,%d) is %s" x1 y1 x2 y2
+        (if boolean then "valid" else "invalid"))
 
 let is_valid_move_tests =
   "Test suite for make_is_valid_move"
@@ -279,12 +281,18 @@ let make_play_random_game_test test_name size num_players =
   in
 
   (* The game completes properly. *)
-  assert_equal true game_over ~printer:string_of_bool;
+  assert_equal true game_over ~printer:(fun boolean ->
+      if boolean then "Game ended" else "Game has not ended");
 
   (* Players take turns properly. *)
   assert_equal true
     (validate_turn_sequence player_sequence box_completions num_players)
-    ~printer:string_of_bool;
+    ~printer:(fun boolean ->
+      let status =
+        if boolean then "Valid turn sequence" else "Invalid turn sequence"
+      in
+      Printf.sprintf "%s\nPlayer sequence: %s" status
+        (String.concat " " (List.map string_of_int player_sequence)));
 
   (* The number of completed boxes is equal to the total number of boxes. *)
   assert_equal
