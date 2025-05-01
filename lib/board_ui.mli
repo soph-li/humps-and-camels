@@ -26,11 +26,6 @@ val draw_x : int -> int -> int -> int -> unit
     corner to the bottom right corner where adjacent points are [spacing] apart.
 *)
 
-(* val draw_xs : int -> int -> (int * int) list -> 'a -> 'b -> 'c -> 'd ->
-   unit *)
-(** [draw_xs cur_color spacing new_completed_boxes new_board size window_width]
-    draws an 'X' through every completed box with the appropriate color. *)
-
 val draw_button : int -> int -> int -> int -> string -> unit
 (** [draw_button x y w h label] draws a rectangular button of the given
     dimensions, labeled by [label]. *)
@@ -43,10 +38,6 @@ val wait_for_end_choice : int -> int -> click_status -> string
 val draw_margin_text : string -> int -> int -> int -> unit
 (** [draw_margin_text str grid_size window_h y_pos] draws the given text in the
     allocated score panel of the window. *)
-
-(* val draw_turn_indicator : int -> int -> int -> unit *)
-(** [draw_turn_indicator player window_w window_h] displays a message in the
-    corner of the window indicating that it is currently [player]'s turn. *)
 
 val generate_confetti : int -> int -> int -> confetti list
 (** [generate_confetti n window_w window_h] generates [n] confetti particles

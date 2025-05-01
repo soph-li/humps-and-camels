@@ -51,12 +51,12 @@ let determine_winners score =
 (** [check_if_game_over board size window_width window_height] checks if the
     game is over and if so, it end game properly. *)
 let check_if_game_over board size window_width window_height =
-  if is_game_over board size then
+  if is_game_over board size then (
     let final_scores = get_scores board in
     let winners = determine_winners final_scores in
     (* print_endline "Game over"; *)
     draw_game_over window_width window_height winners;
-    wait_for_end_choice window_width window_height NoClick
+    wait_for_end_choice window_width window_height NoClick)
   else ""
 
 (** [wait_for_valid_fst_dot player_idx board size board_size spacing] waits for
@@ -384,7 +384,7 @@ let rec start_game () =
       close_graph ();
       start_game ()
   | Graphics.Graphic_failure _ ->
-      print_endline "\nThank you for playing!";
+      print_endline "\Exited game.";
       close_graph ()
   | _ ->
       print_endline "\nError: An unexpected error occured.";

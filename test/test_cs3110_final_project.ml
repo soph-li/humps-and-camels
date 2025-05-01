@@ -492,7 +492,7 @@ let all_board_ui_tests =
          center_align_tests;
          draw_game_over_tests;
          redraw_board_tests;
-         (* generate_confetti_tests; *)
+         generate_confetti_tests;
          wait_for_end_choice_test_tests;
        ]
 
