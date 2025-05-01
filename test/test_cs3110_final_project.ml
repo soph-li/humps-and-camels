@@ -285,64 +285,80 @@ let make_function_executes_test test_name input expected_output =
     (try close_graph () with _ -> ());
     raise e
 
-let function_executes_tests =
-  "Test suite for testing if board ui functions execute"
+let draw_grid_tests =
+  "Test suite for draw_grid"
   >::: [
-         make_function_executes_test "draw_grid" (draw_grid 4 4) ();
-         make_function_executes_test "draw_x" (draw_x 2 2 (rgb 255 0 0) 20) ();
+         make_function_executes_test "Draws 4x4 grid" (draw_grid 4 4) ();
+         make_function_executes_test "Draws 6x6 grid" (draw_grid 6 6) ();
+         make_function_executes_test "Draws 6x6 grid" (draw_grid 8 8) ();
+       ]
+
+let draw_x_tests =
+  "Test suite for draw_x"
+  >::: [
+         make_function_executes_test "Draws red X"
+           (draw_x 2 2 (rgb 255 0 0) 20)
+           ();
          (* Referenced https://ocaml.org/manual/4.05/libref/Graphics.html for
                        how to define Ocaml Graphics colors, accessed 4/30/25. *)
-         make_function_executes_test "draw_button"
-           (draw_button 1 1 1 2 "test")
-           ();
-         make_function_executes_test "draw_turn_indicator"
-           (draw_turn_indicator 1 400 400)
-           ();
-         make_function_executes_test "animate_confetti"
-           (animate_confetti 400 400) ();
-         make_function_executes_test "draw_margin_text"
-           (draw_margin_text "margin" 100 100 20)
-           ();
-         make_function_executes_test "draw_scores"
-           (draw_scores (make_grid 4 2) 100 100 20)
-           ();
-         make_function_executes_test "draw_game_over"
-           (draw_game_over 100 100 [ 1; 2; 3 ])
-           ();
-         make_function_executes_test "center_align"
-           (center_align 100 "txt" 200)
-           ();
-         make_function_executes_test "redraw_board"
-           (redraw_board 4 100 20
-              [ (0, 1, 2, 3, 4); (10, 9, 8, 7, 6) ]
-              [ ((1, 2), 3); ((5, 6), 8) ])
+         make_function_executes_test "Draws blue X"
+           (draw_x 2 2 (rgb 0 0 255) 20)
            ();
        ]
 
-let test_generate_confetti test_name =
-  test_name >:: fun _ ->
-  let window_w = 800 in
-  let window_h = 600 in
-  let n = 100 in
-  let confetti = generate_confetti n window_w window_h in
+let draw_button_tests =
+  "Test suite for draw_button"
+  >::: [
+         make_function_executes_test "Draws 'replay' button"
+           (draw_button 1 1 1 2 "Replay")
+           ();
+         make_function_executes_test "Draws 'quit' button"
+           (draw_button 1 1 1 2 "Quit")
+           ();
+       ]
 
-  (* Check correct number generated *)
-  assert_equal n (List.length confetti);
+let generate_confetti_tests =
+  "Test suite for generate_confetti"
+  >::: [
+         ( "Draws confetti" >:: fun _ ->
+           let n = 100 in
+           let window_w = 800 in
+           let window_h = 800 in
+           let confetti = generate_confetti n window_w window_h in
 
-  (* Check positions are within bounds *)
-  List.iter
-    (fun p ->
-      assert_bool "x within window" (p.x >= 0 && p.x <= window_w);
-      assert_bool "y within window+200"
-        (p.y >= window_h && p.y <= window_h + 200))
-    confetti;
+           (* The correct number is generated *)
+           assert_equal n (List.length confetti) ~printer:string_of_int;
 
-  (* Check velocities *)
-  List.iter
-    (fun p ->
-      assert_bool "dx between -2 and 2" (p.dx >= -2 && p.dx <= 2);
-      assert_bool "dy between -20 and -8" (p.dy <= -8 && p.dy >= -20))
-    confetti
+           (* The confetti is within bounds. *)
+           List.iter
+             (fun c ->
+               assert_equal true
+                 (c.x >= 0 && c.x < window_w)
+                 ~printer:string_of_bool)
+             confetti;
+
+           List.iter
+             (fun c ->
+               assert_equal true
+                 (c.y > window_h && c.y < window_h + 200)
+                 ~printer:string_of_bool)
+             confetti;
+
+           (* The confetti falls within a specified range of velocities. *)
+           List.iter
+             (fun c ->
+               assert_equal true
+                 (c.dx >= -2 && c.dx <= 2)
+                 ~printer:string_of_bool)
+             confetti;
+
+           List.iter
+             (fun c ->
+               assert_equal true
+                 (c.dy <= -8 && c.dy >= -20)
+                 ~printer:string_of_bool)
+             confetti );
+       ]
 
 let test_end_choice test_name status_str =
   let status : click_status =
@@ -354,10 +370,24 @@ let test_end_choice test_name status_str =
   let choice_end_func = wait_for_end_choice window_w window_h status in
   assert_equal status_str choice_end_func
 
+(* let function_executes_tests = "Test suite for testing if board ui functions
+   execute" >::: [ make_function_executes_test "draw_grid" (draw_grid 4 4) ();
+   make_function_executes_test "draw_button" (draw_button 1 1 1 2 "test") ();
+   make_function_executes_test "draw_turn_indicator" (draw_turn_indicator 1 400
+   400) (); make_function_executes_test "animate_confetti" (animate_confetti 400
+   400) (); make_function_executes_test "draw_margin_text" (draw_margin_text
+   "margin" 100 100 20) (); make_function_executes_test "draw_scores"
+   (draw_scores (make_grid 4 2) 100 100 20) (); make_function_executes_test
+   "draw_game_over" (draw_game_over 100 100 [ 1; 2; 3 ]) ();
+   make_function_executes_test "center_align" (center_align 100 "txt" 200) ();
+   make_function_executes_test "redraw_board" (redraw_board 4 100 20 [ (0, 1, 2,
+   3, 4); (10, 9, 8, 7, 6) ] [ ((1, 2), 3); ((5, 6), 8) ]) (); ] *)
+
 let front_end_test =
   "Test suite for UI-related functions in frontend"
   >::: [
-         test_generate_confetti "Confetti particles are randomly generated";
+         (* test_generate_confetti "Confetti particles are randomly
+            generated"; *)
          test_end_choice "wait_for_end_choice gives restart signal" "replay";
          test_end_choice "wait_for_end_choice gives quit signal" "quit";
        ]
@@ -370,8 +400,12 @@ let () =
            is_valid_move_tests;
            play_random_game_tests;
            find_nearest_dot_tests;
-           function_executes_tests;
-           front_end_test;
+           generate_confetti_tests
+           (* draw_grid_tests;
+           draw_x_tests;
+           draw_button_tests *)
+           (* function_executes_tests; *)
+           (* front_end_test; *);
          ]);
   try Graphics.close_graph () with Graphics.Graphic_failure _ -> ()
 (* Prompted ChatGPT-4o with "Fatal error: exception

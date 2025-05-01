@@ -13,7 +13,7 @@ type click_status =
   | ReplayClick
   | QuitClick
   | NoClick
-(** The type of a single button click following the end of a game. *)
+      (** The type of a single button click following the end of a game. *)
 
 val draw_grid : int -> int -> unit
 (** [draw_grid size window_size] draws a [size] x [size] grid of dots in a
@@ -44,7 +44,7 @@ val draw_margin_text : string -> int -> int -> int -> unit
 (** [draw_margin_text str grid_size window_h y_pos] draws the given text in the
     allocated score panel of the window. *)
 
-val draw_turn_indicator : int -> int -> int -> unit
+(* val draw_turn_indicator : int -> int -> int -> unit *)
 (** [draw_turn_indicator player window_w window_h] displays a message in the
     corner of the window indicating that it is currently [player]'s turn. *)
 
@@ -54,13 +54,11 @@ val generate_confetti : int -> int -> int -> confetti list
     and height [window_h]. Each particle has a random color and initial
     velocity. *)
 
-val animate_confetti : int -> int -> unit
+(* val animate_confetti : int -> int -> unit *)
 (** [animate_confetti window_w window_h] animates a confetti effect until all
     particles fall off the screen. *)
 
-val draw_margin_text : string -> int -> int -> int -> unit
-
-val draw_scores : Grid.t -> int -> int -> int -> unit
+(* val draw_scores : Grid.t -> int -> int -> int -> unit *)
 (** [draw_scores board grid_size window_h] draws the tallied score of each
     player during gameplay. *)
 
@@ -69,8 +67,8 @@ val draw_game_over : int -> int -> int list -> unit
     following the completion of a board with a winners message. *)
 
 val center_align : int -> string -> int -> unit
-(**[center_align y str window_width] draws the given string to be center aligned
-   in a window with width [window_width] at y-coordinate [y]. *)
+(** [center_align y str window_width] draws the given string to be center
+    aligned in a window with width [window_width] at y-coordinate [y]. *)
 
 val redraw_board :
   int ->
