@@ -28,6 +28,10 @@ val draw_button : int -> int -> int -> int -> string -> unit
 (** [draw_button x y w h label] draws a rectangular button of the given
     dimensions, labeled by [label]. *)
 
+val wait_for_end_choice : int -> int -> string
+(** [wait_for_end_choice window_w window_h] draws a restart and quit button, and
+    is the name of the button clicked by the user. *)
+
 val draw_margin_text : string -> int -> int -> int -> unit
 (** [draw_margin_text str grid_size window_h y_pos] draws the given text in the
     allocated score panel of the window. *)
@@ -49,8 +53,8 @@ val animate_confetti : int -> int -> unit
 val draw_margin_text : string -> int -> int -> int -> unit
 
 val draw_scores : Grid.t -> int -> int -> int -> unit
-(** [draw_scores board grid_size window_h] draws the tallied score of
-    each player during gameplay. *)
+(** [draw_scores board grid_size window_h] draws the tallied score of each
+    player during gameplay. *)
 
 val draw_game_over : int -> int -> int list -> string
 (** [draw_game_over window_w window_h winners] draws the game over screen
