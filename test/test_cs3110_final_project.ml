@@ -128,7 +128,8 @@ let is_valid_move_tests =
  * Simulate playing a game until completion.
  *****************************************************************************)
 
-(** [get_all_points size spacing] returns all points in a [size x size] grid. *)
+(** [get_all_points size spacing] returns all points in a [size] x [size] grid.
+*)
 let get_all_points size spacing =
   List.flatten
     (List.init size (fun i ->
@@ -182,7 +183,7 @@ let play_random_game grid spacing size num_players =
   play 0 0 grid
 
 (** [make_play_random_game_test] creates a test case named [test_name],
-    simulating a game with [num_players] players on a [size x size] grid. *)
+    simulating a game with [num_players] players on a [size] x [size] grid. *)
 let make_play_random_game_test test_name size num_players =
   test_name >:: fun _ ->
   let spacing = 100 in

@@ -184,8 +184,7 @@ let has_available_moves (x, y) spacing size board =
 let get_scores board =
   Hashtbl.fold (fun player score acc -> (player, score) :: acc) board.scores []
 
-(** [get_all_dots] returns all dots in a [size] x [size] grid in [window_size] x
-    [window_size]. *)
+(** [get_all_points size spacing] returns all points in a [size x size] grid. *)
 let get_all_dots size spacing =
   List.flatten
     (List.init size (fun i ->
