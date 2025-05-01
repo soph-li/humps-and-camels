@@ -58,7 +58,7 @@ val draw_game_over : int -> int -> int list -> string
 
 val center_align : int -> string -> int -> unit
 (**[center_align y str window_width] draws the given string to be center aligned
-   in a window with width [widnow_width] at y-coordinate [y]. *)
+   in a window with width [window_width] at y-coordinate [y]. *)
 
 val redraw_board :
   int ->
