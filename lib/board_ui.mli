@@ -49,7 +49,7 @@ val animate_confetti : int -> int -> unit
 val draw_margin_text : string -> int -> int -> int -> unit
 
 val draw_scores : Grid.t -> 'a -> int -> int -> int -> unit
-(** [draw_scores board colors grid_size window_h] draws the tallied score of
+(** [draw_scores board grid_size window_h] draws the tallied score of
     each player during gameplay. *)
 
 val draw_game_over : int -> int -> int list -> string

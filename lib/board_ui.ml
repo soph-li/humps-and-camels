@@ -130,7 +130,7 @@ let draw_margin_text str grid_size window_h y_pos =
   moveto (grid_size + 20) (window_h - y_pos);
   draw_string str
 
-let draw_scores board colors grid_size window_h panel_w =
+let draw_scores board grid_size window_h panel_w =
   (* auto_synchronize false; *)
   (* Draw score panel area *)
   set_color white;
