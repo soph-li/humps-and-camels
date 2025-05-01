@@ -384,7 +384,7 @@ let rec start_game () =
       close_graph ();
       start_game ()
   | Graphics.Graphic_failure _ ->
-      print_endline "\Exited game.";
+      print_endline "\nExited game.";
       close_graph ()
   | _ ->
       print_endline "\nError: An unexpected error occured.";
