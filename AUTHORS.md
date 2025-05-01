@@ -63,3 +63,10 @@ Referenced code under functional interface for special Hash table for keys,
 Used large primes for hashing from
       https://planetmath.org/goodhashtableprimes
 
+--------
+test.ml
+
+Prompted ChatGPT-4o with "Fatal error: exception
+   Graphics.Graphic_failure("graphic screen not opened")" to figure out to open
+   and close Graphics for tests, accessed 4/30/25.
+

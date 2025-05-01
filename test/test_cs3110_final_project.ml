@@ -1,3 +1,5 @@
+Graphics.open_graph ""
+
 open OUnit2
 open Cs3110_final_project.Grid
 open Cs3110_final_project.Board_ui
@@ -313,7 +315,7 @@ let front_end_test =
   "Test suite for UI-related functions in frontend"
   >::: [ test_generate_confetti "Confetti particles are randomly generated" ]
 
-let _ =
+let () =
   run_test_tt_main
     ("all tests"
     >::: [
@@ -323,4 +325,8 @@ let _ =
            find_nearest_dot_tests;
            function_executes_tests;
            front_end_test;
-         ])
+         ]);
+  Graphics.close_graph ()
+(* Prompted ChatGPT-4o with "Fatal error: exception
+   Graphics.Graphic_failure("graphic screen not opened")" to figure out to open
+   and close Graphics for tests, accessed 4/30/25. *)
