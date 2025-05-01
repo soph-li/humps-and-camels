@@ -330,9 +330,25 @@ let test_generate_confetti test_name =
       assert_bool "dy between -20 and -8" (p.dy <= -8 && p.dy >= -20))
     confetti
 
+let test_end_choice test_name status_str =
+  let status : click_status =
+    if status_str = "replay" then ReplayClick else QuitClick
+  in
+  test_name >:: fun _ ->
+  let window_w = 800 in
+  let window_h = 600 in
+  let choice_end_func = wait_for_end_choice window_w window_h status in
+  assert_equal status_str choice_end_func
+
 let front_end_test =
   "Test suite for UI-related functions in frontend"
-  >::: [ test_generate_confetti "Confetti particles are randomly generated" ]
+  >::: [
+         test_generate_confetti "Confetti particles are randomly generated";
+         test_end_choice
+         "wait_for_end_choice gives restart signal" "replay";
+         test_end_choice
+           "wait_for_end_choice gives quit signal" "quit";
+       ]
 
 let () =
   run_test_tt_main
@@ -345,7 +361,7 @@ let () =
            function_executes_tests;
            front_end_test;
          ]);
-  Graphics.close_graph ()
+  try Graphics.close_graph () with Graphics.Graphic_failure _ -> ()
 (* Prompted ChatGPT-4o with "Fatal error: exception
    Graphics.Graphic_failure("graphic screen not opened")" to figure out to open
    and close Graphics for tests, accessed 4/30/25. *)

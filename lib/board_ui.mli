@@ -5,8 +5,15 @@ type confetti = {
   dy : int;
   color : Graphics.color;
 }
+
 (** The type of a single confetti particle, including its coordinates and
     velocity. *)
+
+type click_status =
+  | ReplayClick
+  | QuitClick
+  | NoClick
+(** The type of a single button click following the end of a game. *)
 
 val draw_grid : int -> int -> unit
 (** [draw_grid size window_size] draws a [size] x [size] grid of dots in a
@@ -28,9 +35,10 @@ val draw_button : int -> int -> int -> int -> string -> unit
 (** [draw_button x y w h label] draws a rectangular button of the given
     dimensions, labeled by [label]. *)
 
-val wait_for_end_choice : int -> int -> string
-(** [wait_for_end_choice window_w window_h] draws a restart and quit button, and
-    is the name of the button clicked by the user. *)
+val wait_for_end_choice : int -> int -> click_status -> string
+(** [wait_for_end_choice window_w window_h click_status] draws a restart and
+    quit button, and is the name of the button clicked by the user. Otherwise,
+    the result of the button click corresponds with [click_status]. *)
 
 val draw_margin_text : string -> int -> int -> int -> unit
 (** [draw_margin_text str grid_size window_h y_pos] draws the given text in the
@@ -56,7 +64,7 @@ val draw_scores : Grid.t -> int -> int -> int -> unit
 (** [draw_scores board grid_size window_h] draws the tallied score of each
     player during gameplay. *)
 
-val draw_game_over : int -> int -> int list -> string
+val draw_game_over : int -> int -> int list -> click_status -> string
 (** [draw_game_over window_w window_h winners] draws the game over screen
     following the completion of a board with a winners message. *)
 

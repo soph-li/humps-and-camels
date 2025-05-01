@@ -10,6 +10,11 @@ type confetti = {
   color : color;
 }
 
+type click_status =
+  | ReplayClick
+  | QuitClick
+  | NoClick
+
 let draw_grid size window_size =
   set_color black;
   let spacing = window_size / size in
@@ -40,43 +45,49 @@ let draw_button x y w h label =
   moveto (x + ((w - text_w) / 2)) (y + ((h - text_h) / 2));
   draw_string label
 
-let wait_for_end_choice window_w window_h =
-  let padding = 20 in
-  let label1 = "Replay" in
-  let label2 = "Quit" in
-  let text_w1, text_h1 = text_size label1 in
-  let text_w2, _ = text_size label2 in
-  let button_w1 = text_w1 + padding in
-  let button_w2 = text_w2 + padding in
-  let button_h = text_h1 + padding in
-
-  let spacing = 20 in
-  let total_width = button_w1 + button_w2 + spacing in
-  let start_x = (window_w - total_width) / 2 in
-  let y = 100 in
-
-  let replay_x = start_x in
-  let quit_x = start_x + button_w1 + spacing in
-
-  draw_button replay_x y button_w1 button_h label1;
-  draw_button quit_x y button_w2 button_h label2;
-
-  let rec wait () =
-    let status = wait_next_event [ Button_down ] in
-    let mx = status.mouse_x in
-    let my = status.mouse_y in
-    if
-      mx >= replay_x
-      && mx <= replay_x + button_w1
-      && my >= y
-      && my <= y + button_h
-    then "replay"
-    else if
-      mx >= quit_x && mx <= quit_x + button_w2 && my >= y && my <= y + button_h
-    then "quit"
-    else wait ()
-  in
-  wait ()
+  let wait_for_end_choice window_w window_h pre_status =
+    let padding = 20 in
+    let label1 = "Replay" in
+    let label2 = "Quit" in
+    let text_w1, text_h1 = text_size label1 in
+    let text_w2, _ = text_size label2 in
+    let button_w1 = text_w1 + padding in
+    let button_w2 = text_w2 + padding in
+    let button_h = text_h1 + padding in
+  
+    let spacing = 20 in
+    let total_width = button_w1 + button_w2 + spacing in
+    let start_x = (window_w - total_width) / 2 in
+    let y = 100 in
+  
+    let replay_x = start_x in
+    let quit_x = start_x + button_w1 + spacing in
+  
+    draw_button replay_x y button_w1 button_h label1;
+    draw_button quit_x y button_w2 button_h label2;
+  
+    let rec wait () =
+      let status = wait_next_event [ Button_down ] in
+      let mx = status.mouse_x in
+      let my = status.mouse_y in
+      if
+        mx >= replay_x
+        && mx <= replay_x + button_w1
+        && my >= y
+        && my <= y + button_h
+      then (close_graph (); "replay")
+      else if
+        mx >= quit_x
+        && mx <= quit_x + button_w2
+        && my >= y
+        && my <= y + button_h
+      then (close_graph (); "quit")
+      else wait ()
+    in
+    match pre_status with
+    | ReplayClick -> "replay"
+    | QuitClick -> "quit"
+    | _ -> wait ()
 
 let draw_turn_indicator player window_w window_h =
   let indicator_text = "Player " ^ string_of_int (player + 1) ^ "'s Turn" in
@@ -121,7 +132,7 @@ let animate_confetti window_w window_h =
     synchronize ();
     Unix.sleepf 0.03
   done;
-  clear_graph();
+  clear_graph ();
   auto_synchronize true
 
 let draw_margin_text str grid_size window_h y_pos =
@@ -152,7 +163,7 @@ let draw_scores board grid_size window_h panel_w =
 
    auto_synchronize true *)
 
-let draw_game_over window_w window_h winners =
+let draw_game_over window_w window_h winners pre_status=
   Unix.sleepf 1.;
   clear_graph ();
   set_color black;
@@ -195,7 +206,7 @@ let draw_game_over window_w window_h winners =
             offset := !offset - 25)
           sorted_winners
   in
-  wait_for_end_choice window_w window_h
+  wait_for_end_choice window_w window_h pre_status
 
 let center_align y str window_width =
   (* Prompted ChaptGPT-4o "Is there pre-set alignment in OCaml Graphics"
