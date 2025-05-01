@@ -133,34 +133,42 @@ let print_point_opt opt_point =
   | Some (x, y) -> "Some (" ^ string_of_int x ^ ", " ^ string_of_int y ^ ")"
   | None -> "None"
 
-(** [make_find_nearest_dot_test test_name (x_in, y_in, size, window_size)
+(** [make_find_nearest_point_test test_name (x_in, y_in, size, window_size)
      expected_output] makes a test case with name [test_name] to check if
     [find_nearest dot x_in x_out size window_size] equals the appropriate
     [expected_output]*)
-let make_find_nearest_dot_test test_name (x_in, y_in, size, window_size)
+let make_find_nearest_point_test test_name (x_in, y_in, size, window_size)
     expected_output =
   test_name >:: fun _ ->
   assert_equal expected_output
     (find_nearest_dot (x_in, y_in) size window_size)
     ~printer:print_point_opt
 
-let find_nearest_dot_tests =
+let find_nearest_point_tests =
   "Test suite for find_nearest_dot"
   >::: [
-         make_find_nearest_dot_test "No nearest dots detected" (5, 5, 4, 400)
+         make_find_nearest_point_test "No nearest dots detected" (5, 5, 4, 400)
            None;
-         make_find_nearest_dot_test "Clicked just outside radius 10"
+         make_find_nearest_point_test "Clicked just outside radius 10"
            (111, 100, 4, 400) None;
-         make_find_nearest_dot_test "Clicked right on border" (0, 0, 10, 400)
+         make_find_nearest_point_test "Clicked right on border" (0, 0, 10, 400)
            None;
-         make_find_nearest_dot_test "Clicked just inside radius 10"
+         make_find_nearest_point_test "Clicked just inside radius 10"
            (141, 150, 4, 400)
            (Some (150, 150));
-         make_find_nearest_dot_test "Nearest dot found well within radius 10"
+         make_find_nearest_point_test "Nearest dot found well within radius 10"
            (105, 105, 10, 400)
            (Some (100, 100));
-         make_find_nearest_dot_test "Clicked right on dot" (50, 50, 4, 400)
+         make_find_nearest_point_test "Clicked right on dot" (50, 50, 4, 400)
            (Some (50, 50));
+       ]
+
+let all_grid_tests =
+  "All test cases for grid"
+  >::: [
+         check_completed_box_tests;
+         is_valid_move_tests;
+         find_nearest_point_tests;
        ]
 
 (*****************************************************************************
@@ -315,6 +323,43 @@ let draw_button_tests =
            ();
        ]
 
+let draw_margin_text_tests =
+  "Test suite for draw_margin_text"
+  >::: [
+         make_function_executes_test "draw_margin_text"
+           (draw_margin_text "margin" 100 100 20)
+           ();
+       ]
+
+let center_align_tests =
+  "Test suite for center_align"
+  >::: [
+         make_function_executes_test "center_align"
+           (center_align 100 "txt" 200)
+           ();
+       ]
+
+let draw_game_over_tests =
+  "Test suite for draw_game_over"
+  >::: [
+         make_function_executes_test "draw_scores"
+           (draw_scores (make_grid 4 2) 100 100 20)
+           ();
+         make_function_executes_test "draw_game_over"
+           (draw_game_over 100 100 [ 1; 2; 3 ])
+           ();
+       ]
+
+let redraw_board_tests =
+  "Test suite for redraw_board"
+  >::: [
+         make_function_executes_test "Redraw board with lines"
+           (redraw_board 4 100 20
+              [ (0, 1, 2, 3, 4); (10, 9, 8, 7, 6) ]
+              [ ((1, 2), 3); ((5, 6), 8) ])
+           ();
+       ]
+
 let generate_confetti_tests =
   "Test suite for generate_confetti"
   >::: [
@@ -367,72 +412,43 @@ let make_wait_for_end_choice_test test_name status_str =
   in
   test_name >:: fun _ ->
   let window_w = 800 in
-  let window_h = 800 in
+  let window_h = 600 in
   let choice_end_func = wait_for_end_choice window_w window_h status in
 
-  let click_status_printer = function
-    | "replay" -> "Replay"
-    | "quit" -> "Quit"
-    | s -> "Unknown: " ^ s
-  in
-  assert_equal status_str choice_end_func ~printer:click_status_printer
+  assert_equal status_str choice_end_func ~printer:(fun x -> x)
 
 let wait_for_end_choice_test_tests =
   "Test suite for wait_for_end_choice_test"
   >::: [
          make_wait_for_end_choice_test
-           "wait_for_end_choice gives restart signal" "replay";
-         make_wait_for_end_choice_test "wait_for_end_choice gives quit signal"
+           "wait_for_end_choice gives 'replay' signal" "replay";
+         make_wait_for_end_choice_test "wait_for_end_choice gives 'quit' signal"
            "quit";
+       ]
+
+let all_board_ui_tests =
+  "All test cases for board_ui"
+  >::: [
+         draw_grid_tests;
+         draw_x_tests;
+         draw_button_tests;
+         draw_margin_text_tests;
+         center_align_tests;
+         draw_game_over_tests;
+         redraw_board_tests;
+         (* generate_confetti_tests; *)
+         wait_for_end_choice_test_tests;
        ]
 
 (*****************************************************************************
  * extra
  *****************************************************************************)
 
-let function_executes_tests =
-  "Test suite for testing if board ui functions\n\n   execute"
-  >::: [
-         (* make_function_executes_test "draw_grid" (draw_grid 4 4) ();
-            make_function_executes_test "draw_button" (draw_button 1 1 1 2
-            "test") (); *)
-         make_function_executes_test "draw_margin_text"
-           (draw_margin_text "margin" 100 100 20)
-           ();
-         make_function_executes_test "draw_scores"
-           (draw_scores (make_grid 4 2) 100 100 20)
-           ();
-         make_function_executes_test "draw_game_over"
-           (draw_game_over 100 100 [ 1; 2; 3 ])
-           ();
-         make_function_executes_test "center_align"
-           (center_align 100 "txt" 200)
-           ();
-         make_function_executes_test "redraw_board"
-           (redraw_board 4 100 20
-              [ (0, 1, 2, 3, 4); (10, 9, 8, 7, 6) ]
-              [ ((1, 2), 3); ((5, 6), 8) ])
-           ();
-       ]
-
 let () =
   run_test_tt_main
     ("all tests"
-    >::: [
-           check_completed_box_tests;
-           is_valid_move_tests;
-           play_random_game_tests;
-           find_nearest_dot_tests;
-           (* generate_confetti_tests; *)
-           wait_for_end_choice_test_tests;
-           function_executes_tests
-           (* draw_grid_tests;
-           draw_x_tests;
-           draw_button_tests *)
-           (* function_executes_tests; *)
-           (* front_end_test; *);
-         ]);
-  try Graphics.close_graph () with Graphics.Graphic_failure _ -> ()
+    >::: [ all_grid_tests; play_random_game_tests; all_board_ui_tests ])
+(* try Graphics.close_graph () with Graphics.Graphic_failure _ -> () *)
 (* Prompted ChatGPT-4o with "Fatal error: exception
    Graphics.Graphic_failure("graphic screen not opened")" to figure out to open
    and close Graphics for tests, accessed 4/30/25. *)
