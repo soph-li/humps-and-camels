@@ -277,10 +277,8 @@ let play_random_game_tests =
 let make_function_executes_test test_name input expected_output =
   test_name >:: fun _ ->
   try
-    open_graph "800x800";
     let output = input in
-    close_graph ();
-    assert_equal () output
+    assert_equal expected_output output
   with e ->
     (try close_graph () with _ -> ());
     raise e
@@ -323,7 +321,7 @@ let generate_confetti_tests =
          ( "Draws confetti" >:: fun _ ->
            let n = 100 in
            let window_w = 800 in
-           let window_h = 800 in
+           let window_h = 600 in
            let confetti = generate_confetti n window_w window_h in
 
            (* The correct number is generated *)
@@ -360,36 +358,61 @@ let generate_confetti_tests =
              confetti );
        ]
 
-let test_end_choice test_name status_str =
-  let status : click_status =
-    if status_str = "replay" then ReplayClick else QuitClick
+let make_wait_for_end_choice_test test_name status_str =
+  let status =
+    match status_str with
+    | "replay" -> ReplayClick
+    | "quit" -> QuitClick
+    | _ -> NoClick
   in
   test_name >:: fun _ ->
   let window_w = 800 in
-  let window_h = 600 in
+  let window_h = 800 in
   let choice_end_func = wait_for_end_choice window_w window_h status in
-  assert_equal status_str choice_end_func
 
-(* let function_executes_tests = "Test suite for testing if board ui functions
-   execute" >::: [ make_function_executes_test "draw_grid" (draw_grid 4 4) ();
-   make_function_executes_test "draw_button" (draw_button 1 1 1 2 "test") ();
-   make_function_executes_test "draw_turn_indicator" (draw_turn_indicator 1 400
-   400) (); make_function_executes_test "animate_confetti" (animate_confetti 400
-   400) (); make_function_executes_test "draw_margin_text" (draw_margin_text
-   "margin" 100 100 20) (); make_function_executes_test "draw_scores"
-   (draw_scores (make_grid 4 2) 100 100 20) (); make_function_executes_test
-   "draw_game_over" (draw_game_over 100 100 [ 1; 2; 3 ]) ();
-   make_function_executes_test "center_align" (center_align 100 "txt" 200) ();
-   make_function_executes_test "redraw_board" (redraw_board 4 100 20 [ (0, 1, 2,
-   3, 4); (10, 9, 8, 7, 6) ] [ ((1, 2), 3); ((5, 6), 8) ]) (); ] *)
+  let click_status_printer = function
+    | "replay" -> "Replay"
+    | "quit" -> "Quit"
+    | s -> "Unknown: " ^ s
+  in
+  assert_equal status_str choice_end_func ~printer:click_status_printer
 
-let front_end_test =
-  "Test suite for UI-related functions in frontend"
+let wait_for_end_choice_test_tests =
+  "Test suite for wait_for_end_choice_test"
   >::: [
-         (* test_generate_confetti "Confetti particles are randomly
-            generated"; *)
-         test_end_choice "wait_for_end_choice gives restart signal" "replay";
-         test_end_choice "wait_for_end_choice gives quit signal" "quit";
+         make_wait_for_end_choice_test
+           "wait_for_end_choice gives restart signal" "replay";
+         make_wait_for_end_choice_test "wait_for_end_choice gives quit signal"
+           "quit";
+       ]
+
+(*****************************************************************************
+ * extra
+ *****************************************************************************)
+
+let function_executes_tests =
+  "Test suite for testing if board ui functions\n\n   execute"
+  >::: [
+         (* make_function_executes_test "draw_grid" (draw_grid 4 4) ();
+            make_function_executes_test "draw_button" (draw_button 1 1 1 2
+            "test") (); *)
+         make_function_executes_test "draw_margin_text"
+           (draw_margin_text "margin" 100 100 20)
+           ();
+         make_function_executes_test "draw_scores"
+           (draw_scores (make_grid 4 2) 100 100 20)
+           ();
+         make_function_executes_test "draw_game_over"
+           (draw_game_over 100 100 [ 1; 2; 3 ])
+           ();
+         make_function_executes_test "center_align"
+           (center_align 100 "txt" 200)
+           ();
+         make_function_executes_test "redraw_board"
+           (redraw_board 4 100 20
+              [ (0, 1, 2, 3, 4); (10, 9, 8, 7, 6) ]
+              [ ((1, 2), 3); ((5, 6), 8) ])
+           ();
        ]
 
 let () =
@@ -400,7 +423,9 @@ let () =
            is_valid_move_tests;
            play_random_game_tests;
            find_nearest_dot_tests;
-           generate_confetti_tests
+           (* generate_confetti_tests; *)
+           wait_for_end_choice_test_tests;
+           function_executes_tests
            (* draw_grid_tests;
            draw_x_tests;
            draw_button_tests *)

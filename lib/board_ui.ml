@@ -33,10 +33,6 @@ let draw_x x y color spacing =
   moveto x (y + spacing);
   lineto (x + spacing) y
 
-(* let draw_xs cur_color spacing new_completed_boxes new_board size window_width
-   window_height = List.iter (fun (x, y) -> draw_x x y cur_color spacing)
-   new_completed_boxes *)
-
 let draw_button x y w h label =
   set_color black;
   fill_rect x y w h;
@@ -90,20 +86,12 @@ let wait_for_end_choice window_w window_h pre_status =
   | QuitClick -> "quit"
   | _ -> wait ()
 
-let draw_turn_indicator player window_w window_h =
-  let indicator_text = "Player " ^ string_of_int (player + 1) ^ "'s Turn" in
-  let margin = 15 in
-  let font_height = snd (text_size indicator_text) in
-
-  set_color white;
-  fill_rect margin
-    (window_h - font_height - (2 * margin))
-    (window_w / 3)
-    (font_height + (2 * margin));
-
-  set_color black;
-  moveto (2 * margin) (window_h - font_height - margin);
-  draw_string indicator_text
+(* let draw_turn_indicator player window_w window_h = let indicator_text =
+   "Player " ^ string_of_int (player + 1) ^ "'s Turn" in let margin = 15 in let
+   font_height = snd (text_size indicator_text) in set_color white; fill_rect
+   margin (window_h - font_height - (2 * margin)) (window_w / 3) (font_height +
+   (2 * margin));set_color black; moveto (2 * margin) (window_h - font_height -
+   margin); draw_string indicator_text *)
 
 let generate_confetti n window_w window_h =
   let rand_color () =

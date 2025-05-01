@@ -58,7 +58,7 @@ val generate_confetti : int -> int -> int -> confetti list
 (** [animate_confetti window_w window_h] animates a confetti effect until all
     particles fall off the screen. *)
 
-(* val draw_scores : Grid.t -> int -> int -> int -> unit *)
+val draw_scores : Grid.t -> int -> int -> int -> unit
 (** [draw_scores board grid_size window_h] draws the tallied score of each
     player during gameplay. *)
 
