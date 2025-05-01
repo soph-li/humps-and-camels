@@ -345,7 +345,11 @@ let draw_game_over_tests =
          make_function_executes_test "draw_scores"
            (draw_scores (make_grid 4 2) 100 100 20)
            ();
-         make_function_executes_test "draw_game_over"
+         make_function_executes_test "Draw game over screen with one winner"
+           (draw_game_over 100 100 [ 1 ])
+           ();
+         make_function_executes_test
+           "Draw game over screen with multiple winners"
            (draw_game_over 100 100 [ 1; 2; 3 ])
            ();
        ]
@@ -436,13 +440,9 @@ let all_board_ui_tests =
          center_align_tests;
          draw_game_over_tests;
          redraw_board_tests;
-         (* generate_confetti_tests; *)
+         generate_confetti_tests;
          wait_for_end_choice_test_tests;
        ]
-
-(*****************************************************************************
- * extra
- *****************************************************************************)
 
 let () =
   run_test_tt_main
