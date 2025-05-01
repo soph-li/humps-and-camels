@@ -93,7 +93,7 @@ let rec update_board (start_x, start_y) (dot2_x, dot2_y) board spacing
       (fun acc (x, y) -> ((x, y), cur_color) :: acc)
       completed_boxes_lst new_completed_boxes
   in
-  (new_board, updated_completed_boxes, size)
+  (new_board, updated_completed_boxes)
 
 (** [draw_livewire color_list player_idx start_x start_y x2 y2] draws a line
     from [(start_x, start_x)] to [(x2, y2)] with the color in [color_list] at
@@ -105,6 +105,33 @@ let rec draw_livewire color_list player_idx start_x start_y x2 y2 =
   moveto start_x start_y;
   lineto x2 y2
 
+(** Handles a player's move by updating the board state. Updates the list of
+    line segments and completed boxes. Redraws the board, checks if the game is
+    over, and updates the player index. *)
+let rec handle_move dot2_x dot2_y start_x start_y cur_color lines_lst
+    completed_boxes board board_size spacing player_idx completed_boxes_lst size
+    window_width window_height color_list =
+  set_color black;
+  fill_circle dot2_x dot2_y 5;
+  (* Add new line segment to list of lines. *)
+  let updated_lines =
+    (start_x, start_y, dot2_x, dot2_y, cur_color) :: lines_lst
+  in
+  let prev_completed_boxes = completed_boxes board in
+  (* Get previous box count to compare to new box count *)
+  let new_board, updated_completed_boxes =
+    update_board (start_x, start_y) (dot2_x, dot2_y) board spacing player_idx
+      cur_color completed_boxes_lst size window_width window_height
+  in
+  redraw_board size board_size spacing updated_lines updated_completed_boxes;
+  check_if_game_over new_board size window_width window_height;
+  (* Change players for next turn. *)
+  let next_player_idx =
+    if prev_completed_boxes < List.length updated_completed_boxes then
+      player_idx
+    else (player_idx + 1) mod List.length color_list
+  in
+  (new_board, updated_completed_boxes, updated_lines, next_player_idx)
 
 (** Draw live line from first dot to mouse position. *)
 let rec follow_mouse size board_size spacing board cur_color color_list
@@ -128,32 +155,17 @@ let rec follow_mouse size board_size spacing board cur_color color_list
         if
           is_valid_move (start_x, start_y) (dot2_x, dot2_y) spacing size
             board (* Check if second point is valid *)
-        then (
-          set_color black;
-          fill_circle dot2_x dot2_y 5;
-          (* Add new line segment to list of lines. *)
-          let updated_lines =
-            (start_x, start_y, dot2_x, dot2_y, cur_color) :: lines_lst
-          in
-          let prev_completed_boxes = completed_boxes board in
-          (* Get previous box count to compare to new box count *)
-          let new_board, updated_completed_boxes, size =
-            update_board (start_x, start_y) (dot2_x, dot2_y) board spacing
-              player_idx cur_color completed_boxes_lst size window_width
-              window_height
-          in
-          redraw_board size board_size spacing updated_lines
-            updated_completed_boxes;
-          check_if_game_over new_board size window_width window_height;
-          (* Change players for next turn. *)
-          let next_player_idx =
-            if prev_completed_boxes < List.length updated_completed_boxes then
-              player_idx
-            else (player_idx + 1) mod List.length color_list
+        then
+          (* Handle move and update board accordingly. *)
+          let new_board, updated_completed_boxes, updated_lines, next_player_idx
+              =
+            handle_move dot2_x dot2_y start_x start_y cur_color lines_lst
+              completed_boxes board board_size spacing player_idx
+              completed_boxes_lst size window_width window_height color_list
           in
           play size board_size spacing new_board updated_lines
             updated_completed_boxes next_player_idx color_list window_width
-            window_height)
+            window_height
         else
           follow_mouse size board_size spacing board cur_color color_list
             player_idx lines_lst completed_boxes_lst window_width window_height
@@ -255,102 +267,115 @@ let rec select_player_color ind player_num selected_colors =
       print_endline "\nInvalid color! Please try again with a valid choice.";
       select_player_color ind player_num selected_colors)
 
+(** [setup_game player_num] sets up a game with appropriate dimensions and
+    player colors with [player_num] players. Initializes variables and displays
+    initial board. *)
+let rec setup_game player_num =
+  let size =
+    match player_num with
+    (* | 1 -> 2 one box case for testing end_screen *)
+    | 2 -> 4
+    | 3 -> 6
+    | 4 -> 8
+    | _ -> failwith "\nInvalid player count."
+  in
+
+  (* Specify available colors. *)
+  print_endline "\nColors available:";
+  print_endline " - black";
+  print_endline " - red";
+  print_endline " - green";
+  print_endline " - blue";
+  print_endline " - yellow";
+  print_endline " - cyan";
+  print_endline " - magenta";
+
+  let color_list = select_player_color 0 player_num [] in
+  print_endline
+    ("\nStarting a game for "
+    ^ string_of_int (List.length color_list)
+    ^ " players...");
+
+  let board = make_grid size player_num in
+  let spacing = 100 in
+  let grid_size = size * spacing in
+  let score_panel_width = 150 in
+  let window_width = grid_size in
+  (* let window_width = grid_size + score_panel_width in *)
+  let window_height = grid_size in
+
+  open_graph
+    (" " ^ string_of_int window_width ^ "x" ^ string_of_int window_height);
+
+  (* Display initial board. *)
+  draw_grid size grid_size;
+  ( color_list,
+    board,
+    spacing,
+    grid_size,
+    size,
+    score_panel_width,
+    window_width,
+    window_height )
+
+(** [play_game color_list player_idx board size grid_size window_height
+     window_width score_panel_width] is the main game loop. *)
+let rec play_game color_list player_idx board size grid_size window_height
+    window_width score_panel_width =
+  let current_color = List.nth color_list player_idx in
+
+  (* print_endline ("Player " ^ string_of_int (player_idx + 1) ^ "'s turn"); *)
+  let prev_completed_boxes = completed_boxes board in
+
+  draw_line size grid_size current_color board (player_idx + 1) color_list
+    window_height window_width score_panel_width;
+
+  (* draw_scores board color_list grid_size window_height score_panel_width; *)
+  let new_completed_boxes = completed_boxes board in
+
+  let completed_box = new_completed_boxes > prev_completed_boxes in
+
+  if not (is_game_over board size) then (
+    print_endline "Game continues...";
+    let next_player_idx =
+      if completed_box then player_idx
+      else (player_idx + 1) mod List.length color_list
+    in
+
+    play_game color_list next_player_idx board size grid_size window_height
+      window_width score_panel_width)
+  else
+    let final_scores = get_scores board in
+    let winners = determine_winners final_scores in
+    draw_game_over window_width window_height winners;
+
+    match winners with
+    | [ winner ] ->
+        print_endline ("\nGame over! Player " ^ string_of_int winner ^ " won.")
+    | _ ->
+        print_endline "\nGame over! It's a tie between the following players:";
+        List.iter
+          (fun winner -> print_endline (" - Player " ^ string_of_int winner))
+          winners;
+        ()
+
 (* Main *)
 let () =
   try
     (* Get valid number of players. *)
     let player_num = get_valid_players () in
-    let size =
-      match player_num with
-      (* | 1 -> 2 one box case for testing end_screen *)
-      | 2 -> 4
-      | 3 -> 6
-      | 4 -> 8
-      | _ -> failwith "\nInvalid player count."
+    let ( color_list,
+          board,
+          spacing,
+          grid_size,
+          size,
+          score_panel_width,
+          window_width,
+          window_height ) =
+      setup_game player_num
     in
-
-    (* Specify available colors. *)
-    print_endline "\nColors available:";
-    print_endline " - black";
-    print_endline " - red";
-    print_endline " - green";
-    print_endline " - blue";
-    print_endline " - yellow";
-    print_endline " - cyan";
-    print_endline " - magenta";
-
-    let color_list = select_player_color 0 player_num [] in
-    print_endline
-      ("\nStarting a game for "
-      ^ string_of_int (List.length color_list)
-      ^ " players...");
-
-    let board = make_grid size player_num in
-    let spacing = 100 in
-    let grid_size = size * spacing in
-    let score_panel_width = 150 in
-    let window_width = grid_size in
-    (* let window_width = grid_size + score_panel_width in *)
-    let window_height = grid_size in
-
-    open_graph
-      (" " ^ string_of_int window_width ^ "x" ^ string_of_int window_height);
-
-    (* Display initial board. *)
-    draw_grid size grid_size;
-
-    (* draw_scores board color_list grid_size window_height
-       score_panel_width; *)
-
-    (* Main game loop *)
-    let rec play_game color_list player_idx =
-      let current_color = List.nth color_list player_idx in
-
-      (* print_endline ("Player " ^ string_of_int (player_idx + 1) ^ "'s
-         turn"); *)
-      let prev_completed_boxes = completed_boxes board in
-
-      draw_line size grid_size current_color board (player_idx + 1) color_list
-        window_height window_width score_panel_width;
-
-      (* draw_scores board color_list grid_size window_height
-         score_panel_width; *)
-      let new_completed_boxes = completed_boxes board in
-
-      let completed_box = new_completed_boxes > prev_completed_boxes in
-
-      if not (is_game_over board size) then (
-        print_endline "Game continues...";
-        let next_player_idx =
-          if completed_box then player_idx
-          else (player_idx + 1) mod List.length color_list
-        in
-
-        play_game color_list next_player_idx)
-      else
-        let final_scores = get_scores board in
-        let winners = determine_winners final_scores in
-        draw_game_over window_width window_height winners;
-
-        match winners with
-        | [ winner ] ->
-            print_endline
-              ("\nGame over! Player " ^ string_of_int winner ^ " won.")
-        | _ ->
-            print_endline
-              "\nGame over! It's a tie between the following players:";
-            List.iter
-              (fun winner ->
-                print_endline (" - Player " ^ string_of_int winner))
-              winners
-      (* Prompted ChatGPT -4o, "How to introduce delay in OCaml to allow the
-           final image in graphics show up before the program exits", accessed
-           3/29/25. *)
-      (* Unix.sleepf 3. *)
-    in
-    play_game color_list 0
-    (* Handle closing of game. *)
-    (* close_graph () *)
+    play_game color_list 0 board size grid_size window_height window_width
+      score_panel_width
   with
   | Failure e ->
       print_endline e;
@@ -362,3 +387,8 @@ let () =
   | _ ->
       print_endline "\nError: An unexpected error occured.";
       close_graph ()
+(* Handle closing of game. *)
+
+(* Prompted ChatGPT -4o, "How to introduce delay in OCaml to allow the final
+   image in graphics show up before the program exits", accessed 3/29/25. *)
+(* Unix.sleepf 3. *)
