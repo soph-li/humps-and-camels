@@ -295,6 +295,9 @@ let function_executes_tests =
          make_function_executes_test "draw_scores"
            (draw_scores (make_grid 4 2) 100 100 20)
            ();
+         make_function_executes_test "draw_game_over"
+           (draw_game_over 100 100 [ 1; 2; 3 ])
+           ();
          make_function_executes_test "center_align"
            (center_align 100 "txt" 200)
            ();
@@ -344,10 +347,8 @@ let front_end_test =
   "Test suite for UI-related functions in frontend"
   >::: [
          test_generate_confetti "Confetti particles are randomly generated";
-         test_end_choice
-         "wait_for_end_choice gives restart signal" "replay";
-         test_end_choice
-           "wait_for_end_choice gives quit signal" "quit";
+         test_end_choice "wait_for_end_choice gives restart signal" "replay";
+         test_end_choice "wait_for_end_choice gives quit signal" "quit";
        ]
 
 let () =

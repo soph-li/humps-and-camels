@@ -55,7 +55,8 @@ let check_if_game_over board size window_width window_height =
     let final_scores = get_scores board in
     let winners = determine_winners final_scores in
     (* print_endline "Game over"; *)
-    draw_game_over window_width window_height winners NoClick
+    draw_game_over window_width window_height winners;
+    wait_for_end_choice window_width window_height NoClick
   else ""
 
 (** [wait_for_valid_fst_dot player_idx board size board_size spacing] waits for
@@ -352,7 +353,7 @@ let rec start_game () =
       else
         let final_scores = get_scores board in
         let winners = determine_winners final_scores in
-        ignore (draw_game_over window_width window_height winners NoClick);
+        ignore (draw_game_over window_width window_height winners);
 
         match winners with
         | [ winner ] ->
