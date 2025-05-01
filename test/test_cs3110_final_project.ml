@@ -71,28 +71,28 @@ let board_4x4_two_box_horizontal =
 let check_completed_box_tests =
   "Test suite for check_completed_box"
   >::: [
-         make_check_completed_box_test "box is not completed" (0, 0) (0, 1) 0
+         make_check_completed_box_test "Box is not completed" (0, 0) (0, 1) 0
            board_2x2 [];
-         make_check_completed_box_test "box completed above a horizontal line"
+         make_check_completed_box_test "Box completed above a horizontal line"
            (0, 0) (1, 0) 1 board_2x2_one_box
            [ (0, 0) ];
-         make_check_completed_box_test "box completed below a horizontal line"
+         make_check_completed_box_test "Box completed below a horizontal line"
            (0, 1) (1, 1) 1 board_2x2_one_box
            [ (0, 0) ];
          make_check_completed_box_test
-           "box completed to the right of a vertical line" (0, 0) (0, 1) 1
+           "Box completed to the right of a vertical line" (0, 0) (0, 1) 1
            board_2x2_one_box
            [ (0, 0) ];
          make_check_completed_box_test
-           "box completed to the left of a vertical line" (1, 0) (1, 1) 1
+           "Box completed to the left of a vertical line" (1, 0) (1, 1) 1
            board_2x2_one_box
            [ (0, 0) ];
          make_check_completed_box_test
-           "two boxes completed after adding a vertical line" (1, 0) (1, 1) 1
+           "Two boxes completed after adding a vertical line" (1, 0) (1, 1) 1
            board_4x4_two_box_vertical
            [ (0, 0); (1, 0) ];
          make_check_completed_box_test
-           "two boxes completed after adding a horizontal line" (0, 1) (1, 1) 1
+           "Two boxes completed after adding a horizontal line" (0, 1) (1, 1) 1
            board_4x4_two_box_horizontal
            [ (0, 0); (0, 1) ];
        ]
@@ -125,6 +125,42 @@ let is_valid_move_tests =
            "Valid if p1 and p2 are nonequal, in bounds, adjacent, and \
             currently non-connected"
            (0, 0) (0, 100) 100 2 (make_grid 2 0) true;
+       ]
+
+(** [print_point_opt opt_point] is the string representation of [opt_point]. *)
+let print_point_opt opt_point =
+  match opt_point with
+  | Some (x, y) -> "Some (" ^ string_of_int x ^ ", " ^ string_of_int y ^ ")"
+  | None -> "None"
+
+(** [make_find_nearest_dot_test test_name (x_in, y_in, size, window_size)
+     expected_output] makes a test case with name [test_name] to check if
+    [find_nearest dot x_in x_out size window_size] equals the appropriate
+    [expected_output]*)
+let make_find_nearest_dot_test test_name (x_in, y_in, size, window_size)
+    expected_output =
+  test_name >:: fun _ ->
+  assert_equal expected_output
+    (find_nearest_dot (x_in, y_in) size window_size)
+    ~printer:print_point_opt
+
+let find_nearest_dot_tests =
+  "Test suite for find_nearest_dot"
+  >::: [
+         make_find_nearest_dot_test "No nearest dots detected" (5, 5, 4, 400)
+           None;
+         make_find_nearest_dot_test "Clicked just outside radius 10"
+           (111, 100, 4, 400) None;
+         make_find_nearest_dot_test "Clicked right on border" (0, 0, 10, 400)
+           None;
+         make_find_nearest_dot_test "Clicked just inside radius 10"
+           (141, 150, 4, 400)
+           (Some (150, 150));
+         make_find_nearest_dot_test "Nearest dot found well within radius 10"
+           (105, 105, 10, 400)
+           (Some (100, 100));
+         make_find_nearest_dot_test "Clicked right on dot" (50, 50, 4, 400)
+           (Some (50, 50));
        ]
 
 (*****************************************************************************
@@ -231,48 +267,23 @@ let play_random_game_tests =
          make_play_random_game_test "8x8 game" 8 5;
        ]
 
-(** [print_point_opt opt_point] is the string representation of [opt_point]. *)
-let print_point_opt opt_point =
-  match opt_point with
-  | Some (x, y) -> "Some (" ^ string_of_int x ^ ", " ^ string_of_int y ^ ")"
-  | None -> "None"
-
-(** [make_find_nearest_dot_test test_name (x_in, y_in, size, window_size)
-     expected_output] makes a test case with name [test_name] to check if
-    [find_nearest dot x_in x_out size window_size] equals the appropriate
-    [expected_output]*)
-let make_find_nearest_dot_test test_name (x_in, y_in, size, window_size)
-    expected_output =
-  test_name >:: fun _ ->
-  assert_equal expected_output
-    (find_nearest_dot (x_in, y_in) size window_size)
-    ~printer:print_point_opt
-
-let find_nearest_dot_tests =
-  "Test suite for find_nearest_dot"
-  >::: [
-         make_find_nearest_dot_test "No nearest dots detected" (5, 5, 4, 400)
-           None;
-         make_find_nearest_dot_test "Clicked just outside radius 10"
-           (111, 100, 4, 400) None;
-         make_find_nearest_dot_test "Clicked right on border" (0, 0, 10, 400)
-           None;
-         make_find_nearest_dot_test "Clicked just inside radius 10"
-           (141, 150, 4, 400)
-           (Some (150, 150));
-         make_find_nearest_dot_test "Nearest dot found well within radius 10"
-           (105, 105, 10, 400)
-           (Some (100, 100));
-         make_find_nearest_dot_test "Clicked right on dot" (50, 50, 4, 400)
-           (Some (50, 50));
-       ]
-
 (*****************************************************************************
  * Tests for board_ui.
  *****************************************************************************)
 
+(** [make_function_executes_test test_name input expected_output] opnes a
+    grapics window, then checks if evaluating [input] returns [()] or raises an
+    exception. *)
 let make_function_executes_test test_name input expected_output =
-  test_name >:: fun _ -> assert_equal expected_output input
+  test_name >:: fun _ ->
+  try
+    open_graph "800x800";
+    let output = input in
+    close_graph ();
+    assert_equal () output
+  with e ->
+    (try close_graph () with _ -> ());
+    raise e
 
 let function_executes_tests =
   "Test suite for testing if board ui functions execute"
