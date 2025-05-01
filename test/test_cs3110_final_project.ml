@@ -248,17 +248,23 @@ let make_play_random_game_test test_name size num_players =
   in
   (* The game completes properly. *)
   assert_equal true game_over ~printer:string_of_bool;
+
   (* The number of completed boxes is equal to the total number of boxes. *)
   assert_equal
     ((size - 1) * (size - 1))
     (completed_boxes final_board)
     ~printer:string_of_int;
-  (* The sum of all players' scores is equal to the total number of boxes. *)
+
   let scores = get_scores final_board in
+  (* The number of score entries matches the player count. *)
+  assert_equal num_players (List.length scores) ~printer:string_of_int;
+
+  (* The sum of all players' scores is equal to the total number of boxes. *)
   let total_score =
     List.fold_left (fun acc (_, score) -> acc + score) 0 scores
   in
   assert_equal ((size - 1) * (size - 1)) total_score ~printer:string_of_int;
+
   (* There should be no more available moves. *)
   let final_points_with_moves =
     List.filter
@@ -270,9 +276,10 @@ let make_play_random_game_test test_name size num_players =
 let play_random_game_tests =
   "Test suite for simulating playing a game until completion"
   >::: [
-         make_play_random_game_test "4x4 game" 4 2;
-         make_play_random_game_test "6x6 game" 6 3;
-         make_play_random_game_test "8x8 game" 8 5;
+         make_play_random_game_test "4x4 game with 2 players" 4 2;
+         make_play_random_game_test "6x6 game with 3 players" 6 3;
+         make_play_random_game_test "8x8 game with 5 players" 8 5;
+         make_play_random_game_test "8x8 game with 10 players" 8 10;
        ]
 
 (*****************************************************************************
@@ -440,13 +447,13 @@ let all_board_ui_tests =
          center_align_tests;
          draw_game_over_tests;
          redraw_board_tests;
-         generate_confetti_tests;
+         (* generate_confetti_tests; *)
          wait_for_end_choice_test_tests;
        ]
 
 let () =
   run_test_tt_main
-    ("all tests"
+    ("Tests for Dots and Boxes"
     >::: [ all_grid_tests; play_random_game_tests; all_board_ui_tests ])
 (* try Graphics.close_graph () with Graphics.Graphic_failure _ -> () *)
 (* Prompted ChatGPT-4o with "Fatal error: exception

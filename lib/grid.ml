@@ -42,11 +42,11 @@ type t = {
     points and values of sets of points. *)
 
 let make_grid size num_players =
-  {
-    grid = Hashtbl.create (size * size);
-    completed_boxes = 0;
-    scores = Hashtbl.create num_players;
-  }
+  let scores = Hashtbl.create num_players in
+  for i = 0 to num_players - 1 do
+    Hashtbl.add scores i 0
+  done;
+  { grid = Hashtbl.create (size * size); completed_boxes = 0; scores }
 
 let is_game_over { grid; completed_boxes } size =
   completed_boxes = (size - 1) * (size - 1)
