@@ -41,14 +41,25 @@ let draw_button x y w h label =
   draw_string label
 
 let wait_for_end_choice window_w window_h =
-  let button_w = 150 in
-  let button_h = 50 in
-  let replay_x = (window_w / 2) - button_w - 10 in
-  let quit_x = (window_w / 2) + 10 in
+  let padding = 20 in
+  let label1 = "Replay" in
+  let label2 = "Quit" in
+  let text_w1, text_h1 = text_size label1 in
+  let text_w2, _ = text_size label2 in
+  let button_w1 = text_w1 + padding in
+  let button_w2 = text_w2 + padding in
+  let button_h = text_h1 + padding in
+
+  let spacing = 20 in
+  let total_width = button_w1 + button_w2 + spacing in
+  let start_x = (window_w - total_width) / 2 in
   let y = 100 in
 
-  draw_button replay_x y button_w button_h "Replay";
-  draw_button quit_x y button_w button_h "Quit";
+  let replay_x = start_x in
+  let quit_x = start_x + button_w1 + spacing in
+
+  draw_button replay_x y button_w1 button_h label1;
+  draw_button quit_x y button_w2 button_h label2;
 
   let rec wait () =
     let status = wait_next_event [ Button_down ] in
@@ -56,12 +67,12 @@ let wait_for_end_choice window_w window_h =
     let my = status.mouse_y in
     if
       mx >= replay_x
-      && mx <= replay_x + button_w
+      && mx <= replay_x + button_w1
       && my >= y
       && my <= y + button_h
     then "replay"
     else if
-      mx >= quit_x && mx <= quit_x + button_w && my >= y && my <= y + button_h
+      mx >= quit_x && mx <= quit_x + button_w2 && my >= y && my <= y + button_h
     then "quit"
     else wait ()
   in
@@ -110,6 +121,7 @@ let animate_confetti window_w window_h =
     synchronize ();
     Unix.sleepf 0.03
   done;
+  clear_graph();
   auto_synchronize true
 
 let draw_margin_text str grid_size window_h y_pos =
@@ -149,37 +161,41 @@ let draw_game_over window_w window_h winners =
   let end_msg = "Game Over!" in
   let text_width = fst (text_size end_msg) in
   let x = (window_w - text_width) / 2 in
-  let y = window_h / 2 in
+  let y = window_h * 2 / 3 in
   moveto x y;
   draw_string end_msg;
   animate_confetti window_w window_h;
   set_color black;
   let sorted_winners = List.sort compare winners in
   let y_winner = y - 50 in
-  match sorted_winners with
-  | [ winner ] ->
-      let win_msg = "Player " ^ string_of_int (winner + 1) ^ " wins!" in
-      let win_width = fst (text_size win_msg) in
-      let x_win = (window_w - win_width) / 2 in
-      moveto x_win y_winner;
-      draw_string win_msg
-  | _ ->
-      let tie_msg = "It's a tie between:" in
-      let text_width = fst (text_size tie_msg) in
-      let x_tie = (window_w - text_width) / 2 in
-      moveto x_tie y_winner;
-      draw_string tie_msg;
 
-      let offset = ref (y_winner - 30) in
-      List.iter
-        (fun w ->
-          let player_str = "Player " ^ string_of_int (w + 1) in
-          let text_width = fst (text_size player_str) in
-          let x_player = (window_w - text_width) / 2 in
-          moveto x_player !offset;
-          draw_string player_str;
-          offset := !offset - 25)
-        sorted_winners
+  let () =
+    match sorted_winners with
+    | [ winner ] ->
+        let win_msg = "Player " ^ string_of_int (winner + 1) ^ " wins!" in
+        let win_width = fst (text_size win_msg) in
+        let x_win = (window_w - win_width) / 2 in
+        moveto x_win y_winner;
+        draw_string win_msg
+    | _ ->
+        let tie_msg = "It's a tie between:" in
+        let text_width = fst (text_size tie_msg) in
+        let x_tie = (window_w - text_width) / 2 in
+        moveto x_tie y_winner;
+        draw_string tie_msg;
+
+        let offset = ref (y_winner - 30) in
+        List.iter
+          (fun w ->
+            let player_str = "Player " ^ string_of_int (w + 1) in
+            let text_width = fst (text_size player_str) in
+            let x_player = (window_w - text_width) / 2 in
+            moveto x_player !offset;
+            draw_string player_str;
+            offset := !offset - 25)
+          sorted_winners
+  in
+  wait_for_end_choice window_w window_h
 
 let center_align y str window_width =
   (* Prompted ChaptGPT-4o "Is there pre-set alignment in OCaml Graphics"
@@ -219,38 +235,3 @@ let redraw_board size board_size spacing lines completed_boxes =
     completed_boxes;
   synchronize ();
   auto_synchronize true
-
-(** [distance_sq (x1, y1) (x2, y2)] returns the squared distance between
-    [(x1, y1)] and [(x2, y2)]. *)
-let distance_sq (x1, y1) (x2, y2) =
-  ((x2 - x1) * (x2 - x1)) + ((y2 - y1) * (y2 - y1))
-
-(** [get_all_dots] returns all dots in a [size] x [size] grid in [window_size] x
-    [window_size]. *)
-let get_all_dots size window_size =
-  let spacing = window_size / size in
-  List.flatten
-    (List.init size (fun i ->
-         List.init size (fun j ->
-             ((i * spacing) + (spacing / 2), (j * spacing) + (spacing / 2)))))
-
-let find_nearest_dot (x, y) size window_size =
-  let radius = 10 in
-
-  let dots = get_all_dots size window_size in
-
-  let nearest_dot =
-    List.fold_left
-      (fun acc (dot_x, dot_y) ->
-        let dist_sq = distance_sq (x, y) (dot_x, dot_y) in
-        match acc with
-        | None -> Some (dot_x, dot_y, dist_sq)
-        | Some (_, _, min_dist_sq) ->
-            if dist_sq < min_dist_sq then Some (dot_x, dot_y, dist_sq) else acc)
-      None dots
-  in
-
-  match nearest_dot with
-  | Some (dot_x, dot_y, dist_sq) ->
-      if dist_sq <= radius * radius then Some (dot_x, dot_y) else None
-  | _ -> None

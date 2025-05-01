@@ -1,4 +1,10 @@
-type confetti
+type confetti = {
+  mutable x : int;
+  mutable y : int;
+  dx : int;
+  dy : int;
+  color : Graphics.color;
+}
 (** The type of a single confetti particle, including its coordinates and
     velocity. *)
 
@@ -46,7 +52,7 @@ val draw_scores : Grid.t -> 'a -> int -> int -> int -> unit
 (** [draw_scores board colors grid_size window_h] draws the tallied score of
     each player during gameplay. *)
 
-val draw_game_over : int -> int -> int list -> unit
+val draw_game_over : int -> int -> int list -> string
 (** [draw_game_over window_w window_h winners] draws the game over screen
     following the completion of a board with a winners message. *)
 
@@ -63,7 +69,3 @@ val redraw_board :
   unit
 (** [redraw_board size board_size spacing lines completed_boxes] redraws the
     updated grid with all previous lines and completed boxes. *)
-
-val find_nearest_dot : int * int -> int -> int -> (int * int) option
-(** [find_nearest_dot (x, y) size spacing] returns the nearest dot to [(x, y)]
-    in the grid, if it is within a radius of 10. Otherwise, returns [None]. *)
