@@ -51,11 +51,14 @@ Referenced
 
 Prompted ChatGPT-4o "how to connect mutually recursive functions" along with follow_mouse and play to figure out to use "and," accessed 4/14/25.
 
+Prompted ChatGPT-4o with "How to modify a function that relies on button clicks in a certain    
+        location to deal with mock (fake) clicks OCaml", accessed 04/30/2025.
+
 --------
 grid.ml
 
 Prompted ChatGPT-4o, "how to make Hashtbl custom type in Ocaml", accessed
-   3/23/35.
+   3/23/25.
 
 Referenced code under functional interface for special Hash table for keys,
     https://ocaml.org/manual/5.3/api/Hashtbl.html, accessed 3/23/25.
@@ -70,3 +73,10 @@ Prompted ChatGPT-4o with "Fatal error: exception
    Graphics.Graphic_failure("graphic screen not opened")" to figure out to open
    and close Graphics for tests, accessed 4/30/25.
 
+Prompted ChatGPT-4o with "[xcb] Unknown sequence number while processing queue
+        [xcb] You called XInitThreads, this is not your fault [xcb] Aborting, 
+        sorry about that. Assertion failed: (!xcb_xlib_threads_sequence_lost), 
+        function poll_for_event, file xcb_io.c", accessed 05/01/2025.
+
+Prompted ChatGPT-4o with "How to test function that returns a variant type or
+        test return type is string OCaml", accessed 05/01/2025.
