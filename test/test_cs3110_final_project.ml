@@ -262,29 +262,25 @@ let validate_turn_sequence player_sequence box_completions player_count =
       check_remaining_turns remaining_players remaining_boxes
         (if first_box then first_player else (first_player + 1) mod player_count)
 
-(** [make_play_random_game_test] creates a test case named [test_name],
-    simulating a game with [num_players] players on a [size] x [size] grid. *)
-let make_play_random_game_test test_name size num_players =
-  test_name >:: fun _ ->
-  let spacing = 100 in
-  let grid = make_grid size num_players in
-
-  (* Initial board should have available moves. *)
+(** [assert_initial_moves_exist grid size spacing] verifies that the initial
+    game board has available moves. *)
+let assert_initial_moves_exist grid size spacing =
   let all_points = get_all_points size spacing in
   let points_with_moves =
     List.filter (fun p -> has_available_moves p spacing size grid) all_points
   in
-  assert_equal true (points_with_moves <> []) ~printer:string_of_bool;
+  assert_equal true (points_with_moves <> []) ~printer:(fun boolean ->
+      if boolean then "Initial moves exist" else "No initial moves found")
 
-  let final_board, moves, game_over, player_sequence, box_completions =
-    play_random_game grid spacing size num_players
-  in
-
-  (* The game completes properly. *)
+(** [assert_game_completes_properly game_over] verifies that the game reached a
+    completed state. *)
+let assert_game_completes_properly game_over =
   assert_equal true game_over ~printer:(fun boolean ->
-      if boolean then "Game ended" else "Game has not ended");
+      if boolean then "Game ended" else "Game has not ended")
 
-  (* Players take turns properly. *)
+(** [assert_valid_turn_sequence player_sequence box_completions num_players]
+    verifies players took turns correctly. *)
+let assert_valid_turn_sequence player_sequence box_completions num_players =
   assert_equal true
     (validate_turn_sequence player_sequence box_completions num_players)
     ~printer:(fun boolean ->
@@ -292,32 +288,92 @@ let make_play_random_game_test test_name size num_players =
         if boolean then "Valid turn sequence" else "Invalid turn sequence"
       in
       Printf.sprintf "%s\nPlayer sequence: %s" status
-        (String.concat " " (List.map string_of_int player_sequence)));
+        (String.concat " " (List.map string_of_int player_sequence)))
 
-  (* The number of completed boxes is equal to the total number of boxes. *)
+(** [assert_completed_boxes_count final_board size] verifies all boxes were
+    completed. *)
+let assert_completed_boxes_count final_board size =
   assert_equal
     ((size - 1) * (size - 1))
     (completed_boxes final_board)
-    ~printer:string_of_int;
+    ~printer:(fun i -> Printf.sprintf "%d completed boxes" i)
 
-  let scores = get_scores final_board in
+(** [assert_score_count_matches_players scores num_players] verifies score count
+    matches player count. *)
+let assert_score_count_matches_players scores num_players =
+  assert_equal num_players (List.length scores) ~printer:(fun i ->
+      Printf.sprintf "Scores for %d players" i)
 
-  (* The number of score entries matches the player count. *)
-  assert_equal num_players (List.length scores) ~printer:string_of_int;
-
-  (* The sum of all players' scores is equal to the total number of boxes. *)
+(** [assert_total_score_matches_boxes scores size] verifies total points match
+    boxes. *)
+let assert_total_score_matches_boxes scores size =
   let total_score =
     List.fold_left (fun acc (_, score) -> acc + score) 0 scores
   in
-  assert_equal ((size - 1) * (size - 1)) total_score ~printer:string_of_int;
+  assert_equal
+    ((size - 1) * (size - 1))
+    total_score
+    ~printer:(fun i -> Printf.sprintf "%d points across all players" i)
 
-  (* There should be no more available moves. *)
+(** [assert_no_remaining_moves final_board size spacing] verifies no moves
+    remain. *)
+let assert_no_remaining_moves final_board size spacing =
+  let all_points = get_all_points size spacing in
   let final_points_with_moves =
     List.filter
       (fun p -> has_available_moves p spacing size final_board)
       all_points
   in
-  assert_equal 0 (List.length final_points_with_moves) ~printer:string_of_int
+  assert_equal 0 (List.length final_points_with_moves)
+    ~printer:(fun num_of_moves ->
+      let status =
+        if num_of_moves = 0 then "No moves remaining"
+        else Printf.sprintf "%d moves remaining" num_of_moves
+      in
+      let problem_points =
+        if num_of_moves > 0 then
+          let point_strings =
+            List.map
+              (fun (x, y) -> Printf.sprintf "(%d,%d)" x y)
+              final_points_with_moves
+          in
+          "\nPoints with moves: " ^ String.concat ", " point_strings ^ ""
+        else ""
+      in
+      Printf.sprintf "%s%s" status problem_points)
+
+(** [make_play_random_game_test] creates a test case named [test_name],
+    simulating a game with [num_players] players on a [size] x [size] grid. *)
+let make_play_random_game_test test_name size num_players =
+  test_name >:: fun _ ->
+  let spacing = 100 in
+  let grid = make_grid size num_players in
+
+  (* Initial grid should have available moves. *)
+  assert_initial_moves_exist grid size spacing;
+
+  let final_board, moves, game_over, player_sequence, box_completions =
+    play_random_game grid spacing size num_players
+  in
+
+  (* The game completes properly. *)
+  assert_game_completes_properly game_over;
+
+  (* Players take turns. *)
+  assert_valid_turn_sequence player_sequence box_completions num_players;
+  assert_completed_boxes_count final_board size;
+
+  (* The number of completed boxes is equal to the total number of boxes. *)
+  let scores = get_scores final_board in
+
+  (* The number of score entries matches the player count. *)
+  assert_score_count_matches_players scores num_players;
+
+  (* The sum of all players' scores is equal to the total number of boxes. *)
+  assert_total_score_matches_boxes scores size;
+
+  (* There should be no more available moves. *)
+  assert_no_remaining_moves final_board size spacing
 
 let play_random_game_tests =
   "Test suite for simulating playing a game until completion"
