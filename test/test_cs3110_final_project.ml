@@ -381,6 +381,7 @@ let play_random_game_tests =
          make_play_random_game_test "4x4 game with 2 players" 4 2;
          make_play_random_game_test "6x6 game with 3 players" 6 3;
          make_play_random_game_test "8x8 game with 5 players" 8 5;
+         make_play_random_game_test "8x8 game with 10 players" 8 10;
        ]
 
 (*****************************************************************************
