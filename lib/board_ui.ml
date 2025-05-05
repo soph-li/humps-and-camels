@@ -34,6 +34,9 @@ let draw_x x y color spacing =
   lineto (x + spacing) y
 
 let draw_button x y w h label =
+  let btn_font = "-*-helvetica-medium-r-normal--16-*-*-*-*-*-*-*" in
+  set_font btn_font;
+
   set_color black;
   fill_rect x y w h;
   set_color white;
@@ -42,7 +45,7 @@ let draw_button x y w h label =
   draw_string label
 
 let wait_for_end_choice window_w window_h pre_status =
-  let padding = 20 in
+  let padding = 10 in
   let label1 = "Replay" in
   let label2 = "Quit" in
   let text_w1, text_h1 = text_size label1 in
@@ -171,12 +174,18 @@ let draw_game_over window_w window_h winners =
 
   match sorted_winners with
   | [ winner ] ->
+      let win_font = "-*-helvetica-medium-r-normal--36-*-*-*-*-*-*-*" in
+      set_font win_font;
+
       let win_msg = "Player " ^ string_of_int (winner + 1) ^ " wins!" in
       let win_width = fst (text_size win_msg) in
       let x_win = (window_w - win_width) / 2 in
       moveto x_win y_winner;
       draw_string win_msg
   | _ ->
+      let tie_font = "-*-helvetica-medium-r-normal--36-*-*-*-*-*-*-*" in
+      set_font tie_font;
+
       let tie_msg = "It's a tie between:" in
       let text_width = fst (text_size tie_msg) in
       let x_tie = (window_w - text_width) / 2 in
