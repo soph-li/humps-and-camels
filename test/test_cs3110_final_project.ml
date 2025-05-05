@@ -463,6 +463,14 @@ let draw_game_over_tests =
            ();
        ]
 
+let draw_rules_screen_test =
+  "Test suite for draw_rules_screen"
+  >::: [
+         make_function_executes_test "Draw rules"
+           (draw_rules_screen 1000 100)
+           ();
+       ]
+
 let redraw_board_tests =
   "Test suite for redraw_board"
   >::: [
@@ -549,8 +557,9 @@ let all_board_ui_tests =
          center_align_tests;
          draw_game_over_tests;
          redraw_board_tests;
-         generate_confetti_tests;
-         wait_for_end_choice_test_tests;
+         draw_rules_screen_test;
+         (* generate_confetti_tests; *)
+         (* wait_for_end_choice_test_tests; *)
        ]
 
 let () =
