@@ -319,6 +319,11 @@ let rec start_game () =
     open_graph
       (" " ^ string_of_int window_width ^ "x" ^ string_of_int window_height);
 
+    (* Display the rules. *)
+    draw_rules_screen window_width window_height;
+
+    clear_graph ();
+
     (* Display initial board. *)
     draw_grid size grid_size;
 

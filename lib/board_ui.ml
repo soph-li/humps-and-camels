@@ -232,3 +232,74 @@ let redraw_board size board_size spacing lines completed_boxes =
     completed_boxes;
   synchronize ();
   auto_synchronize true
+
+let draw_rules_screen window_width window_height =
+  clear_graph ();
+  set_color black;
+
+  (* Prompted ChatGPT-4o, "How to change font in OCaml Graphics", accessed
+     5/5/25. *)
+  let title_font = "-*-helvetica-bold-r-normal--18-*-*-*-*-*-*-*" in
+  let line_font = "-*-helvetica-medium-r-normal--14-*-*-*-*-*-*-*" in
+
+  let rules =
+    [
+      "1. Players take turns connecting two adjacent dots with a line.";
+      "2. Complete the fourth side of a box to claim it and get an extra turn.";
+      "3. The game ends when all boxes have been claimed.";
+      "4. The player with the most boxes at the end wins.";
+      "5. Click two adjacent dots to draw a line.";
+      "";
+      "Click anywhere to start the game.";
+    ]
+  in
+
+  (* Set up drawing. *)
+  set_font line_font;
+  let max_line_width = window_width - 40 in
+  let line_spacing = 25 in
+
+  (* Prompted ChatGPT-4o, "How to wrap text from rules based on window width and
+     window height in OCaml", Adapted lines 266-308 from ChatGPT, accessed
+     5/5/25. *)
+  let wrap_text line =
+    let words = String.split_on_char ' ' line in
+    let rec build_lines current_line lines = function
+      | [] -> List.rev (current_line :: lines)
+      | h :: t ->
+          let tentative =
+            if current_line = "" then h else current_line ^ " " ^ h
+          in
+          if fst (text_size tentative) > max_line_width then
+            build_lines h (current_line :: lines) t
+          else build_lines tentative lines t
+    in
+    build_lines "" [] words
+  in
+
+  let wrapped_lines = List.flatten (List.map wrap_text rules) in
+  let total_height = line_spacing * List.length wrapped_lines in
+  let start_y = ((window_height + total_height) / 2) - line_spacing in
+
+  (* Draw title. *)
+  set_font title_font;
+  let title = "RULES OF DOTS AND BOXES" in
+  let title_width = fst (text_size title) in
+  let title_y = start_y + line_spacing in
+  moveto ((window_width - title_width) / 2) title_y;
+  draw_string title;
+
+  (* Draw rules with word wrap and center align. *)
+  set_font line_font;
+  let rec draw_lines y_offset = function
+    | [] -> ()
+    | line :: rest ->
+        let line_width = fst (text_size line) in
+        let x = (window_width - line_width) / 2 in
+        moveto x y_offset;
+        draw_string line;
+        draw_lines (y_offset - line_spacing) rest
+  in
+
+  draw_lines start_y wrapped_lines;
+  ignore (wait_next_event [ Button_down ])

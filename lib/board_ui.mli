@@ -70,3 +70,7 @@ val redraw_board :
   unit
 (** [redraw_board size board_size spacing lines completed_boxes] redraws the
     updated grid with all previous lines and completed boxes. *)
+
+val draw_rules_screen : int -> int -> unit
+(** [draw_rules_scren window_width window_height] displays the rules of Dots and
+    Boxes graphically in the window. *)
