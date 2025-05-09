@@ -15,6 +15,13 @@ type click_status =
   | QuitClick
   | NoClick
 
+let create_confetti x y dx dy color = { x; y; dx; dy; color }
+let confetti_x c = c.x
+let confetti_y c = c.y
+let confetti_dx c = c.dx
+let confetti_dy c = c.dy
+let confetti_color c = c.color
+
 let draw_grid size window_size =
   set_color black;
   let spacing = window_size / size in

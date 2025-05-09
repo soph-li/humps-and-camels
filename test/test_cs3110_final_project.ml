@@ -481,6 +481,26 @@ let redraw_board_tests =
            ();
        ]
 
+let make_create_confetti_test test_name x y dx dy color =
+  test_name >:: fun _ ->
+  let c = create_confetti x y dx dy color in
+  assert_equal x (confetti_x c);
+  assert_equal y (confetti_y c);
+  assert_equal dx (confetti_dx c);
+  assert_equal dy (confetti_dy c);
+  assert_equal color (confetti_color c)
+
+let create_confetti_tests =
+  "Test suite for create_confetti and getter functions"
+  >::: [
+         make_create_confetti_test "Creates standard particle" 100 100 100 100
+           Graphics.blue;
+         make_create_confetti_test "Creates standard particle" 400 600 8 4
+           Graphics.cyan;
+         make_create_confetti_test "Creates static particle" 100 100 0 0
+           Graphics.white;
+       ]
+
 let generate_confetti_tests =
   "Test suite for generate_confetti"
   >::: [
@@ -497,14 +517,14 @@ let generate_confetti_tests =
            List.iter
              (fun c ->
                assert_equal true
-                 (c.x >= 0 && c.x < window_w)
+                 (confetti_x c >= 0 && confetti_x c <= window_w)
                  ~printer:string_of_bool)
              confetti;
 
            List.iter
              (fun c ->
                assert_equal true
-                 (c.y > window_h && c.y < window_h + 200)
+                 (confetti_y c >= window_h && confetti_y c <= window_h + 200)
                  ~printer:string_of_bool)
              confetti;
 
@@ -512,14 +532,14 @@ let generate_confetti_tests =
            List.iter
              (fun c ->
                assert_equal true
-                 (c.dx >= -2 && c.dx <= 2)
+                 (confetti_dx c >= -2 && confetti_dx c <= 2)
                  ~printer:string_of_bool)
              confetti;
 
            List.iter
              (fun c ->
                assert_equal true
-                 (c.dy <= -8 && c.dy >= -20)
+                 (confetti_dy c <= -8 && confetti_dy c >= -19)
                  ~printer:string_of_bool)
              confetti );
        ]
@@ -558,7 +578,7 @@ let all_board_ui_tests =
          draw_game_over_tests;
          redraw_board_tests;
          draw_rules_screen_test;
-         (* generate_confetti_tests; *)
+         generate_confetti_tests;
          (* wait_for_end_choice_test_tests; *)
        ]
 

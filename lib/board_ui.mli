@@ -1,19 +1,29 @@
-type confetti = {
-  mutable x : int;
-  mutable y : int;
-  dx : int;
-  dy : int;
-  color : Graphics.color;
-}
-
-(** The type of a single confetti particle, including its coordinates and
-    velocity. *)
+type confetti
+(** The type of a single confetti particle. *)
 
 type click_status =
   | ReplayClick
   | QuitClick
   | NoClick
       (** The type of a single button click following the end of a game. *)
+
+val create_confetti : int -> int -> int -> int -> Graphics.color -> confetti
+(** [make_confetti x y dx dy color] creates a confetti particle. *)
+
+val confetti_x : confetti -> int
+(** [confetti_x c] is the current x position of [c] in a window. *)
+
+val confetti_y : confetti -> int
+(** [confetti_y c] is the current y position of [c] in a window. *)
+
+val confetti_dx : confetti -> int
+(** [confetti_dx c] is the horizontal velocity of [c]. *)
+
+val confetti_dy : confetti -> int
+(** [confetti_dy c] is the vertical velocity of [c]. *)
+
+val confetti_color : confetti -> Graphics.color
+(** [confetti_color c] is the color of [c]. *)
 
 val draw_grid : int -> int -> unit
 (** [draw_grid size window_size] draws a [size] x [size] grid of dots in a
