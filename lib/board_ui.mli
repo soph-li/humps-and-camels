@@ -1,11 +1,8 @@
 type confetti
-(** The type of a single confetti particle. *)
+(** The abstract type of a single confetti particle. *)
 
-type click_status =
-  | ReplayClick
-  | QuitClick
-  | NoClick
-      (** The type of a single button click following the end of a game. *)
+type click_status
+(** The abstract type of a single button click following the end of a game. *)
 
 val create_confetti : int -> int -> int -> int -> Graphics.color -> confetti
 (** [make_confetti x y dx dy color] creates a confetti particle. *)
@@ -24,6 +21,27 @@ val confetti_dy : confetti -> int
 
 val confetti_color : confetti -> Graphics.color
 (** [confetti_color c] is the color of [c]. *)
+
+val replay : click_status
+(** [replay] is the status representing a replay click. *)
+
+val quit : click_status
+(** [quit] is the status representing a quit click. *)
+
+val noclick : click_status
+(** [noclick] is the status representing no button was clicked. *)
+
+val is_replay : click_status -> bool
+(** [is_replay click] is true if the user makes a replay click, and false
+    otherwise. *)
+
+val is_quit : click_status -> bool
+(** [is_quit click] is true if the user makes a quick click, and false
+    otherwise. *)
+
+val is_noclick : click_status -> bool
+(** [is_noclick click] is true if the user makes an invalid click, and false
+    otherwise. *)
 
 val draw_grid : int -> int -> unit
 (** [draw_grid size window_size] draws a [size] x [size] grid of dots in a

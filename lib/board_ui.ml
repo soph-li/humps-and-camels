@@ -21,6 +21,21 @@ let confetti_y c = c.y
 let confetti_dx c = c.dx
 let confetti_dy c = c.dy
 let confetti_color c = c.color
+let replay = ReplayClick
+let quit = QuitClick
+let noclick = NoClick
+
+let is_replay = function
+  | ReplayClick -> true
+  | _ -> false
+
+let is_quit = function
+  | QuitClick -> true
+  | _ -> false
+
+let is_noclick = function
+  | NoClick -> true
+  | _ -> false
 
 let draw_grid size window_size =
   set_color black;

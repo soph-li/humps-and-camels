@@ -56,7 +56,7 @@ let check_if_game_over board size window_width window_height =
     let winners = determine_winners final_scores in
     (* print_endline "Game over"; *)
     draw_game_over window_width window_height winners;
-    wait_for_end_choice window_width window_height NoClick)
+    wait_for_end_choice window_width window_height noclick)
   else ""
 
 (** [wait_for_valid_fst_dot player_idx board size board_size spacing] waits for

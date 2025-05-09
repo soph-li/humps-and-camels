@@ -547,9 +547,9 @@ let generate_confetti_tests =
 let make_wait_for_end_choice_test test_name status_str =
   let status =
     match status_str with
-    | "replay" -> ReplayClick
-    | "quit" -> QuitClick
-    | _ -> NoClick
+    | "replay" -> replay
+    | "quit" -> quit
+    | _ -> noclick
   in
   test_name >:: fun _ ->
   let window_w = 800 in
