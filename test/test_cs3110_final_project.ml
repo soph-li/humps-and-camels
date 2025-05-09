@@ -587,7 +587,7 @@ let all_board_ui_tests =
          create_confetti_tests;
          generate_confetti_tests;
          click_status_test;
-         (* wait_for_end_choice_test_tests; *)
+         wait_for_end_choice_test_tests;
        ]
 
 let () =

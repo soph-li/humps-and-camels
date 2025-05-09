@@ -67,49 +67,53 @@ let draw_button x y w h label =
   draw_string label
 
 let wait_for_end_choice window_w window_h pre_status =
-  let padding = 10 in
-  let label1 = "Replay" in
-  let label2 = "Quit" in
-  let text_w1, text_h1 = text_size label1 in
-  let text_w2, _ = text_size label2 in
-  let button_w1 = text_w1 + padding in
-  let button_w2 = text_w2 + padding in
-  let button_h = text_h1 + padding in
-
-  let spacing = 20 in
-  let total_width = button_w1 + button_w2 + spacing in
-  let start_x = (window_w - total_width) / 2 in
-  let y = 100 in
-
-  let replay_x = start_x in
-  let quit_x = start_x + button_w1 + spacing in
-
-  draw_button replay_x y button_w1 button_h label1;
-  draw_button quit_x y button_w2 button_h label2;
-
-  let rec wait () =
-    let status = wait_next_event [ Button_down ] in
-    let mx = status.mouse_x in
-    let my = status.mouse_y in
-    if
-      mx >= replay_x
-      && mx <= replay_x + button_w1
-      && my >= y
-      && my <= y + button_h
-    then (
-      close_graph ();
-      "replay")
-    else if
-      mx >= quit_x && mx <= quit_x + button_w2 && my >= y && my <= y + button_h
-    then (
-      close_graph ();
-      "quit")
-    else wait ()
-  in
   match pre_status with
   | ReplayClick -> "replay"
   | QuitClick -> "quit"
-  | _ -> wait ()
+  | _ ->
+      let padding = 10 in
+      let label1 = "Replay" in
+      let label2 = "Quit" in
+      let text_w1, text_h1 = text_size label1 in
+      let text_w2, _ = text_size label2 in
+      let button_w1 = text_w1 + padding in
+      let button_w2 = text_w2 + padding in
+      let button_h = text_h1 + padding in
+
+      let spacing = 20 in
+      let total_width = button_w1 + button_w2 + spacing in
+      let start_x = (window_w - total_width) / 2 in
+      let y = 100 in
+
+      let replay_x = start_x in
+      let quit_x = start_x + button_w1 + spacing in
+
+      draw_button replay_x y button_w1 button_h label1;
+      draw_button quit_x y button_w2 button_h label2;
+
+      let rec wait () =
+        let status = wait_next_event [ Button_down ] in
+        let mx = status.mouse_x in
+        let my = status.mouse_y in
+        if
+          mx >= replay_x
+          && mx <= replay_x + button_w1
+          && my >= y
+          && my <= y + button_h
+        then (
+          close_graph ();
+          "replay")
+        else if
+          mx >= quit_x
+          && mx <= quit_x + button_w2
+          && my >= y
+          && my <= y + button_h
+        then (
+          close_graph ();
+          "quit")
+        else wait ()
+      in
+      wait ()
 
 let generate_confetti n window_w window_h =
   let rand_color () =
