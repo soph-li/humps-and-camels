@@ -543,6 +543,12 @@ let generate_confetti_tests =
                  ~printer:string_of_bool)
              confetti );
        ]
+let click_status_test = 
+  "Test for abstract click status type"
+  >:: fun _ ->
+  assert_equal true (is_replay replay);
+  assert_equal true (is_quit quit);
+  assert_equal true (is_noclick noclick)
 
 let make_wait_for_end_choice_test test_name status_str =
   let status =
@@ -580,6 +586,7 @@ let all_board_ui_tests =
          draw_rules_screen_test;
          create_confetti_tests;
          generate_confetti_tests;
+         click_status_test;
          (* wait_for_end_choice_test_tests; *)
        ]
 
