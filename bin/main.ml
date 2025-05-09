@@ -279,7 +279,7 @@ let rec select_player_color ind player_num selected_colors =
       select_player_color ind player_num selected_colors)
 
 (* Main *)
-let rec start_game () =
+let rec start_game is_first_game =
   try
     (* Get valid number of players. *)
     let player_num = get_valid_players () in
@@ -320,7 +320,7 @@ let rec start_game () =
       (" " ^ string_of_int window_width ^ "x" ^ string_of_int window_height);
 
     (* Display the rules. *)
-    draw_rules_screen window_width window_height;
+    if is_first_game then draw_rules_screen window_width window_height;
 
     clear_graph ();
 
@@ -387,7 +387,7 @@ let rec start_game () =
   | Restart ->
       print_endline "\nRestarting game.";
       close_graph ();
-      start_game ()
+      start_game false
   | Graphics.Graphic_failure _ ->
       print_endline "\nExited game.";
       close_graph ()
@@ -395,4 +395,4 @@ let rec start_game () =
       print_endline "\nError: An unexpected error occured.";
       close_graph ()
 
-let () = start_game ()
+let () = start_game true
