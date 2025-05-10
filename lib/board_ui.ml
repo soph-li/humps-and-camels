@@ -164,12 +164,13 @@ let draw_scores board grid_size window_h panel_w =
 
   (* Draw scores *)
   set_text_size 20;
-  let scores = get_scores board in
+  let scores_raw = get_scores board in
+  let scores_sorted = List.sort compare scores_raw in
   List.iteri
     (fun idx (player, score) ->
       moveto (grid_size + 20) (window_h - 80 - (idx * 30));
-      draw_string (Printf.sprintf "Player %d: %d" player score))
-    scores
+      draw_string (Printf.sprintf "Player %d: %d" (player + 1) score))
+    scores_sorted
 (* synchronize ();
 
    auto_synchronize true *)

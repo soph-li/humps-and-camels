@@ -55,6 +55,7 @@ let check_if_game_over board size window_width window_height =
     let final_scores = get_scores board in
     let winners = determine_winners final_scores in
     (* print_endline "Game over"; *)
+    draw_scores board size size 200;
     draw_game_over window_width window_height winners;
     wait_for_end_choice window_width window_height noclick)
   else ""
@@ -63,6 +64,8 @@ let check_if_game_over board size window_width window_height =
     player to click a valid first dot. *)
 let rec wait_for_valid_fst_dot player_idx board size board_size spacing () =
   print_endline ("Player " ^ string_of_int (player_idx + 1) ^ "'s turn");
+  draw_scores board board_size board_size 200;
+
   let event = wait_next_event [ Button_down ] in
   let x, y = (event.mouse_x, event.mouse_y) in
   match find_nearest_dot (x, y) size board_size with
@@ -126,6 +129,7 @@ let rec handle_move dot2_x dot2_y start_x start_y cur_color lines_lst
       cur_color completed_boxes_lst size window_width window_height
   in
   redraw_board size board_size spacing updated_lines updated_completed_boxes;
+  draw_scores board board_size board_size 200;
   let choice = check_if_game_over new_board size window_width window_height in
   match choice with
   | "replay" ->
@@ -151,6 +155,8 @@ let rec follow_mouse size board_size spacing board cur_color color_list
   let event = wait_next_event [ Mouse_motion; Button_down ] in
   let x2, y2 = (event.mouse_x, event.mouse_y) in
   redraw_board size board_size spacing lines_lst completed_boxes_lst;
+  draw_scores board board_size board_size 200;
+
   (* Redraw start point *)
   set_color black;
   fill_circle start_x start_y 5;
@@ -312,8 +318,8 @@ let rec start_game is_first_game =
     let spacing = 100 in
     let grid_size = size * spacing in
     let score_panel_width = 150 in
-    let window_width = grid_size in
-    (* let window_width = grid_size + score_panel_width in *)
+    (* let window_width = grid_size in *)
+    let window_width = grid_size + score_panel_width in
     let window_height = grid_size in
 
     open_graph
