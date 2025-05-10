@@ -64,8 +64,8 @@ let check_if_game_over board size window_width window_height =
     player to click a valid first dot. *)
 let rec wait_for_valid_fst_dot player_idx board size board_size spacing () =
   print_endline ("Player " ^ string_of_int (player_idx + 1) ^ "'s turn");
+  draw_turn_indicator player_idx board_size board_size 200;
   draw_scores board board_size board_size 200;
-
   let event = wait_next_event [ Button_down ] in
   let x, y = (event.mouse_x, event.mouse_y) in
   match find_nearest_dot (x, y) size board_size with
@@ -129,6 +129,7 @@ let rec handle_move dot2_x dot2_y start_x start_y cur_color lines_lst
       cur_color completed_boxes_lst size window_width window_height
   in
   redraw_board size board_size spacing updated_lines updated_completed_boxes;
+
   draw_scores board board_size board_size 200;
   let choice = check_if_game_over new_board size window_width window_height in
   match choice with
@@ -155,6 +156,7 @@ let rec follow_mouse size board_size spacing board cur_color color_list
   let event = wait_next_event [ Mouse_motion; Button_down ] in
   let x2, y2 = (event.mouse_x, event.mouse_y) in
   redraw_board size board_size spacing lines_lst completed_boxes_lst;
+  draw_turn_indicator player_idx board_size board_size 200;
   draw_scores board board_size board_size 200;
 
   (* Redraw start point *)
@@ -178,7 +180,7 @@ let rec follow_mouse size board_size spacing board cur_color color_list
               =
             handle_move dot2_x dot2_y start_x start_y cur_color lines_lst
               completed_boxes board board_size spacing player_idx
-              completed_boxes_lst size window_width window_height color_list 
+              completed_boxes_lst size window_width window_height color_list
           in
           play size board_size spacing new_board updated_lines
             updated_completed_boxes next_player_idx color_list window_width

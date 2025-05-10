@@ -153,10 +153,9 @@ let draw_margin_text str grid_size window_h y_pos =
   draw_string str
 
 let draw_scores board grid_size window_h panel_w =
-  (* auto_synchronize false; *)
   (* Draw score panel area *)
-  set_color white;
-  fill_rect grid_size 0 panel_w window_h;
+  (* set_color white;
+  fill_rect grid_size 0 panel_w window_h; *)
   set_color black;
 
   (* Draw title *)
@@ -171,9 +170,16 @@ let draw_scores board grid_size window_h panel_w =
       moveto (grid_size + 20) (window_h - 80 - (idx * 30));
       draw_string (Printf.sprintf "Player %d: %d" (player + 1) score))
     scores_sorted
-(* synchronize ();
 
-   auto_synchronize true *)
+let draw_turn_indicator player grid_size window_h panel_w =
+  let text = Printf.sprintf "Player %d's turn" (player + 1) in
+  set_color black;
+  set_text_size 20;
+  let indicator_x = grid_size + 20 in
+  let indicator_y = 30 in
+  (* 30 pixels from the bottom of the window *)
+  moveto indicator_x indicator_y;
+  draw_string text
 
 let draw_game_over window_w window_h winners =
   Unix.sleepf 1.;

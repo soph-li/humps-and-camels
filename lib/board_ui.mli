@@ -63,23 +63,27 @@ val wait_for_end_choice : int -> int -> click_status -> string
     quit button, and is the name of the button clicked by the user. Otherwise,
     the result of the button click corresponds with [click_status]. *)
 
-val draw_margin_text : string -> int -> int -> int -> unit
-(** [draw_margin_text str grid_size window_h y_pos] draws the given text in the
-    allocated score panel of the window. *)
-
 val generate_confetti : int -> int -> int -> confetti list
 (** [generate_confetti n window_w window_h] generates [n] confetti particles
     randomly positioned within the top region of the window of width [window_w]
     and height [window_h]. Each particle has a random color and initial
     velocity. *)
 
-(* val animate_confetti : int -> int -> unit *)
+val animate_confetti : int -> int -> unit
 (** [animate_confetti window_w window_h] animates a confetti effect until all
     particles fall off the screen. *)
 
+val draw_margin_text : string -> int -> int -> int -> unit
+(** [draw_margin_text str grid_size window_h y_pos] draws the given text in the
+    allocated score panel of the window. *)
+
 val draw_scores : Grid.t -> int -> int -> int -> unit
-(** [draw_scores board grid_size window_h] draws the tallied score of each
+(** [draw_scores board grid_size window_h panel_w] draws the tallied score of each
     player during gameplay. *)
+
+val draw_turn_indicator : int -> int -> int -> int -> unit
+(** [draw_turn_indicator player grid_size window_ panel_w] displays a message in the
+    corner of the window indicating that it is currently [player]'s turn. *)
 
 val draw_game_over : int -> int -> int list -> unit
 (** [draw_game_over window_w window_h winners] draws the game over screen
