@@ -336,5 +336,4 @@ let draw_rules_screen window_width window_height =
         draw_lines (y_offset - line_spacing) rest
   in
 
-  draw_lines start_y wrapped_lines;
-  ignore (wait_next_event [ Button_down ])
+  draw_lines start_y wrapped_lines

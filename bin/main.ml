@@ -24,7 +24,7 @@ exception Quit
 (** Raised if user quits the program. *)
 
 exception Restart of int * Graphics.color list
-(* Raised if user chooses to play the game again. *)
+(** Raised if user chooses to play the game again. *)
 (* Prompted ChatGPT-4o with main function and this line "what type is
    color_list", acceesed 5/10/25. *)
 
@@ -339,7 +339,9 @@ let rec start_game is_first_game old_colors old_player_num =
       (" " ^ string_of_int window_width ^ "x" ^ string_of_int window_height);
 
     (* Display the rules. *)
-    if is_first_game then draw_rules_screen window_width window_height;
+    if is_first_game then (
+      draw_rules_screen window_width window_height;
+      ignore (wait_next_event [ Button_down ]));
 
     clear_graph ();
 
