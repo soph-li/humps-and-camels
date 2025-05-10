@@ -3,35 +3,28 @@ open Unix
 open Cs3110_final_project.Grid
 open Cs3110_final_project.Board_ui
 
-(** Prompted ChatGPT-4o, "How to install OCaml Graphics", accessed 3/22/25. *)
-
-(** Prompted ChatGPT-4o, "What should I do if I encountered Fatal error:
-    exception Graphics.Graphic_failure("Cannot open display ")", accessed
-    3/22/25. *)
-
-(** Prompted ChatGPT-4o, "How to install Xvfb", accessed 3/22/25. *)
-
-(** Prompted ChatGPT-4o, "How to use OCaml Graphics", accessed 3/22/25. *)
-
-(** Basic board setup interface adapted from
-    "https://ocaml.org/manual/4.03/libref/Graphics.html", accessed 3/22/25. *)
-
-(** Adapted from "https://ocaml.org/manual/4.03/libref/Graphics.html", accessed
-    3/25/25. *)
-
-(** Prompted ChatGPT-4o, "Why are my mouse clicks not working in Ocaml using
-    XQuartz, accessed 3/23/25." *)
-
-(** Prompted ChatGPT-4o, "How to handle window closure in OCaml Graphics",
-    accessed 3/25/25. *)
-
-(** Prompted ChaptGPT-4o "Is there pre-set alignment in OCaml Graphics" accessed
-    4/8/25. *)
+(* Prompted ChatGPT-4o, "How to install OCaml Graphics", accessed 3/22/25. *)
+(* Prompted ChatGPT-4o, "What should I do if I encountered Fatal error:
+   exception Graphics.Graphic_failure("Cannot open display ")", accessed
+   3/22/25. *)
+(* Prompted ChatGPT-4o, "How to install Xvfb", accessed 3/22/25. *)
+(* Prompted ChatGPT-4o, "How to use OCaml Graphics", accessed 3/22/25. *)
+(* Basic board setup interface adapted from
+   "https://ocaml.org/manual/4.03/libref/Graphics.html", accessed 3/22/25. *)
+(* Adapted from "https://ocaml.org/manual/4.03/libref/Graphics.html", accessed
+   3/25/25. *)
+(* Prompted ChatGPT-4o, "Why are my mouse clicks not working in Ocaml using
+   XQuartz, accessed 3/23/25." *)
+(* Prompted ChatGPT-4o, "How to handle window closure in OCaml Graphics",
+   accessed 3/25/25. *)
+(* Prompted ChaptGPT-4o "Is there pre-set alignment in OCaml Graphics" accessed
+   4/8/25. *)
 
 exception Quit
 (** Raised if user quits the program. *)
 
 exception Restart of int * Graphics.color list
+(* Raised if user chooses to play the game again. *)
 (* Prompted ChatGPT-4o with main function and this line "what type is
    color_list", acceesed 5/10/25. *)
 
@@ -54,7 +47,6 @@ let check_if_game_over board size window_width window_height =
   if is_game_over board size then (
     let final_scores = get_scores board in
     let winners = determine_winners final_scores in
-    (* print_endline "Game over"; *)
     draw_scores board size size 200;
     draw_game_over window_width window_height winners;
     wait_for_end_choice window_width window_height noclick)
@@ -63,7 +55,6 @@ let check_if_game_over board size window_width window_height =
 (** [wait_for_valid_fst_dot player_idx board size board_size spacing] waits for
     player to click a valid first dot. *)
 let rec wait_for_valid_fst_dot player_idx board size board_size spacing () =
-  print_endline ("Player " ^ string_of_int (player_idx + 1) ^ "'s turn");
   draw_turn_indicator player_idx board_size board_size 200;
   draw_scores board board_size board_size 200;
   let event = wait_next_event [ Button_down ] in
@@ -77,15 +68,13 @@ let rec wait_for_valid_fst_dot player_idx board size board_size spacing () =
 (* Prompted ChatGPT-40 "How to draw line leaving point, following user mouse
    position, Ocaml graphics.", accesssed 4/1/25. *)
 
-(* Draw X's to mark boxes that were just completed. *)
-
 (** [update_board (start_x, start_y) (dot2_x, dot2_y) board spacing player_idx
      cur_color completed_boxes_lst size window_width window_height] returns the
     updated_board, updated_completed_boxes, and the other unchanged variables.
 *)
 let rec update_board (start_x, start_y) (dot2_x, dot2_y) board spacing
     player_idx cur_color completed_boxes_lst size window_width window_height =
-  (* Update board connections *)
+  (* Update board connections. *)
   let new_board = make_connection (start_x, start_y) (dot2_x, dot2_y) board in
   (* Update list of completed boxes with coordinates and color of player who
      made the move. *)
@@ -110,9 +99,13 @@ let rec draw_livewire color_list player_idx start_x start_y x2 y2 =
   moveto start_x start_y;
   lineto x2 y2
 
-(** Handles a player's move by updating the board state. Updates the list of
-    line segments and completed boxes. Redraws the board, checks if the game is
-    over, and updates the player index. *)
+(** [handle_move dot2_x dot2_y start_x start_y cur_color lines_lst] handles a
+    player's move. It updates the board state by adding a new line segment
+    defined by the starting coordinates ([start_x], [start_y]) and the ending
+    coordinates ([dot2_x], [dot2_y]), using [cur_color]. It also updates the
+    list of line segments and checks for any completed boxes. Then, it redraws
+    the board, checks if the game is over, and updates the current player's
+    turn. *)
 let rec handle_move dot2_x dot2_y start_x start_y cur_color lines_lst
     completed_boxes board board_size spacing player_idx completed_boxes_lst size
     window_width window_height color_list =
@@ -123,7 +116,7 @@ let rec handle_move dot2_x dot2_y start_x start_y cur_color lines_lst
     (start_x, start_y, dot2_x, dot2_y, cur_color) :: lines_lst
   in
   let prev_completed_boxes = completed_boxes board in
-  (* Get previous box count to compare to new box count *)
+  (* Get previous box count to compare to new box count. *)
   let new_board, updated_completed_boxes =
     update_board (start_x, start_y) (dot2_x, dot2_y) board spacing player_idx
       cur_color completed_boxes_lst size window_width window_height
@@ -149,7 +142,11 @@ let rec handle_move dot2_x dot2_y start_x start_y cur_color lines_lst
       (new_board, updated_completed_boxes, updated_lines, next_player_idx)
   | _ -> raise Quit
 
-(** Draw live line from first dot to mouse position. *)
+(** [follow_mouse size board_size spacing board cur_color color_list player_idx
+     lines_lst completed_boxes_lst window_width window_height (start_x,
+     start_y)] draws a live line from the first dot to the mouse's current
+    position. If the user clicks near another valid dot, it proceeds to update
+    the board state. *)
 let rec follow_mouse size board_size spacing board cur_color color_list
     player_idx lines_lst completed_boxes_lst window_width window_height
     (start_x, start_y) =
@@ -159,11 +156,11 @@ let rec follow_mouse size board_size spacing board cur_color color_list
   draw_turn_indicator player_idx board_size board_size 200;
   draw_scores board board_size board_size 200;
 
-  (* Redraw start point *)
+  (* Redraw start point. *)
   set_color black;
   fill_circle start_x start_y 5;
   draw_livewire color_list player_idx start_x start_y x2 y2;
-  (* Draw live wire *)
+  (* Draw live wire. *)
   (* Prompted ChatGPT-4o, "How to tell if mouse button pressed," accessed
      4/2/25. Referenced
      https://ocaml.org/p/graphics/5.1.1/doc/Graphics/index.html for mouse
@@ -173,7 +170,7 @@ let rec follow_mouse size board_size spacing board cur_color color_list
     | Some (dot2_x, dot2_y) ->
         if
           is_valid_move (start_x, start_y) (dot2_x, dot2_y) spacing size
-            board (* Check if second point is valid *)
+            board (* Check if second point is valid. *)
         then
           (* Handle move and update board accordingly. *)
           let new_board, updated_completed_boxes, updated_lines, next_player_idx
@@ -197,7 +194,7 @@ let rec follow_mouse size board_size spacing board cur_color color_list
     follow_mouse size board_size spacing board cur_color color_list player_idx
       lines_lst completed_boxes_lst window_width window_height (start_x, start_y)
 
-(* Play turn of a player *)
+(* Play turn of a player. *)
 (* Prompted ChaptGPT-4o "how to connect mutually recursive functions" alonmg
    with follow_mouse and play to figure out to use "and," accessed 4/14/25. *)
 and play size board_size spacing board lines_lst completed_boxes_lst player_idx
@@ -211,7 +208,7 @@ and play size board_size spacing board lines_lst completed_boxes_lst player_idx
   | None -> ()
   | Some (dot1_x, dot1_y) ->
       set_color black;
-      (* draw dot *)
+      (* Draw dot. *)
       fill_circle dot1_x dot1_y 5;
       let cur_color = List.nth color_list player_idx in
       follow_mouse size board_size spacing board cur_color color_list player_idx
@@ -223,7 +220,7 @@ and play size board_size spacing board lines_lst completed_boxes_lst player_idx
 let draw_line size board_size color board player color_list window_width
     window_height score_panel_width =
   let spacing = board_size / size in
-  (* start gameplay *)
+  (* Start gameplay. *)
   play size board_size spacing board [] [] (player - 1) color_list window_width
     window_height
 
@@ -238,7 +235,6 @@ let rec get_valid_players () =
     else
       let player_num = int_of_string input in
       if player_num < 2 || player_num > 4 then (
-        (* if player_num < 1 || player_num > 4 then ( *)
         print_endline
           "\n\
            Please try again with a valid number from 2-4, or type 'quit' to \
@@ -265,34 +261,42 @@ let color_of_string color =
   | "magenta" -> magenta
   | _ -> failwith "Invalid color."
 
-(** [select_player_color ind player_num selected_colors] returns the list of
-    colors selected by player input starting from [ind] to [player_num]. *)
-let rec select_player_color ind player_num selected_colors =
-  if ind = player_num then List.rev selected_colors
-  else (
-    print_endline
-      ("\nPlayer " ^ string_of_int (ind + 1) ^ ", enter your color choice: ");
+(** [get_player_colors total_players] prompts each player to select a unique
+    color from a predefined list, ensuring that each choice is valid and not
+    already taken. *)
+let get_player_colors total_players =
+  print_endline "\nColors available:";
+  print_endline " - black";
+  print_endline " - red";
+  print_endline " - green";
+  print_endline " - blue";
+  print_endline " - yellow";
+  print_endline " - cyan";
+  print_endline " - magenta";
 
-    let input = String.trim (String.lowercase_ascii (read_line ())) in
-    try
-      let colorized_input = color_of_string input in
-      if List.mem colorized_input selected_colors then (
-        print_endline "\nColor already taken! Please choose another color.";
-        select_player_color ind player_num selected_colors)
-      else
-        select_player_color (ind + 1) player_num
-          (colorized_input :: selected_colors)
-    with Failure _ ->
-      print_endline "\nInvalid color! Please try again with a valid choice.";
-      select_player_color ind player_num selected_colors)
+  let rec prompt ind selected_colors =
+    if ind = total_players then List.rev selected_colors
+    else (
+      print_endline
+        ("\nPlayer " ^ string_of_int (ind + 1) ^ ", enter your color choice: ");
+      let input = String.trim (String.lowercase_ascii (read_line ())) in
+      try
+        let colorized_input = color_of_string input in
+        if List.mem colorized_input selected_colors then (
+          print_endline "\nColor already taken! Please choose another color.";
+          prompt ind selected_colors)
+        else prompt (ind + 1) (colorized_input :: selected_colors)
+      with Failure _ ->
+        print_endline "\nInvalid color! Please try again with a valid choice.";
+        prompt ind selected_colors)
+  in
+  prompt 0 []
 
 (* Main *)
 let rec start_game is_first_game old_colors old_player_num =
   try
     let size, color_list, player_num =
-      if is_first_game then (
-        (* Get info for first game *)
-
+      if is_first_game then (* Get info for first game *)
         (* Get valid number of players. *)
         let player_num = get_valid_players () in
         let size =
@@ -304,18 +308,9 @@ let rec start_game is_first_game old_colors old_player_num =
           | _ -> failwith "\nInvalid player count."
         in
 
-        (* Specify available colors. *)
-        print_endline "\nColors available:";
-        print_endline " - black";
-        print_endline " - red";
-        print_endline " - green";
-        print_endline " - blue";
-        print_endline " - yellow";
-        print_endline " - cyan";
-        print_endline " - magenta";
+        let color_list = get_player_colors player_num in
 
-        let color_list = select_player_color 0 player_num [] in
-        (size, color_list, player_num))
+        (size, color_list, player_num)
       else
         let size =
           match old_player_num with
@@ -337,7 +332,6 @@ let rec start_game is_first_game old_colors old_player_num =
     let spacing = 100 in
     let grid_size = size * spacing in
     let score_panel_width = 150 in
-    (* let window_width = grid_size in *)
     let window_width = grid_size + score_panel_width in
     let window_height = grid_size in
 
@@ -358,16 +352,9 @@ let rec start_game is_first_game old_colors old_player_num =
     (* Main game loop *)
     let rec play_game color_list player_idx =
       let current_color = List.nth color_list player_idx in
-
-      (* print_endline ("Player " ^ string_of_int (player_idx + 1) ^ "'s
-         turn"); *)
       let prev_completed_boxes = completed_boxes board in
-
       draw_line size grid_size current_color board (player_idx + 1) color_list
         window_width window_height score_panel_width;
-
-      (* draw_scores board color_list grid_size window_height
-         score_panel_width; *)
       let new_completed_boxes = completed_boxes board in
 
       let completed_box = new_completed_boxes > prev_completed_boxes in
@@ -396,14 +383,8 @@ let rec start_game is_first_game old_colors old_player_num =
               (fun winner ->
                 print_endline (" - Player " ^ string_of_int winner))
               winners
-      (* Prompted ChatGPT -4o, "How to introduce delay in OCaml to allow the
-           final image in graphics show up before the program exits", accessed
-           3/29/25. *)
-      (* Unix.sleepf 3. *)
     in
     play_game color_list 0
-    (* Handle closing of game. *)
-    (* close_graph () *)
   with
   | Failure e ->
       print_endline e;
