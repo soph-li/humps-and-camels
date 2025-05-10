@@ -178,7 +178,7 @@ let rec follow_mouse size board_size spacing board cur_color color_list
               =
             handle_move dot2_x dot2_y start_x start_y cur_color lines_lst
               completed_boxes board board_size spacing player_idx
-              completed_boxes_lst size window_width window_height color_list
+              completed_boxes_lst size window_width window_height color_list 
           in
           play size board_size spacing new_board updated_lines
             updated_completed_boxes next_player_idx color_list window_width
@@ -345,7 +345,7 @@ let rec start_game is_first_game =
       let prev_completed_boxes = completed_boxes board in
 
       draw_line size grid_size current_color board (player_idx + 1) color_list
-        window_height window_width score_panel_width;
+        window_width window_height score_panel_width;
 
       (* draw_scores board color_list grid_size window_height
          score_panel_width; *)
