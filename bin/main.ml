@@ -1,5 +1,3 @@
-(* Add ending dot and one box option for game!!!!!!*)
-
 open Graphics
 open Unix
 open Cs3110_final_project.Grid
@@ -33,7 +31,9 @@ open Cs3110_final_project.Board_ui
 exception Quit
 (** Raised if user quits the program. *)
 
-exception Restart
+exception Restart of int * Graphics.color list
+(* Prompted ChatGPT-4o with main function and this line "what type is
+   color_list", acceesed 5/10/25. *)
 
 (** [determine_winners score] returns a list of players who have the most
     points. *)
@@ -135,7 +135,7 @@ let rec handle_move dot2_x dot2_y start_x start_y cur_color lines_lst
   match choice with
   | "replay" ->
       Unix.sleepf 0.5;
-      raise Restart
+      raise (Restart (board_size, color_list))
   | "quit" ->
       Unix.sleepf 0.5;
       raise Quit
@@ -237,7 +237,7 @@ let rec get_valid_players () =
     if input = "quit" then raise Quit
     else
       let player_num = int_of_string input in
-      if player_num < 2 || player_num > 4 then (
+      if player_num < 1 || player_num > 4 then (
         (* if player_num < 1 || player_num > 4 then ( *)
         print_endline
           "\n\
@@ -287,30 +287,48 @@ let rec select_player_color ind player_num selected_colors =
       select_player_color ind player_num selected_colors)
 
 (* Main *)
-let rec start_game is_first_game =
+let rec start_game is_first_game old_colors old_player_num =
   try
-    (* Get valid number of players. *)
-    let player_num = get_valid_players () in
-    let size =
-      match player_num with
-      (* | 1 -> 2 one box case for testing end_screen *)
-      | 2 -> 4
-      | 3 -> 6
-      | 4 -> 8
-      | _ -> failwith "\nInvalid player count."
+    let size, color_list, player_num =
+      if is_first_game then (
+        (* Get info for first game *)
+
+        (* Get valid number of players. *)
+        let player_num = get_valid_players () in
+        let size =
+          match player_num with
+          (* | 1 -> 2 one box case for testing end_screen *)
+          | 1 -> 2
+          | 2 -> 4
+          | 3 -> 6
+          | 4 -> 8
+          | _ -> failwith "\nInvalid player count."
+        in
+
+        (* Specify available colors. *)
+        print_endline "\nColors available:";
+        print_endline " - black";
+        print_endline " - red";
+        print_endline " - green";
+        print_endline " - blue";
+        print_endline " - yellow";
+        print_endline " - cyan";
+        print_endline " - magenta";
+
+        let color_list = select_player_color 0 player_num [] in
+        (size, color_list, player_num))
+      else
+        let size =
+          match old_player_num with
+          (* | 1 -> 2 one box case for testing end_screen *)
+          | 1 -> 2
+          | 2 -> 4
+          | 3 -> 6
+          | 4 -> 8
+          | _ -> failwith "\nInvalid player count."
+        in
+        (size, old_colors, old_player_num)
     in
-
-    (* Specify available colors. *)
-    print_endline "\nColors available:";
-    print_endline " - black";
-    print_endline " - red";
-    print_endline " - green";
-    print_endline " - blue";
-    print_endline " - yellow";
-    print_endline " - cyan";
-    print_endline " - magenta";
-
-    let color_list = select_player_color 0 player_num [] in
     print_endline
       ("\nStarting a game for "
       ^ string_of_int (List.length color_list)
@@ -392,10 +410,11 @@ let rec start_game is_first_game =
       print_endline e;
       close_graph ()
   | Quit -> print_endline "\nExited game."
-  | Restart ->
+  | Restart (old_board_size, old_colors) ->
       print_endline "\nRestarting game.";
       close_graph ();
-      start_game false
+      Unix.sleepf 0.5;
+      start_game false old_colors (List.length old_colors)
   | Graphics.Graphic_failure _ ->
       print_endline "\nExited game.";
       close_graph ()
@@ -403,4 +422,4 @@ let rec start_game is_first_game =
       print_endline "\nError: An unexpected error occured.";
       close_graph ()
 
-let () = start_game true
+let () = start_game true [] 0

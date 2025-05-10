@@ -54,6 +54,9 @@ Prompted ChatGPT-4o "how to connect mutually recursive functions" along with fol
 Prompted ChatGPT-4o with "How to modify a function that relies on button clicks in a certain    
         location to deal with mock (fake) clicks OCaml", accessed 04/30/2025.
 
+Prompted ChatGPT-4o with main function and this line "what type is
+   color_list", acceesed 5/10/25.
+
 --------
 grid.ml
 
