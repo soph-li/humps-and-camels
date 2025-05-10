@@ -237,7 +237,7 @@ let rec get_valid_players () =
     if input = "quit" then raise Quit
     else
       let player_num = int_of_string input in
-      if player_num < 1 || player_num > 4 then (
+      if player_num < 2 || player_num > 4 then (
         (* if player_num < 1 || player_num > 4 then ( *)
         print_endline
           "\n\
@@ -298,7 +298,6 @@ let rec start_game is_first_game old_colors old_player_num =
         let size =
           match player_num with
           (* | 1 -> 2 one box case for testing end_screen *)
-          | 1 -> 2
           | 2 -> 4
           | 3 -> 6
           | 4 -> 8
