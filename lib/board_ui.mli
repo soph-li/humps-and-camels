@@ -82,7 +82,7 @@ val draw_scores : Grid.t -> int -> int -> int -> unit
     player during gameplay. *)
 
 val draw_turn_indicator : int -> int -> int -> int -> unit
-(** [draw_turn_indicator player grid_size window_ panel_w] displays a message in the
+(** [draw_turn_indicator player grid_size window_h panel_w] displays a message in the
     corner of the window indicating that it is currently [player]'s turn. *)
 
 val draw_game_over : int -> int -> int list -> unit
