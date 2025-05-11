@@ -240,10 +240,10 @@ let color_of_string color =
   | "magenta" -> magenta
   | _ -> failwith "Invalid color."
 
-(** [get_player_colors total_players] prompts each player to select a unique
-    color from a predefined list, ensuring that each choice is valid and not
-    already taken. *)
-let get_player_colors total_players =
+(** [init_colors total_players] prompts each player to select a unique color
+    from a predefined list, ensuring that each choice is valid and not already
+    taken. *)
+let init_colors total_players =
   print_endline "\nColors available:";
   print_endline " - black";
   print_endline " - red";
@@ -270,6 +270,31 @@ let get_player_colors total_players =
         prompt ind selected_colors)
   in
   prompt 0 []
+
+(** [setup_game is_first_game old_player_num old_colors] sets up the game by
+    getting a valid number of players and their color of choice. *)
+let setup_game is_first_game old_player_num old_colors =
+  if is_first_game then
+    let player_num = get_valid_players () in
+    let size =
+      match player_num with
+      | 2 -> 4
+      | 3 -> 6
+      | 4 -> 8
+      | _ -> failwith "\nInvalid player count."
+    in
+    let color_list = init_colors player_num in
+    (size, color_list, player_num)
+  else
+    let size =
+      match old_player_num with
+      | 1 -> 2
+      | 2 -> 4
+      | 3 -> 6
+      | 4 -> 8
+      | _ -> failwith "\nInvalid player count."
+    in
+    (size, old_colors, old_player_num)
 
 (* Main game loop *)
 let rec play_game color_list player_idx board grid_size size color_list
@@ -309,32 +334,7 @@ let rec play_game color_list player_idx board grid_size size color_list
 let rec start_game is_first_game old_colors old_player_num =
   try
     let size, color_list, player_num =
-      if is_first_game then (* Get info for first game *)
-        (* Get valid number of players. *)
-        let player_num = get_valid_players () in
-        let size =
-          match player_num with
-          (* | 1 -> 2 one box case for testing end_screen *)
-          | 2 -> 4
-          | 3 -> 6
-          | 4 -> 8
-          | _ -> failwith "\nInvalid player count."
-        in
-
-        let color_list = get_player_colors player_num in
-
-        (size, color_list, player_num)
-      else
-        let size =
-          match old_player_num with
-          (* | 1 -> 2 one box case for testing end_screen *)
-          | 1 -> 2
-          | 2 -> 4
-          | 3 -> 6
-          | 4 -> 8
-          | _ -> failwith "\nInvalid player count."
-        in
-        (size, old_colors, old_player_num)
+      setup_game is_first_game old_player_num old_colors
     in
     print_endline
       ("\nStarting a game for "
