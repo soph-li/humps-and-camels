@@ -25,16 +25,16 @@ Prompted ChatGPT-4o with main function and line 19 "what type is
    color_list", accessed 5/10/25.
    
 Prompted ChatGPT-4o, "How to draw line leaving point, following user mouse
-     position, Ocaml graphics.", for lines 135,136, accesssed 4/1/25.
+     position, Ocaml graphics.", for lines 125,126, accesssed 4/1/25.
 
 Prompted ChatGPT-4o, "How to tell if mouse button pressed," original code
-     for lines 150-175 logic, accessed 4/2/25. 
+     for lines 140-165 logic, accessed 4/2/25. 
 
 Referenced https://ocaml.org/p/graphics/5.1.1/doc/Graphics/index.html for mouse events
-     in "if event.button" branch, lines 150-175, accessed 4/2/25.
+     in "if event.button" branch, lines 140-165, accessed 4/2/25.
 
 Prompted ChaptGPT-4o "how to connect mutually recursive functions" along with
-   follow_mouse and play to figure out to use "and," lines 130-198, accessed 4/14/25.
+   follow_mouse and play to figure out to use "and," lines 120-188, accessed 4/14/25.
 
 
 ------
