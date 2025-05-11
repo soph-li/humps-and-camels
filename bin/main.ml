@@ -281,7 +281,7 @@ let setup_game is_first_game old_player_num old_colors =
 
 (** [play_game color_list player_idx board grid_size size color_list
      window_width window_height] plays the game, updating the [player_idx], and
-    [board] settingd to reflect the state of the game. Appropriately ends the
+    [board] settings to reflect the state of the game. Appropriately ends the
     game if it is complete. *)
 let rec play_game color_list player_idx board grid_size size color_list
     window_width window_height =
