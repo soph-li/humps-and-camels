@@ -42,7 +42,7 @@ let determine_winners score =
     score []
 
 (** [check_if_game_over board size window_width window_height] checks if the
-    game is over and if so, it end game properly. *)
+    game is over. If so, it ends the game properly. *)
 let check_if_game_over board size window_width window_height =
   if is_game_over board size then (
     let final_scores = get_scores board in
@@ -65,14 +65,11 @@ let rec wait_for_valid_fst_dot player_idx board size board_size spacing =
       else wait_for_valid_fst_dot player_idx board size board_size spacing
   | _ -> wait_for_valid_fst_dot player_idx board size board_size spacing
 
-(* Prompted ChatGPT-40 "How to draw line leaving point, following user mouse
-   position, Ocaml graphics.", accesssed 4/1/25. *)
-
-(** [update_board (start_x, start_y) (dot2_x, dot2_y) board spacing player_idx
-     cur_color completed_boxes_lst size window_width window_height] returns the
-    updated_board, updated_completed_boxes, and the other unchanged variables.
-*)
-let rec update_board (start_x, start_y) (dot2_x, dot2_y) board spacing
+(** [update_game_state (start_x, start_y) (dot2_x, dot2_y) board spacing
+     player_idx cur_color completed_boxes_lst size window_width window_height]
+    returns the updated_board, updated_completed_boxes, and the other unchanged
+    variables. *)
+let rec update_game_state (start_x, start_y) (dot2_x, dot2_y) board spacing
     player_idx cur_color completed_boxes_lst size window_width window_height =
   (* Update board connections. *)
   let new_board = make_connection (start_x, start_y) (dot2_x, dot2_y) board in
@@ -88,16 +85,6 @@ let rec update_board (start_x, start_y) (dot2_x, dot2_y) board spacing
       completed_boxes_lst new_completed_boxes
   in
   (new_board, updated_completed_boxes)
-
-(** [draw_livewire color_list player_idx start_x start_y x2 y2] draws a line
-    from [(start_x, start_x)] to [(x2, y2)] with the color in [color_list] at
-    [player_idx]. *)
-let rec draw_livewire color_list player_idx start_x start_y x2 y2 =
-  let cur_color = List.nth color_list player_idx in
-  set_color cur_color;
-  set_line_width 3;
-  moveto start_x start_y;
-  lineto x2 y2
 
 (** [handle_move dot2_x dot2_y start_x start_y cur_color lines_lst] handles a
     player's move. It updates the board state by adding a new line segment
@@ -118,8 +105,8 @@ let rec handle_move dot2_x dot2_y start_x start_y cur_color lines_lst
   let prev_completed_boxes = completed_boxes board in
   (* Get previous box count to compare to new box count. *)
   let new_board, updated_completed_boxes =
-    update_board (start_x, start_y) (dot2_x, dot2_y) board spacing player_idx
-      cur_color completed_boxes_lst size window_width window_height
+    update_game_state (start_x, start_y) (dot2_x, dot2_y) board spacing
+      player_idx cur_color completed_boxes_lst size window_width window_height
   in
   redraw_board size board_size spacing updated_lines updated_completed_boxes;
 
@@ -150,6 +137,8 @@ let rec handle_move dot2_x dot2_y start_x start_y cur_color lines_lst
 let rec follow_mouse size board_size spacing board cur_color color_list
     player_idx lines_lst completed_boxes_lst window_width window_height
     (start_x, start_y) =
+  (* Prompted ChatGPT-4o, "How to draw line leaving point, following user mouse
+     position, Ocaml graphics.", accesssed 4/1/25. *)
   let event = wait_next_event [ Mouse_motion; Button_down ] in
   let x2, y2 = (event.mouse_x, event.mouse_y) in
   redraw_board size board_size spacing lines_lst completed_boxes_lst;
@@ -213,16 +202,6 @@ and play size board_size spacing board lines_lst completed_boxes_lst player_idx
       let cur_color = List.nth color_list player_idx in
       follow_mouse size board_size spacing board cur_color color_list player_idx
         lines_lst completed_boxes_lst window_width window_height (dot1_x, dot1_y)
-
-(** [draw_line size window_size color] draws a [color] line connecting the two
-    dots that are closest to the positions where the user clicked in the grid.
-*)
-let draw_line size board_size color board player color_list window_width
-    window_height score_panel_width =
-  let spacing = board_size / size in
-  (* Start gameplay. *)
-  play size board_size spacing board [] [] (player - 1) color_list window_width
-    window_height
 
 (** [get_valid_players ()] prompts the user until a valid number of players is
     entered or the user decides to quit. Raises [Quit] if the user enters
@@ -348,15 +327,12 @@ let rec start_game is_first_game old_colors old_player_num =
     (* Display initial board. *)
     draw_grid size grid_size;
 
-    (* draw_scores board color_list grid_size window_height
-       score_panel_width; *)
-
     (* Main game loop *)
     let rec play_game color_list player_idx =
-      let current_color = List.nth color_list player_idx in
       let prev_completed_boxes = completed_boxes board in
-      draw_line size grid_size current_color board (player_idx + 1) color_list
-        window_width window_height score_panel_width;
+      let spacing = grid_size / size in
+      play size grid_size spacing board [] [] (player_idx + 1) color_list
+        grid_size window_height;
       let new_completed_boxes = completed_boxes board in
 
       let completed_box = new_completed_boxes > prev_completed_boxes in

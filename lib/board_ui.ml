@@ -337,3 +337,10 @@ let draw_rules_screen window_width window_height =
   in
 
   draw_lines start_y wrapped_lines
+
+let rec draw_livewire color_list player_idx start_x start_y x2 y2 =
+  let cur_color = List.nth color_list player_idx in
+  set_color cur_color;
+  set_line_width 3;
+  moveto start_x start_y;
+  lineto x2 y2

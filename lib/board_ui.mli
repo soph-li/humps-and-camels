@@ -78,12 +78,13 @@ val draw_margin_text : string -> int -> int -> int -> unit
     allocated score panel of the window. *)
 
 val draw_scores : Grid.t -> int -> int -> int -> unit
-(** [draw_scores board grid_size window_h panel_w] draws the tallied score of each
-    player during gameplay. *)
+(** [draw_scores board grid_size window_h panel_w] draws the tallied score of
+    each player during gameplay. *)
 
 val draw_turn_indicator : int -> int -> int -> int -> unit
-(** [draw_turn_indicator player grid_size window_h panel_w] displays a message in the
-    corner of the window indicating that it is currently [player]'s turn. *)
+(** [draw_turn_indicator player grid_size window_h panel_w] displays a message
+    in the corner of the window indicating that it is currently [player]'s turn.
+*)
 
 val draw_game_over : int -> int -> int list -> unit
 (** [draw_game_over window_w window_h winners] draws the game over screen
@@ -106,3 +107,9 @@ val redraw_board :
 val draw_rules_screen : int -> int -> unit
 (** [draw_rules_scren window_width window_height] displays the rules of Dots and
     Boxes graphically in the window. *)
+
+val draw_livewire :
+  Graphics.color list -> int -> int -> int -> int -> int -> unit
+(** [draw_livewire color_list player_idx start_x start_y x2 y2] draws a line
+    from [(start_x, start_x)] to [(x2, y2)] with the color in [color_list] at
+    [player_idx]. *)
