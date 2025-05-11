@@ -448,12 +448,25 @@ let center_align_tests =
            ();
        ]
 
-let draw_game_over_tests =
-  "Test suite for draw_game_over"
+let draw_scores_tests =
+  "Test suite for draw_scores"
   >::: [
          make_function_executes_test "draw_scores"
            (draw_scores (make_grid 4 2) 100 100 20)
            ();
+       ]
+
+let draw_turn_indicator_tests =
+  "Test suite for draw_turn_indicator"
+  >::: [
+         make_function_executes_test "draw_turn_indicator"
+           (draw_turn_indicator 0 400 400 100)
+           ();
+       ]
+
+let draw_game_over_tests =
+  "Test suite for draw_game_over"
+  >::: [
          make_function_executes_test "Draw game over screen with one winner"
            (draw_game_over 100 100 [ 1 ])
            ();
@@ -592,6 +605,8 @@ let all_board_ui_tests =
          draw_margin_text_tests;
          center_align_tests;
          draw_game_over_tests;
+         draw_scores_tests;
+         draw_turn_indicator_tests;
          redraw_board_tests;
          draw_rules_screen_test;
          draw_livewire_test;
