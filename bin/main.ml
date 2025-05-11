@@ -227,8 +227,7 @@ let rec get_valid_players () =
     get_valid_players ()
 
 (** [color_of_string color] returns the Graphics color corresponding to the
-    given string. Raises: [Failure "Invalid Color"] if [color] is not a valid
-    Graphics color. *)
+    given string. Raises: [Failure] if [color] is not a valid Graphics color. *)
 let color_of_string color =
   match color with
   | "black" -> black

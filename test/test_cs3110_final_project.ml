@@ -412,12 +412,12 @@ let draw_x_tests =
   "Test suite for draw_x"
   >::: [
          make_function_executes_test "Draws red X"
-           (draw_x 2 2 (rgb 255 0 0) 20)
+           (draw_x 2 2 Graphics.red 20)
            ();
          (* Referenced https://ocaml.org/manual/4.05/libref/Graphics.html for
                        how to define Ocaml Graphics colors, accessed 4/30/25. *)
          make_function_executes_test "Draws blue X"
-           (draw_x 2 2 (rgb 0 0 255) 20)
+           (draw_x 2 2 Graphics.blue 20)
            ();
        ]
 
@@ -504,7 +504,17 @@ let redraw_board_tests =
            ();
        ]
 
-(* // specifications to describe what it does and printer argumnets for all *)
+(** [color_of_string color] is the string representation of [color]. Raises:
+    [Failure] if [color] is not a valid Graphics color. *)
+let string_of_color (color : Graphics.color) =
+  if color = Graphics.black then "black"
+  else if color = Graphics.red then "red"
+  else if color = Graphics.green then "green"
+  else if color = Graphics.blue then "blue"
+  else if color = Graphics.yellow then "yellow"
+  else if color = Graphics.cyan then "cyan"
+  else if color = Graphics.magenta then "magenta"
+  else failwith "Invalid color."
 
 (** [make_create_confetti_test x y dx dy color] creates a test case named
     [test_name] where a confetti particle is generated with the given
@@ -513,11 +523,15 @@ let redraw_board_tests =
 let make_create_confetti_test test_name x y dx dy color =
   test_name >:: fun _ ->
   let c = create_confetti x y dx dy color in
-  assert_equal x (confetti_x c);
-  assert_equal y (confetti_y c);
-  assert_equal dx (confetti_dx c);
-  assert_equal dy (confetti_dy c);
-  assert_equal color (confetti_color c)
+  assert_equal x (confetti_x c) ~printer:(fun x ->
+      Printf.sprintf "x coordinate:%d" x);
+  assert_equal y (confetti_y c) ~printer:(fun y ->
+      Printf.sprintf "y coordinate:%d" y);
+  assert_equal dx (confetti_dx c) ~printer:(fun dx ->
+      Printf.sprintf "x velocity:%d" dx);
+  assert_equal dy (confetti_dy c) ~printer:(fun dy ->
+      Printf.sprintf "y velocity:%d" dy);
+  assert_equal color (confetti_color c) ~printer:string_of_color
 
 let create_confetti_tests =
   "Test suite for create_confetti and getter functions"
@@ -527,7 +541,7 @@ let create_confetti_tests =
          make_create_confetti_test "Creates standard particle" 400 600 8 4
            Graphics.cyan;
          make_create_confetti_test "Creates static particle" 100 100 0 0
-           Graphics.white;
+           Graphics.red;
        ]
 
 let generate_confetti_tests =
@@ -573,15 +587,14 @@ let generate_confetti_tests =
              confetti );
        ]
 
-(* // printer functions for all *)
 let click_status_test =
   "Test for abstract click status type" >:: fun _ ->
-  assert_equal true (is_replay replay);
-  assert_equal true (is_quit quit);
-  assert_equal true (is_noclick noclick)
-
-(* // more descriptive printer functions, specification for
-   make_wait_for_end_choice_test *)
+  assert_equal true (is_replay replay) ~printer:(fun boolean ->
+      if boolean then "Replay" else "Not replay");
+  assert_equal true (is_quit quit) ~printer:(fun boolean ->
+      if boolean then "Quit" else "Not quit");
+  assert_equal true (is_noclick noclick) ~printer:(fun boolean ->
+      if boolean then "No click" else "Not no click")
 
 (** [make_wait_for_end_choice_test test_name status_str] creates a test case
     named [test_name], and verifies that [status_str] corresponds to the
@@ -634,7 +647,3 @@ let () =
   run_test_tt_main
     ("Tests for Dots and Boxes"
     >::: [ all_grid_tests; play_random_game_tests; all_board_ui_tests ])
-(* try Graphics.close_graph () with Graphics.Graphic_failure _ -> () *)
-(* Prompted ChatGPT-4o with "Fatal error: exception
-   Graphics.Graphic_failure("graphic screen not opened")" to figure out to open
-   and close Graphics for tests, accessed 4/30/25. *)
