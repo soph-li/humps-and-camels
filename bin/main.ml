@@ -54,7 +54,7 @@ let check_if_game_over board size window_width window_height =
 
 (** [wait_for_valid_fst_dot player_idx board size board_size spacing] waits for
     player to click a valid first dot. *)
-let rec wait_for_valid_fst_dot player_idx board size board_size spacing () =
+let rec wait_for_valid_fst_dot player_idx board size board_size spacing =
   draw_turn_indicator player_idx board_size board_size 200;
   draw_scores board board_size board_size 200;
   let event = wait_next_event [ Button_down ] in
@@ -62,8 +62,8 @@ let rec wait_for_valid_fst_dot player_idx board size board_size spacing () =
   match find_nearest_dot (x, y) size board_size with
   | Some (x, y) ->
       if has_available_moves (x, y) spacing size board then Some (x, y)
-      else wait_for_valid_fst_dot player_idx board size board_size spacing ()
-  | _ -> wait_for_valid_fst_dot player_idx board size board_size spacing ()
+      else wait_for_valid_fst_dot player_idx board size board_size spacing
+  | _ -> wait_for_valid_fst_dot player_idx board size board_size spacing
 
 (* Prompted ChatGPT-40 "How to draw line leaving point, following user mouse
    position, Ocaml graphics.", accesssed 4/1/25. *)
@@ -201,7 +201,7 @@ and play size board_size spacing board lines_lst completed_boxes_lst player_idx
     color_list window_width window_height =
   (* Wait for user to put down a first dot. *)
   let first_dot =
-    wait_for_valid_fst_dot player_idx board size board_size spacing ()
+    wait_for_valid_fst_dot player_idx board size board_size spacing
   in
   (* Draw live line from valid first dot to mouse position. *)
   match first_dot with
