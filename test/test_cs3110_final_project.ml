@@ -471,6 +471,16 @@ let draw_rules_screen_test =
            ();
        ]
 
+let draw_livewire_test =
+  "Test suite for draw_livewire"
+  >::: [
+         make_function_executes_test "Draw live wire"
+           (draw_livewire
+              [ Graphics.red; Graphics.green; Graphics.blue ]
+              0 1 2 3 4)
+           ();
+       ]
+
 let redraw_board_tests =
   "Test suite for redraw_board"
   >::: [
@@ -543,9 +553,9 @@ let generate_confetti_tests =
                  ~printer:string_of_bool)
              confetti );
        ]
-let click_status_test = 
-  "Test for abstract click status type"
-  >:: fun _ ->
+
+let click_status_test =
+  "Test for abstract click status type" >:: fun _ ->
   assert_equal true (is_replay replay);
   assert_equal true (is_quit quit);
   assert_equal true (is_noclick noclick)
@@ -584,6 +594,7 @@ let all_board_ui_tests =
          draw_game_over_tests;
          redraw_board_tests;
          draw_rules_screen_test;
+         draw_livewire_test;
          create_confetti_tests;
          generate_confetti_tests;
          click_status_test;
