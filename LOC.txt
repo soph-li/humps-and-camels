@@ -1,0 +1,1 @@
+When we run dune test --instrument-with bisect_ppx --force; bisect-ppx-report html; open _coverage/index.html, we see 1252 as the total number of lines. We have 500 lines in tests, which is 40% of our total line count.
