@@ -319,10 +319,8 @@ let draw_rules_screen window_width window_height =
   (* Draw title. *)
   set_font title_font;
   let title = "RULES OF DOTS AND BOXES" in
-  let title_width = fst (text_size title) in
   let title_y = start_y + line_spacing in
-  moveto ((window_width - title_width) / 2) title_y;
-  draw_string title;
+  center_align title_y title window_width;
 
   (* Draw rules with word wrap and center align. *)
   set_font line_font;
