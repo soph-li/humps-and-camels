@@ -342,8 +342,9 @@ let assert_no_remaining_moves final_board size spacing =
       in
       Printf.sprintf "%s%s" status problem_points)
 
-(** [make_play_random_game_test] creates a test case named [test_name],
-    simulating a game with [num_players] players on a [size] x [size] grid. *)
+(** [make_play_random_game_test test_name size num_players] creates a test case
+    named [test_name], simulating a game with [num_players] players on a [size]
+    x [size] grid. *)
 let make_play_random_game_test test_name size num_players =
   test_name >:: fun _ ->
   let spacing = 100 in
@@ -389,7 +390,7 @@ let play_random_game_tests =
  *****************************************************************************)
 
 (** [make_function_executes_test test_name input expected_output] opnes a
-    grapics window, then checks if evaluating [input] returns [()] or raises an
+    graphics window, then checks if evaluating [input] returns [()] or raises an
     exception. *)
 let make_function_executes_test test_name input expected_output =
   test_name >:: fun _ ->
@@ -505,6 +506,11 @@ let redraw_board_tests =
        ]
 
 (* // specifications to describe what it does and printer argumnets for all *)
+
+(** [make_create_confetti_test x y dx dy color] creates a test case named
+    [test_name] where a confetti particle is generated with the given
+    specifications, and the results of getting those details are verified to be
+    the same as the given inputs. *)
 let make_create_confetti_test test_name x y dx dy color =
   test_name >:: fun _ ->
   let c = create_confetti x y dx dy color in
@@ -578,6 +584,10 @@ let click_status_test =
 (* // more descriptive printer functions, specification for
    make_wait_for_end_choice_test *)
 
+(** [make_wait_for_end_choice_test test_name status_str] creates a test case
+    named [test_name], and verifies that [status_str] corresponds to the
+    relating click status and the resulting end choice is the same as the given
+    string. *)
 let make_wait_for_end_choice_test test_name status_str =
   let status =
     match status_str with
