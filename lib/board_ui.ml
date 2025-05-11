@@ -123,8 +123,8 @@ let generate_confetti n window_w window_h =
       {
         x = Random.int window_w;
         y = window_h + Random.int 200;
-        dx = Random.int 5 - 2;
-        dy = -(Random.int 12 + 8);
+        dx = Random.int 9 - 4;
+        dy = -(Random.int 20 + 12);
         color = rand_color ();
       })
 
