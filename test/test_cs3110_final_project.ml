@@ -5,6 +5,10 @@ open Cs3110_final_project.Grid
 open Cs3110_final_project.Board_ui
 open Graphics
 
+(*****************************************************************************
+ * Tests for grid.
+ *****************************************************************************)
+
 (** [print_list lst] returns a string representation of [lst]. *)
 let rec print_list lst =
   match lst with
@@ -12,10 +16,6 @@ let rec print_list lst =
   | [ (x, y) ] -> "(" ^ string_of_int x ^ ", " ^ string_of_int y ^ ")"
   | (x, y) :: t ->
       "(" ^ string_of_int x ^ ", " ^ string_of_int y ^ ")" ^ "; " ^ print_list t
-
-(*****************************************************************************
- * Tests for grid.
- *****************************************************************************)
 
 (** [make_check_completed_box_test test_name (x1, y1) (x2, y2) spacing board
      expected_output] creates a test case named [test_name]. It tests whether
@@ -395,7 +395,7 @@ let make_function_executes_test test_name input expected_output =
   test_name >:: fun _ ->
   try
     let output = input in
-    assert_equal expected_output output
+    assert_equal expected_output output (* printer *)
   with e ->
     (try close_graph () with _ -> ());
     raise e
@@ -504,6 +504,7 @@ let redraw_board_tests =
            ();
        ]
 
+(* // specifications to describe what it does and printer argumnets for all *)
 let make_create_confetti_test test_name x y dx dy color =
   test_name >:: fun _ ->
   let c = create_confetti x y dx dy color in
@@ -567,11 +568,15 @@ let generate_confetti_tests =
              confetti );
        ]
 
+(* // printer functions for all *)
 let click_status_test =
   "Test for abstract click status type" >:: fun _ ->
   assert_equal true (is_replay replay);
   assert_equal true (is_quit quit);
   assert_equal true (is_noclick noclick)
+
+(* // more descriptive printer functions, specification for
+   make_wait_for_end_choice_test *)
 
 let make_wait_for_end_choice_test test_name status_str =
   let status =
