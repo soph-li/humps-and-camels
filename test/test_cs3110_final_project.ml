@@ -484,7 +484,7 @@ let draw_rules_screen_test =
            ();
        ]
 
-let draw_livewire_test =
+let draw_livewire_tests =
   "Test suite for draw_livewire"
   >::: [
          make_function_executes_test "Draw live wire"
@@ -614,7 +614,7 @@ let make_wait_for_end_choice_test test_name status_str =
 
   assert_equal status_str choice_end_func ~printer:(fun x -> x)
 
-let wait_for_end_choice_test_tests =
+let wait_for_end_choice_tests =
   "Test suite for wait_for_end_choice_test"
   >::: [
          make_wait_for_end_choice_test
@@ -636,11 +636,11 @@ let all_board_ui_tests =
          draw_turn_indicator_tests;
          redraw_board_tests;
          draw_rules_screen_test;
-         draw_livewire_test;
+         draw_livewire_tests;
          create_confetti_tests;
          generate_confetti_tests;
          click_status_test;
-         wait_for_end_choice_test_tests;
+         wait_for_end_choice_tests;
        ]
 
 let () =
