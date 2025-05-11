@@ -227,8 +227,8 @@ let draw_game_over window_w window_h winners =
         sorted_winners
 
 let center_align y str window_width =
-  (* Prompted ChaptGPT-4o "Is there pre-set alignment in OCaml Graphics"
-     accessed 4/8/25. *)
+  (* Prompted ChaptGPT-4o "Is there pre-set alignment in OCaml Graphics," lines
+     229-236, accessed 4/8/25. *)
   let str_len = text_size str in
   let text_width = fst str_len in
   let x = (window_width - text_width) / 2 in
@@ -239,7 +239,7 @@ let redraw_board size board_size spacing lines completed_boxes =
   auto_synchronize false;
 
   (* Prompted ChaptGPT-4o "How to fix flickering screen with clear_graph for
-     display," accessed 4/4/25. *)
+     display," lines 238-264, accessed 4/4/25. *)
   clear_graph ();
   draw_grid size board_size;
 
@@ -287,8 +287,8 @@ let draw_rules_screen window_width window_height =
   clear_graph ();
   set_color black;
 
-  (* Prompted ChatGPT-4o, "How to change font in OCaml Graphics", accessed
-     5/5/25. *)
+  (* Prompted ChatGPT-4o, "How to change font in OCaml Graphics", lines 292,293,
+     accessed 5/5/25. *)
   let title_font = "-*-helvetica-bold-r-normal--18-*-*-*-*-*-*-*" in
   let line_font = "-*-helvetica-medium-r-normal--14-*-*-*-*-*-*-*" in
 

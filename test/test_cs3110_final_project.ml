@@ -416,7 +416,8 @@ let draw_x_tests =
            (draw_x 2 2 Graphics.red 20)
            ();
          (* Referenced https://ocaml.org/manual/4.05/libref/Graphics.html for
-                       how to define Ocaml Graphics colors, accessed 4/30/25. *)
+                       how to define Ocaml Graphics colors, lines 416, 422,
+            accessed 4/30/25. *)
          make_function_executes_test "Draws blue X"
            (draw_x 2 2 Graphics.blue 20)
            ();
@@ -589,6 +590,9 @@ let generate_confetti_tests =
        ]
 
 let click_status_test =
+  (* Prompted ChatGPT-4o with "How to test function that returns a variant type
+     or test return type is string OCaml", lines 592-599, accessed
+     05/01/2025. *)
   "Test for abstract click status type" >:: fun _ ->
   assert_equal true (is_replay replay) ~printer:(fun boolean ->
       if boolean then "Replay" else "Not replay");

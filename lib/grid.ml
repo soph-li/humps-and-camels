@@ -1,18 +1,19 @@
 open Hashtbl
-(** Prompted ChatGPT-4o, "how to make Hashtbl custom type in OCaml", accessed
-    3/23/35. *)
+(* Prompted ChatGPT-4o, "how to make Hashtbl custom type in OCaml", line 1,
+   accessed 3/23/35. *)
 
 type point = int * int
 
-(** Referenced code under functional interface for special Hash table for keys,
-    https://ocaml.org/manual/5.3/api/Hashtbl.html, accessed 3/23/25. *)
+(* Referenced code under functional interface for special Hash table for keys,
+   https://ocaml.org/manual/5.3/api/Hashtbl.html, lines 9-17, accessed
+   3/23/25. *)
 module PointHash = struct
   type t = point
 
   let equal (x1, y1) (x2, y2) = x1 = x2 && y1 = y2
 
-  (** Used large primes for hashing from
-      https://planetmath.org/goodhashtableprimes *)
+  (* Used large primes for hashing from
+     https://planetmath.org/goodhashtableprimes, line 17, accessed 3/23/25. *)
   let hash (x, y) = ((x * 53) + (y * 97)) land max_int
 end
 
@@ -38,8 +39,8 @@ type t = {
   mutable completed_boxes : int;
   scores : (int, int) Hashtbl.t;
 }
-(** A Grid is composed of [grid] and [completed boxes]. [grid] has keys that are
-    points and values of sets of points. *)
+(** type of a grid. A grid is composed of [grid] and [completed boxes]. [grid]
+    has keys that are points and values of sets of points. *)
 
 let make_grid size num_players =
   let scores = Hashtbl.create num_players in

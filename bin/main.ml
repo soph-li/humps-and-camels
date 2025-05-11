@@ -4,29 +4,22 @@ open Cs3110_final_project.Grid
 open Cs3110_final_project.Board_ui
 
 (* Prompted ChatGPT-4o, "How to install OCaml Graphics", accessed 3/22/25. *)
-(* Prompted ChatGPT-4o, "What should I do if I encountered Fatal error:
-   exception Graphics.Graphic_failure("Cannot open display ")", accessed
-   3/22/25. *)
 (* Prompted ChatGPT-4o, "How to install Xvfb", accessed 3/22/25. *)
 (* Prompted ChatGPT-4o, "How to use OCaml Graphics", accessed 3/22/25. *)
 (* Basic board setup interface adapted from
    "https://ocaml.org/manual/4.03/libref/Graphics.html", accessed 3/22/25. *)
-(* Adapted from "https://ocaml.org/manual/4.03/libref/Graphics.html", accessed
-   3/25/25. *)
 (* Prompted ChatGPT-4o, "Why are my mouse clicks not working in Ocaml using
-   XQuartz, accessed 3/23/25." *)
+   XQuartz, used to debug follow_mouse accessed 3/23/25." *)
 (* Prompted ChatGPT-4o, "How to handle window closure in OCaml Graphics",
    accessed 3/25/25. *)
-(* Prompted ChaptGPT-4o "Is there pre-set alignment in OCaml Graphics" accessed
-   4/8/25. *)
 
 exception Quit
 (** Raised if user quits the program. *)
 
 exception Restart of int * Graphics.color list
 (** Raised if user chooses to play the game again. *)
-(* Prompted ChatGPT-4o with main function and this line "what type is
-   color_list", acceesed 5/10/25. *)
+(* Prompted ChatGPT-4o with main function and line 19 "what type is color_list",
+   accessed 5/10/25. *)
 
 (** [determine_winners score] returns a list of players who have the most
     points. *)
@@ -138,7 +131,7 @@ let rec follow_mouse size board_size spacing board cur_color color_list
     player_idx lines_lst completed_boxes_lst window_width window_height
     (start_x, start_y) =
   (* Prompted ChatGPT-4o, "How to draw line leaving point, following user mouse
-     position, Ocaml graphics.", accesssed 4/1/25. *)
+     position, Ocaml graphics.", for lines 135,136, accesssed 4/1/25. *)
   let event = wait_next_event [ Mouse_motion; Button_down ] in
   let x2, y2 = (event.mouse_x, event.mouse_y) in
   redraw_board size board_size spacing lines_lst completed_boxes_lst;
@@ -150,10 +143,10 @@ let rec follow_mouse size board_size spacing board cur_color color_list
   fill_circle start_x start_y 5;
   draw_livewire color_list player_idx start_x start_y x2 y2;
   (* Draw live wire. *)
-  (* Prompted ChatGPT-4o, "How to tell if mouse button pressed," accessed
-     4/2/25. Referenced
-     https://ocaml.org/p/graphics/5.1.1/doc/Graphics/index.html for mouse
-     events, accessed 4/2/25. *)
+  (* Prompted ChatGPT-4o, "How to tell if mouse button pressed," original code
+     for lines 150-175 logic, accessed 4/2/25. Referenced
+     https://ocaml.org/p/graphics/5.1.1/doc/Graphics/index.html for mouse events
+     in "if event.button" branch, lines 150-175, accessed 4/2/25. *)
   if event.button then
     match find_nearest_dot (x2, y2) size board_size with
     | Some (dot2_x, dot2_y) ->
@@ -184,8 +177,9 @@ let rec follow_mouse size board_size spacing board cur_color color_list
       lines_lst completed_boxes_lst window_width window_height (start_x, start_y)
 
 (* Play turn of a player. *)
-(* Prompted ChaptGPT-4o "how to connect mutually recursive functions" alonmg
-   with follow_mouse and play to figure out to use "and," accessed 4/14/25. *)
+(* Prompted ChaptGPT-4o "how to connect mutually recursive functions" along with
+   follow_mouse and play to figure out to use "and," lines 130-198, accessed
+   4/14/25. *)
 and play size board_size spacing board lines_lst completed_boxes_lst player_idx
     color_list window_width window_height =
   (* Wait for user to put down a first dot. *)
@@ -295,7 +289,10 @@ let setup_game is_first_game old_player_num old_colors =
     in
     (size, old_colors, old_player_num)
 
-(* Main game loop *)
+(** [play_game color_list player_idx board grid_size size color_list
+     window_width window_height] plays the game, updating the [player_idx], and
+    [board] settingd to reflect the state of the game. Appropriately ends the
+    game if it is complete. *)
 let rec play_game color_list player_idx board grid_size size color_list
     window_width window_height =
   let prev_completed_boxes = completed_boxes board in
@@ -306,7 +303,7 @@ let rec play_game color_list player_idx board grid_size size color_list
 
   let completed_box = new_completed_boxes > prev_completed_boxes in
 
-  if not (is_game_over board size) then (
+  if not (is_game_over board size) then ( 
     print_endline "Game continues...";
     let next_player_idx =
       if completed_box then player_idx
