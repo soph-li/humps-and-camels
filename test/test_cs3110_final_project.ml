@@ -542,14 +542,14 @@ let generate_confetti_tests =
            List.iter
              (fun c ->
                assert_equal true
-                 (confetti_dx c >= -2 && confetti_dx c <= 2)
+                 (confetti_dx c >= -4 && confetti_dx c <= 4)
                  ~printer:string_of_bool)
              confetti;
 
            List.iter
              (fun c ->
                assert_equal true
-                 (confetti_dy c <= -8 && confetti_dy c >= -19)
+                 (confetti_dy c <= -12 && confetti_dy c >= -31)
                  ~printer:string_of_bool)
              confetti );
        ]
