@@ -58,7 +58,6 @@ let draw_x x y color spacing =
 let draw_button x y w h label =
   let btn_font = "-*-helvetica-medium-r-normal--16-*-*-*-*-*-*-*" in
   set_font btn_font;
-
   set_color black;
   fill_rect x y w h;
   set_color white;
@@ -154,8 +153,6 @@ let draw_margin_text str grid_size window_h y_pos =
 
 let draw_scores board grid_size window_h panel_w =
   (* Draw score panel area *)
-  (* set_color white;
-  fill_rect grid_size 0 panel_w window_h; *)
   set_color black;
 
   (* Draw title *)
@@ -244,8 +241,6 @@ let redraw_board size board_size spacing lines completed_boxes =
   (* Prompted ChaptGPT-4o "How to fix flickering screen with clear_graph for
      display," accessed 4/4/25. *)
   clear_graph ();
-
-  (* draw_scores board color_list board_size window_height score_panel_width; *)
   draw_grid size board_size;
 
   (* Draw previous line segments *)
@@ -267,6 +262,26 @@ let redraw_board size board_size spacing lines completed_boxes =
     completed_boxes;
   synchronize ();
   auto_synchronize true
+
+(** [build_lines_from_line line max_line_width text_size] splits a string [line]
+    into multiple lines such that each resulting line does not exceed
+    [max_line_width]. *)
+let wrap_text max_line_width line =
+  (* Prompted ChatGPT-4o, "How to wrap text from rules based on window width and
+     window height in OCaml", Adapted lines 270-281 from ChatGPT, accessed
+     5/5/25. *)
+  let words = String.split_on_char ' ' line in
+  let rec build_lines current_line lines = function
+    | [] -> List.rev (current_line :: lines)
+    | h :: t ->
+        let tentative =
+          if current_line = "" then h else current_line ^ " " ^ h
+        in
+        if fst (text_size tentative) > max_line_width then
+          build_lines h (current_line :: lines) t
+        else build_lines tentative lines t
+  in
+  build_lines "" [] words
 
 let draw_rules_screen window_width window_height =
   clear_graph ();
@@ -294,25 +309,9 @@ let draw_rules_screen window_width window_height =
   let max_line_width = window_width - 40 in
   let line_spacing = 25 in
 
-  (* Prompted ChatGPT-4o, "How to wrap text from rules based on window width and
-     window height in OCaml", Adapted lines 266-308 from ChatGPT, accessed
-     5/5/25. *)
-  let wrap_text line =
-    let words = String.split_on_char ' ' line in
-    let rec build_lines current_line lines = function
-      | [] -> List.rev (current_line :: lines)
-      | h :: t ->
-          let tentative =
-            if current_line = "" then h else current_line ^ " " ^ h
-          in
-          if fst (text_size tentative) > max_line_width then
-            build_lines h (current_line :: lines) t
-          else build_lines tentative lines t
-    in
-    build_lines "" [] words
+  let wrapped_lines =
+    List.flatten (List.map (wrap_text max_line_width) rules)
   in
-
-  let wrapped_lines = List.flatten (List.map wrap_text rules) in
   let total_height = line_spacing * List.length wrapped_lines in
   let start_y = ((window_height + total_height) / 2) - line_spacing in
 
