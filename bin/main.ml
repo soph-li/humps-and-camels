@@ -271,6 +271,40 @@ let get_player_colors total_players =
   in
   prompt 0 []
 
+(* Main game loop *)
+let rec play_game color_list player_idx board grid_size size color_list
+    window_width window_height =
+  let prev_completed_boxes = completed_boxes board in
+  let spacing = grid_size / size in
+  play size grid_size spacing board [] [] player_idx color_list window_width
+    window_height;
+  let new_completed_boxes = completed_boxes board in
+
+  let completed_box = new_completed_boxes > prev_completed_boxes in
+
+  if not (is_game_over board size) then (
+    print_endline "Game continues...";
+    let next_player_idx =
+      if completed_box then player_idx
+      else (player_idx + 1) mod List.length color_list
+    in
+
+    play_game color_list next_player_idx board grid_size size color_list
+      window_height window_width)
+  else
+    let final_scores = get_scores board in
+    let winners = determine_winners final_scores in
+    ignore (draw_game_over window_width window_height winners);
+
+    match winners with
+    | [ winner ] ->
+        print_endline ("\nGame over! Player " ^ string_of_int winner ^ " won.")
+    | _ ->
+        print_endline "\nGame over! It's a tie between the following players:";
+        List.iter
+          (fun winner -> print_endline (" - Player " ^ string_of_int winner))
+          winners
+
 (* Main *)
 let rec start_game is_first_game old_colors old_player_num =
   try
@@ -327,42 +361,8 @@ let rec start_game is_first_game old_colors old_player_num =
     (* Display initial board. *)
     draw_grid size grid_size;
 
-    (* Main game loop *)
-    let rec play_game color_list player_idx =
-      let prev_completed_boxes = completed_boxes board in
-      let spacing = grid_size / size in
-      play size grid_size spacing board [] [] (player_idx + 1) color_list
-        grid_size window_height;
-      let new_completed_boxes = completed_boxes board in
-
-      let completed_box = new_completed_boxes > prev_completed_boxes in
-
-      if not (is_game_over board size) then (
-        print_endline "Game continues...";
-        let next_player_idx =
-          if completed_box then player_idx
-          else (player_idx + 1) mod List.length color_list
-        in
-
-        play_game color_list next_player_idx)
-      else
-        let final_scores = get_scores board in
-        let winners = determine_winners final_scores in
-        ignore (draw_game_over window_width window_height winners);
-
-        match winners with
-        | [ winner ] ->
-            print_endline
-              ("\nGame over! Player " ^ string_of_int winner ^ " won.")
-        | _ ->
-            print_endline
-              "\nGame over! It's a tie between the following players:";
-            List.iter
-              (fun winner ->
-                print_endline (" - Player " ^ string_of_int winner))
-              winners
-    in
-    play_game color_list 0
+    play_game color_list 0 board grid_size size color_list window_width
+      window_height
   with
   | Failure e ->
       print_endline e;
