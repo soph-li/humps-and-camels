@@ -395,7 +395,8 @@ let make_function_executes_test test_name input expected_output =
   test_name >:: fun _ ->
   try
     let output = input in
-    assert_equal expected_output output (* printer *)
+    assert_equal expected_output output ~printer:(fun x ->
+        if x = () then "Function executed" else "Function did not execute")
   with e ->
     (try close_graph () with _ -> ());
     raise e
