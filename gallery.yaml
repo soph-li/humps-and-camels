@@ -19,7 +19,7 @@ title: "Humps and Camels: An OCaml-ified Version of Dots and Boxes"
 # OK if this is a Cornell Github link, but public gallery viewers won't be able to see it.
 git-repo: "https://github.coecis.cornell.edu/ycl6/cs3110-final-project"
 # Replace the URL with your own demo video.
-demo-video-url: "https://youtu.be/D-whn0DnYDA"
+demo-video-url: "https://youtu.be/stCWkBs5dRc"
 # Write a short, attention-grabbing description of your project.
 desc: >
 Our project is a multiplayer version of Dots and Boxes. At the start, Player 1 enters the number of participants (2, 3, or 4), then each player chooses a unique color for their lines. Players take turns drawing lines between dots. When a player completes a box, an “X” is drawn connecting the two opposite corners of the box, they earn a point, and take another turn. The game ends when all boxes are completed, and the player with the most boxes wins.
