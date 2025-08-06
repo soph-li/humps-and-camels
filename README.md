@@ -1,6 +1,6 @@
 ## About
 
-This project is a multiplayer version of Dots and Boxes for CS 3110 (Data Structures and Functional Programming). My role for the project had heavy emphasis on exploring OCaml GUI, as well as connecting our front- and backends. 
+This project is a multiplayer version of Dots and Boxes for the final project of CS 3110 (Data Structures and Functional Programming). My role for the project had heavy emphasis on exploring OCaml GUI, as well as connecting our front- and backends. 
 
 ## Rules
 
