@@ -1,19 +1,12 @@
 open Hashtbl
-(* Prompted ChatGPT-4o, "how to make Hashtbl custom type in OCaml", line 1,
-   accessed 3/23/35. *)
 
 type point = int * int
 
-(* Referenced code under functional interface for special Hash table for keys,
-   https://ocaml.org/manual/5.3/api/Hashtbl.html, lines 9-17, accessed
-   3/23/25. *)
 module PointHash = struct
   type t = point
 
   let equal (x1, y1) (x2, y2) = x1 = x2 && y1 = y2
 
-  (* Used large primes for hashing from
-     https://planetmath.org/goodhashtableprimes, line 17, accessed 3/23/25. *)
   let hash (x, y) = ((x * 53) + (y * 97)) land max_int
 end
 
@@ -24,8 +17,6 @@ module PointHashtbl = Hashtbl.Make (PointHash)
 module OrderedPairPoint = struct
   type t = point
 
-  (* Points are compared by their first coordinate, then the second if the
-     firsts are the same *)
   let compare (x1, y1) (x2, y2) =
     let x_res = compare x1 x2 in
     if x_res = 0 then compare y1 y2 else x_res
@@ -39,7 +30,7 @@ type t = {
   mutable completed_boxes : int;
   scores : (int, int) Hashtbl.t;
 }
-(** type of a grid. A grid is composed of [grid] and [completed boxes]. [grid]
+(** [t] is the type of a grid. A grid is composed of [grid] and [completed boxes]. [grid]
     has keys that are points and values of sets of points. *)
 
 let make_grid size num_players =

@@ -590,9 +590,6 @@ let generate_confetti_tests =
        ]
 
 let click_status_test =
-  (* Prompted ChatGPT-4o with "How to test function that returns a variant type
-     or test return type is string OCaml", lines 592-599, accessed
-     05/01/2025. *)
   "Test for abstract click status type" >:: fun _ ->
   assert_equal true (is_replay replay) ~printer:(fun boolean ->
       if boolean then "Replay" else "Not replay");

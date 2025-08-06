@@ -8,8 +8,6 @@ exception Quit
 
 exception Restart of int * Graphics.color list
 (** Raised if user chooses to play the game again. *)
-(* Prompted ChatGPT-4o with main function and line 9 "what type is color_list",
-   accessed 5/10/25. *)
 
 (** [determine_winners score] returns a list of players who have the most
     points. *)
@@ -120,8 +118,6 @@ let rec handle_move dot2_x dot2_y start_x start_y cur_color lines_lst
 let rec follow_mouse size board_size spacing board cur_color color_list
     player_idx lines_lst completed_boxes_lst window_width window_height
     (start_x, start_y) =
-  (* Prompted ChatGPT-4o, "How to draw line leaving point, following user mouse
-     position, Ocaml graphics.", for lines 125,126, accesssed 4/1/25. *)
   let event = wait_next_event [ Mouse_motion; Button_down ] in
   let x2, y2 = (event.mouse_x, event.mouse_y) in
   redraw_board size board_size spacing lines_lst completed_boxes_lst;
@@ -133,10 +129,6 @@ let rec follow_mouse size board_size spacing board cur_color color_list
   fill_circle start_x start_y 5;
   draw_livewire color_list player_idx start_x start_y x2 y2;
   (* Draw live wire. *)
-  (* Prompted ChatGPT-4o, "How to tell if mouse button pressed," original code
-     for lines 140-165 logic, accessed 4/2/25. Referenced
-     https://ocaml.org/p/graphics/5.1.1/doc/Graphics/index.html for mouse events
-     in "if event.button" branch, lines 140-165, accessed 4/2/25. *)
   if event.button then
     match find_nearest_dot (x2, y2) size board_size with
     | Some (dot2_x, dot2_y) ->

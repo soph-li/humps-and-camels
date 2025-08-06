@@ -267,9 +267,6 @@ let redraw_board size board_size spacing lines completed_boxes =
     into multiple lines such that each resulting line does not exceed
     [max_line_width]. *)
 let wrap_text max_line_width line =
-  (* Prompted ChatGPT-4o, "How to wrap text from rules based on window width and
-     window height in OCaml", Adapted lines 270-281 from ChatGPT, accessed
-     5/5/25. *)
   let words = String.split_on_char ' ' line in
   let rec build_lines current_line lines = function
     | [] -> List.rev (current_line :: lines)
@@ -287,8 +284,6 @@ let draw_rules_screen window_width window_height =
   clear_graph ();
   set_color black;
 
-  (* Prompted ChatGPT-4o, "How to change font in OCaml Graphics", lines 292,293,
-     accessed 5/5/25. *)
   let title_font = "-*-helvetica-bold-r-normal--18-*-*-*-*-*-*-*" in
   let line_font = "-*-helvetica-medium-r-normal--14-*-*-*-*-*-*-*" in
 
